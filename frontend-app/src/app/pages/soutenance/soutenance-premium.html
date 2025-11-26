@@ -1,0 +1,684 @@
+@if (userRole() === 'encadrant') {
+  <encadrant-navbar></encadrant-navbar>
+} @else {
+  <candidat-navbar></candidat-navbar>
+}
+
+<div class="soutenance-premium">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Demandes de Soutenance</h1>
+        @if (userRole() === 'encadrant') {
+          <p>Gérez les demandes, modifiez les statuts et ajoutez les membres du jury</p>
+        } @else {
+          <p>Créez et suivez vos demandes de soutenance de thèse</p>
+        }
+        <!-- DEBUG: Afficher le rôle détecté -->
+        <small style="color: white; opacity: 0.8; font-size: 0.75rem;">
+          [DEBUG] Rôle détecté: "{{ userRole() }}" | Email: {{ userEmail() }}
+        </small>
+      </div>
+      <div class="header-actions">
+        @if (currentView() === 'list' && userRole() !== 'encadrant') {
+          <button class="btn-primary" (click)="currentView.set('create')">
+            Nouvelle Demande
+          </button>
+        }
+        @if (currentView() === 'create' || currentView() === 'detail') {
+          <button class="btn-secondary" (click)="currentView.set('list'); loadDemandes()">
+            Retour à la liste
+          </button>
+        }
+      </div>
+    </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-inner">
+          <input
+            type="search"
+            class="filter-input"
+            placeholder="Rechercher titre, doctorant, directeur..."
+            [(ngModel)]="filterQuery"
+          />
+
+          <select class="filter-select" [(ngModel)]="filterStatus">
+            <option value="">Tous statuts</option>
+            <option value="BROUILLON">Brouillon</option>
+            <option value="SOUMISE">Soumise</option>
+            <option value="EN_VERIFICATION">En Vérification</option>
+            <option value="PREREQUIS_VALIDES">Prérequis Validés</option>
+            <option value="EN_ATTENTE_JURY">En Attente Jury</option>
+            <option value="JURY_PROPOSE">Jury Proposé</option>
+            <option value="AUTORISEE">Autorisée</option>
+            <option value="PLANIFIEE">Planifiée</option>
+            <option value="TERMINEE">Terminée</option>
+            <option value="REJETEE">Rejetée</option>
+          </select>
+
+          <input type="date" class="filter-date" [(ngModel)]="dateFrom" />
+          <input type="date" class="filter-date" [(ngModel)]="dateTo" />
+
+          <select class="filter-select" [(ngModel)]="sortBy">
+            <option value="newest">Plus récentes</option>
+            <option value="oldest">Plus anciennes</option>
+            <option value="title">Titre A–Z</option>
+          </select>
+
+          <button class="btn-secondary" (click)="clearFilters()">Effacer</button>
+        </div>
+      </div>
+  </div>
+
+  <!-- List View -->
+  @if (currentView() === 'list') {
+    <div class="list-view">
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Chargement des demandes...</p>
+        </div>
+      } @else if (demandes().length === 0) {
+        <div class="empty-state">
+          <div class="empty-content">
+            @if (userRole() === 'encadrant') {
+              <h3>Aucune demande disponible</h3>
+              <p>Aucune demande de soutenance n'a été soumise pour le moment</p>
+            } @else {
+              <h3>Aucune demande trouvée</h3>
+              <p>Créez votre première demande de soutenance</p>
+              <br />
+              <button class="btn-primary" (click)="currentView.set('create')">
+                Créer une demande
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="demandes-grid">
+          @for (demande of getFilteredDemandes(); track demande.id) {
+            <div class="demande-card" (click)="viewDetail(demande)">
+              <div class="card-header">
+                <div class="card-title">
+                  <h3>{{ demande.titreThese }}</h3>
+                  <span class="status-pill" [class]="'status-' + demande.statut">
+                    {{ getStatusLabel(demande.statut) }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="card-body">
+                <div class="info-row">
+                  <span class="label">Doctorant</span>
+                  <span class="value">{{ demande.doctorantEmail }}</span>
+                </div>
+                
+                <div class="info-row">
+                  <span class="label">Directeur</span>
+                  <span class="value">{{ demande.directeurEmail }}</span>
+                </div>
+                
+                <div class="info-row">
+                  <span class="label">Date de création</span>
+                  <span class="value">{{ formatDate(demande.dateCreation) }}</span>
+                </div>
+
+                @if (demande.dateSoutenance) {
+                  <div class="info-row">
+                    <span class="label">Date de soutenance</span>
+                    <span class="value">{{ formatDate(demande.dateSoutenance) }}</span>
+                  </div>
+                }
+              </div>
+              
+              <div class="card-footer">
+                <span class="view-details">Voir les détails →</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Create View - Only for Candidat -->
+  @if (currentView() === 'create' && userRole() !== 'encadrant') {
+    <div class="create-view">
+      <div class="create-grid">
+        <div class="form-container form-main">
+          <div class="form-header">
+            <div class="form-title">
+              <!-- Smart inline SVG (subtle academic emblem) -->
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="emblem-svg" aria-hidden="true">
+                <rect x="1" y="1" width="22" height="22" rx="4" fill="#ffffff" stroke="#dbe7f6"/>
+                <path d="M6 9.5L12 6l6 3.5v4.5c0 1.1-0.9 2-2 2H8c-1.1 0-2-0.9-2-2V9.5z" fill="#eaf4ff" stroke="#bcd7f9"/>
+                <path d="M12 8v8" stroke="#3182ce" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <h2>Nouvelle Demande de Soutenance</h2>
+                <p class="muted">Remplissez les informations ci-dessous. Les champs obligatoires sont marqués par *</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assets scroller under the form header -->
+          <div class="assets-section assets-scroll-wrap" aria-label="Ressources et documents">
+         
+
+            <div class="assets-scroll" role="list">
+              <div class="asset-card" role="listitem">
+                <img src="assets/soutenance/Documents à Fournir.png" alt="Documents requis" />
+                <h4>Documents requis</h4>
+                <p class="asset-caption muted">Formulaires et pièces à joindre</p>
+              </div>
+
+              <div class="asset-card" role="listitem">
+                <img src="assets/soutenance/Success Rate.png" alt="Taux de réussite" />
+                <h4>Taux de réussite</h4>
+                <p class="asset-caption muted">Statistiques et indicateurs</p>
+              </div>
+
+              <div class="asset-card" role="listitem">
+                <img src="assets/soutenance/Support Available.png" alt="Support disponible" />
+                <h4>Support disponible</h4>
+                <p class="asset-caption muted">Aide et contacts utiles</p>
+              </div>
+
+              <div class="asset-card" role="listitem">
+                <img src="assets/soutenance/Active Researchers.png" alt="Chercheurs actifs" />
+                <h4>Chercheurs actifs</h4>
+                <p class="asset-caption muted">Voir profils et collaborations</p>
+              </div>
+            </div>
+          </div>
+
+          <form class="premium-form" (ngSubmit)="createDemande()">
+            <div class="form-section">
+              <h3 class="section-title">Informations de la thèse</h3>
+
+              <div class="row">
+                <div class="form-group flex-1">
+                  <label for="titre">Titre de la thèse <span class="required">*</span></label>
+                  <input type="text" id="titre" class="form-input" [(ngModel)]="newDemande.titre" name="titre" placeholder="Ex: Apprentissage automatique pour ..." required />
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="specialite">Spécialité</label>
+                  <input type="text" id="specialite" class="form-input" [(ngModel)]="newDemande.specialite" name="specialite" placeholder="Ex: Informatique" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="resume">Résumé de la thèse <span class="required">*</span></label>
+                <textarea id="resume" class="form-textarea" [(ngModel)]="newDemande.resume" name="resume" rows="6" placeholder="Objectifs, méthodes, résultats attendus" required></textarea>
+                <p class="hint">Astuce: Rédigez 3-5 phrases claires; elles seront utilisées pour la synthèse.</p>
+              </div>
+
+              <div class="row">
+                <div class="form-group">
+                  <label for="directeur">Directeur de thèse (email)</label>
+                  <input id="directeur" class="form-input" [(ngModel)]="newDemande.directeurEmail" name="directeur" placeholder="directeur@universite.fr" />
+                </div>
+
+                <div class="form-group">
+                  <label for="codirecteur">Co-directeur (email)</label>
+                  <input id="codirecteur" class="form-input" [(ngModel)]="newDemande.coDirecteurEmail" name="codirecteur" placeholder="codirecteur@universite.fr" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="currentView.set('list')">Annuler</button>
+              <button type="submit" class="btn-primary">Créer la demande</button>
+            </div>
+          </form>
+        </div>
+
+        <aside class="info-square">
+          <div class="info-inner">
+            <div class="info-header">
+              <h4>Avant de soumettre</h4>
+              <p class="muted">Vérifiez les éléments ci-dessous pour accélérer le traitement</p>
+            </div>
+
+            <ul class="checklist">
+              <li><span class="dot pending"></span> Résumé clair et structuré</li>
+              <li><span class="dot pending"></span> Directeur indiqué</li>
+              <li><span class="dot pending"></span> Manuscrit (si disponible)</li>
+              <li><span class="dot pending"></span> Attestations de formation</li>
+            </ul>
+
+            <div class="info-tip">
+              <strong>Conseil :</strong>
+              <p class="muted">Les demandes complètes sont traitées plus rapidement par l'équipe.</p>
+            </div>
+
+            <div class="info-actions">
+              <button class="btn-secondary" (click)="clearFilters()">Enregistrer en brouillon</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- removed duplicate assets block (now placed under the create header) -->
+    </div>
+  }
+
+  <!-- Detail View -->
+  @if (currentView() === 'detail' && selectedDemande()) {
+    <div class="detail-view">
+      <!-- Banner -->
+      <div class="detail-banner">
+        <img src="assets/soutenance/banner (1).png" alt="Banner" class="banner-image" />
+        <div class="banner-overlay">
+          <h2>{{ selectedDemande()!.titreThese }}</h2>
+            <div class="banner-meta">
+              <span class="status-pill large" [class]="'status-' + selectedDemande()!.statut">
+                {{ getStatusLabel(selectedDemande()!.statut) }}
+              </span>
+            </div>
+        </div>
+      </div>
+
+      <div class="detail-content">
+        <!-- Actions Encadrant -->
+        @if (userRole() === 'encadrant') {
+          <div class="detail-section action-section">
+            <h3>Gestion de la demande</h3>
+            <div class="action-grid">
+              <div class="action-group">
+                <label for="status-select">Changer le statut</label>
+                <select 
+                  id="status-select" 
+                  class="form-input status-select"
+                  [(ngModel)]="newStatus"
+                  (change)="onStatusChange()"
+                >
+                  <option value="">-- Sélectionner un statut --</option>
+                  <option value="BROUILLON">Brouillon</option>
+                  <option value="SOUMISE">Soumise</option>
+                  <option value="EN_VERIFICATION">En Vérification</option>
+                  <option value="PREREQUIS_VALIDES">Prérequis Validés</option>
+                  <option value="EN_ATTENTE_JURY">En Attente Jury</option>
+                  <option value="JURY_PROPOSE">Jury Proposé</option>
+                  <option value="AUTORISEE">Autorisée</option>
+                  <option value="PLANIFIEE">Planifiée</option>
+                  <option value="TERMINEE">Terminée</option>
+                  <option value="REJETEE">Rejetée</option>
+                </select>
+              </div>
+              
+              @if (showStatusComment()) {
+                <div class="action-group">
+                  <label for="status-comment">Commentaire (optionnel)</label>
+                  <textarea 
+                    id="status-comment" 
+                    class="form-input"
+                    [(ngModel)]="statusComment"
+                    rows="3"
+                    placeholder="Ajoutez un commentaire sur ce changement de statut..."
+                  ></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                  <button class="btn-primary" (click)="updateDemandeStatus()">
+                    Confirmer le changement
+                  </button>
+                  <button class="btn-secondary" (click)="cancelStatusChange()">
+                    Annuler
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        
+        <!-- Main Info -->
+        <div class="detail-section info-section">
+          <h3>Informations générales</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Doctorant</span>
+              <span class="value">{{ selectedDemande()!.doctorantEmail }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Directeur</span>
+              <span class="value">{{ selectedDemande()!.directeurEmail }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date de création</span>
+              <span class="value">{{ formatDate(selectedDemande()!.dateCreation) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date de soutenance</span>
+              <span class="value">{{ formatDate(selectedDemande()!.dateSoutenance || '') }}</span>
+            </div>
+          </div>
+
+          <div class="resume-block">
+            <h4>Résumé de la thèse</h4>
+            <p>{{ selectedDemande()!.resume }}</p>
+          </div>
+        </div>
+
+        <!-- Prerequisites -->
+        <div class="detail-section prerequis-section">
+          <div class="section-header">
+            <h3>Prérequis de soutenance</h3>
+            <div class="progress-indicator">
+              <span class="progress-text">{{ getPrerequisProgress() }}% complété</span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getPrerequisProgress()"></div>
+              </div>
+            </div>
+          </div>
+
+          @if (!prerequis()) {
+            <div class="empty-message">
+              <p>Aucun prérequis enregistré</p>
+            </div>
+          } @else {
+            <div class="prerequis-list">
+              <!-- Publications -->
+              <div class="prerequis-card" [class.validated]="prerequis()!.publicationsValides">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.publicationsValides"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Publications scientifiques</h4>
+                  <p>{{ prerequis()!.nombrePublications }} / {{ prerequis()!.nombrePublicationsRequises }} publications requises</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.publicationsValides) {
+                    <span class="status-badge validated">Validé</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Credits Formation -->
+              <div class="prerequis-card" [class.validated]="prerequis()!.creditsValides">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.creditsValides"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Crédits de formation</h4>
+                  <p>{{ prerequis()!.creditsFormation }} / {{ prerequis()!.creditsFormationRequis }} crédits obtenus</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.creditsValides) {
+                    <span class="status-badge validated">Validé</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Documents -->
+              <div class="prerequis-card" [class.validated]="prerequis()!.demandeManuscrite">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.demandeManuscrite"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Demande manuscrite</h4>
+                  <p>Document requis pour la soutenance</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.demandeManuscrite) {
+                    <span class="status-badge validated">Fourni</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <div class="prerequis-card" [class.validated]="prerequis()!.rapportThese">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.rapportThese"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Rapport de thèse</h4>
+                  <p>Manuscrit complet de la thèse</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.rapportThese) {
+                    <span class="status-badge validated">Fourni</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <div class="prerequis-card" [class.validated]="prerequis()!.rapportAntiPlagiat">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.rapportAntiPlagiat"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Rapport anti-plagiat</h4>
+                  <p>Certificat d'authenticité du travail</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.rapportAntiPlagiat) {
+                    <span class="status-badge validated">Fourni</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <div class="prerequis-card" [class.validated]="prerequis()!.attestationsFormation">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.attestationsFormation"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Attestations de formation</h4>
+                  <p>Preuves des formations suivies</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.attestationsFormation) {
+                    <span class="status-badge validated">Fourni</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+
+              <div class="prerequis-card" [class.validated]="prerequis()!.autorisationSoutenance">
+                <div class="prerequis-indicator">
+                  <div class="indicator-dot" [class.active]="prerequis()!.autorisationSoutenance"></div>
+                </div>
+                <div class="prerequis-content">
+                  <h4>Autorisation de soutenance</h4>
+                  <p>Accord du directeur de thèse</p>
+                </div>
+                <div class="prerequis-status">
+                  @if (prerequis()!.autorisationSoutenance) {
+                    <span class="status-badge validated">Fourni</span>
+                  } @else {
+                    <span class="status-badge pending">En attente</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Jury Composition -->
+        <div class="detail-section jury-section">
+          <div class="section-header">
+            <h3>Composition du jury</h3>
+            @if (userRole() === 'encadrant') {
+              <button class="btn-primary" (click)="showJuryForm.set(!showJuryForm())">
+                {{ showJuryForm() ? 'Annuler' : 'Ajouter un membre' }}
+              </button>
+            }
+          </div>
+
+          @if (showJuryForm() && userRole() === 'encadrant') {
+            <form class="jury-form premium-form" (ngSubmit)="addJuryMember()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="nom">Nom</label>
+                  <input 
+                    type="text" 
+                    id="nom" 
+                    class="form-input"
+                    [(ngModel)]="newMember.nom"
+                    name="nom"
+                    placeholder="Nom"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="prenom">Prénom</label>
+                  <input 
+                    type="text" 
+                    id="prenom" 
+                    class="form-input"
+                    [(ngModel)]="newMember.prenom"
+                    name="prenom"
+                    placeholder="Prénom"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    class="form-input"
+                    [(ngModel)]="newMember.email"
+                    name="email"
+                    placeholder="email@universite.fr"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="role">Rôle</label>
+                  <select 
+                    id="role" 
+                    class="form-input"
+                    [(ngModel)]="newMember.role"
+                    name="role"
+                    required
+                  >
+                    <option value="PRESIDENT">Président</option>
+                    <option value="RAPPORTEUR">Rapporteur</option>
+                    <option value="EXAMINATEUR">Examinateur</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="grade">Grade</label>
+                  <input 
+                    type="text" 
+                    id="grade" 
+                    class="form-input"
+                    [(ngModel)]="newMember.grade"
+                    name="grade"
+                    placeholder="Ex: Professeur"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="etablissement">Établissement</label>
+                  <input 
+                    type="text" 
+                    id="etablissement" 
+                    class="form-input"
+                    [(ngModel)]="newMember.etablissement"
+                    name="etablissement"
+                    placeholder="Nom de l'établissement"
+                  />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                  Ajouter au jury
+                </button>
+              </div>
+            </form>
+          }
+
+          @if (juryMembers().length === 0) {
+            <div class="empty-message">
+              @if (userRole() === 'encadrant') {
+                <p>Aucun membre du jury ajouté</p>
+              } @else {
+                <p>Aucun membre du jury affecté pour le moment</p>
+              }
+            </div>
+          } @else {
+            <div class="jury-grid">
+              @for (member of juryMembers(); track member.id) {
+                <div class="jury-card">
+                  <div class="jury-header">
+                    <div class="jury-avatar">
+                      {{ member.prenom.charAt(0) }}{{ member.nom.charAt(0) }}
+                    </div>
+                    <div class="jury-info">
+                      <h4>{{ member.prenom }} {{ member.nom }}</h4>
+                      <p class="jury-role">{{ member.role }}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="jury-details">
+                    @if (member.grade) {
+                      <div class="detail-item">
+                        <span class="label">Grade</span>
+                        <span class="value">{{ member.grade }}</span>
+                      </div>
+                    }
+                    @if (member.etablissement) {
+                      <div class="detail-item">
+                        <span class="label">Établissement</span>
+                        <span class="value">{{ member.etablissement }}</span>
+                      </div>
+                    }
+                    <div class="detail-item">
+                      <span class="label">Email</span>
+                      <span class="value">{{ member.email }}</span>
+                    </div>
+                  </div>
+
+                  @if (member.avisRendu !== undefined) {
+                    <div class="jury-avis">
+                      @if (member.avisRendu) {
+                        <span class="avis-badge" [class.favorable]="member.avisFavorable">
+                          {{ member.avisFavorable ? 'Avis favorable' : 'Avis défavorable' }}
+                        </span>
+                      } @else {
+                        <span class="avis-badge pending">Avis en attente</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Assets -->
+        <div class="detail-section assets-section-detail">
+          <h3>Ressources</h3>
+          <div class="assets-grid">
+            <img src="assets/soutenance/Active Researchers.png" alt="Chercheurs actifs" />
+            <img src="assets/soutenance/Transform Your Doctoral Journey.png" alt="Parcours doctoral" />
+            <img src="assets/soutenance/our Platform (1).png" alt="Notre plateforme" />
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

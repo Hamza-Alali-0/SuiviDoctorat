@@ -1,0 +1,584 @@
+<admin-navbar />
+
+<div class="wrap">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Gestion des campagnes</h1>
+      <p class="header-subtitle">Administration des inscriptions, réinscriptions et soutenances</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn black" (click)="openModal()">Nouvelle campagne</button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <div class="success-message">
+      ✅ {{ successMessage() }}
+    </div>
+  }
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-label">Total campagnes</div>
+      <div class="stat-value">{{ stats().total }}</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">En cours</div>
+      <div class="stat-value">{{ stats().active }}</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">À venir</div>
+      <div class="stat-value">{{ stats().aVenir }}</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Terminées</div>
+      <div class="stat-value">{{ stats().terminee }}</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Total dossiers</div>
+      <div class="stat-value">{{ stats().totalDossiers }}</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher une campagne..." 
+        (input)="onSearch($event)"
+        [value]="searchQuery()"
+      />
+    </div>
+  </div>
+
+  <!-- Campagnes Grid -->
+  @if (filteredCampagnes().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon"></div>
+      <h3 class="empty-title">Aucune campagne</h3>
+      <p class="empty-message">Commencez par créer une nouvelle campagne</p>
+      <button class="btn primary" (click)="openModal()">Créer une campagne</button>
+    </div>
+  } @else {
+    <div class="campagnes-grid">
+      @for (campagne of filteredCampagnes(); track campagne.id) {
+        <div class="campagne-card">
+          <!-- Banner Image -->
+          @if (campagne.photoCouverture) {
+            <div class="campagne-banner">
+              <img [src]="campagne.photoCouverture" alt="Bannière de campagne" />
+              @if (campagne.logoEcole) {
+                <div class="campagne-logo-overlay">
+                  <img [src]="campagne.logoEcole" alt="Logo école" />
+                </div>
+              }
+            </div>
+          }
+          
+          <div class="campagne-content">
+            <div class="campagne-header-row">
+              @if (campagne.logoEcole && !campagne.photoCouverture) {
+                <div class="campagne-logo-small">
+                  <img [src]="campagne.logoEcole" alt="Logo école" />
+                </div>
+              }
+              <div class="campagne-title-group">
+                <div class="campagne-title">{{ campagne.nom }}</div>
+                <span class="campagne-type" [class]="getTypeClass(campagne.type)">
+                  {{ getTypeLabel(campagne.type) }}
+                </span>
+              </div>
+              <span class="campagne-badge" [class]="getCampagneBadgeClass(campagne)">
+                {{ getCampagneStatusLabel(campagne) }}
+              </span>
+            </div>
+            
+            <div class="campagne-info">
+              <div class="info-row">
+                <strong>Année:</strong> {{ campagne.anneeUniversitaire }}
+              </div>
+              <div class="info-row">
+                <strong>Ouverture:</strong> {{ formatDate(campagne.dateOuverture) }}
+              </div>
+              <div class="info-row">
+                <strong>Fermeture:</strong> {{ formatDate(campagne.dateFermeture) }}
+              </div>
+              @if (campagne.type === 'INSCRIPTION' && campagne.etablissement) {
+                <div class="info-row">
+                  <strong>Établissement:</strong> {{ campagne.etablissement }}
+                </div>
+              }
+              @if (campagne.type === 'INSCRIPTION' && campagne.ecoleDoctorale) {
+                <div class="info-row">
+                  <strong>École doctorale:</strong> {{ campagne.ecoleDoctorale }}
+                </div>
+              }
+              @if (campagne.type === 'REINSCRIPTION' && campagne.anneeConcernee) {
+                <div class="info-row">
+                  <strong>Année concernée:</strong> {{ campagne.anneeConcernee }}
+                </div>
+              }
+              <div class="info-row">
+                <strong>Dossiers:</strong> {{ campagne.nombreDossiers || 0 }}
+              </div>
+              <div class="info-row">
+                <strong>Visibilité:</strong> {{ campagne.visibilite === 'PUBLIC' ? 'Public' : 'Interne' }}
+              </div>
+            </div>
+            
+            <div class="campagne-actions">
+              <button class="btn outline sm" (click)="openModal(campagne)">Modifier</button>
+              <button class="btn outline sm" (click)="duplicateCampagne(campagne)">Dupliquer</button>
+              <button class="btn danger sm" (click)="deleteCampagne(campagne.id!)">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          {{ editingCampagne() ? 'Modifier la campagne' : 'Nouvelle campagne' }}
+        </h2>
+        <button class="close-btn" (click)="closeModal()">Fermer</button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-message">{{ errorMessage() }}</div>
+      }
+
+      <!-- Step 1: Informations Générales -->
+      @if (currentStep() === 1) {
+        <div class="form-section">
+            <div class="section-title">1. Informations Générales</div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nom de la campagne *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="campagneForm.nom"
+                placeholder="Ex: Inscription 2025-2026"
+                maxlength="100"
+              />
+              <div class="char-counter">{{ campagneForm.nom.length }}/100</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Type de campagne *</label>
+              <select class="form-select" [(ngModel)]="campagneForm.type">
+                <option value="INSCRIPTION">Inscription</option>
+                <option value="REINSCRIPTION">Réinscription</option>
+                <option value="SOUTENANCE">Soutenance</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Année universitaire *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="campagneForm.anneeUniversitaire"
+                placeholder="Ex: 2025/2026"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Visibilité</label>
+              <select class="form-select" [(ngModel)]="campagneForm.visibilite">
+                <option value="PUBLIC">Public (candidats)</option>
+                <option value="INTERNE">Interne (admin seulement)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea 
+                class="form-textarea" 
+                [(ngModel)]="campagneForm.description"
+                placeholder="Objectifs et remarques..."
+                maxlength="500"
+              ></textarea>
+              <div class="char-counter">{{ campagneForm.description.length }}/500</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Date d'ouverture *</label>
+              <input 
+                type="date" 
+                class="form-input" 
+                [(ngModel)]="campagneForm.dateOuverture"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Date de fermeture *</label>
+              <input 
+                type="date" 
+                class="form-input" 
+                [(ngModel)]="campagneForm.dateFermeture"
+              />
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="checkbox-item">
+              <input 
+                type="checkbox" 
+                id="active" 
+                [(ngModel)]="campagneForm.active"
+              />
+              <label for="active">Campagne active</label>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Step 2: Paramètres selon le type -->
+      @if (currentStep() === 2) {
+        <!-- INSCRIPTION -->
+        @if (campagneForm.type === 'INSCRIPTION') {
+          <div class="form-section">
+            <div class="section-title">2. Paramètres Inscription</div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Établissement / Faculté *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  [(ngModel)]="campagneForm.etablissement"
+                  placeholder="Ex: Université Mohammed V"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">École doctorale *</label>
+                <select class="form-select" [(ngModel)]="campagneForm.ecoleDoctorale">
+                  <option value="">-- Sélectionner --</option>
+                  @for (ecole of ecolesDoctoraLes; track ecole) {
+                    <option [value]="ecole">{{ ecole }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Logo de l'école</label>
+                <div class="file-upload" (click)="fileInputLogo.click()">
+                  <input 
+                    type="file" 
+                    #fileInputLogo 
+                    accept="image/*"
+                    (change)="onFileSelect($event, 'logoEcole')"
+                  />
+                  
+                  <div class="file-upload-text">
+                    Logo de l'établissement (JPG, PNG)
+                  </div>
+                </div>
+                @if (campagneForm.logoEcole) {
+                  <div class="file-preview">
+                    <img [src]="campagneForm.logoEcole" alt="Logo" class="preview-image-small" />
+                  </div>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Photo de couverture / Bannière</label>
+                <div class="file-upload" (click)="fileInputCouverture.click()">
+                  <input 
+                    type="file" 
+                    #fileInputCouverture 
+                    accept="image/*"
+                    (change)="onFileSelect($event, 'photoCouverture')"
+                  />
+                  
+                  <div class="file-upload-text">
+                    Bannière de campagne (JPG, PNG)
+                  </div>
+                </div>
+                @if (campagneForm.photoCouverture) {
+                  <div class="file-preview">
+                    <img [src]="campagneForm.photoCouverture" alt="Bannière" class="preview-image-banner" />
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Pièces obligatoires</label>
+                <div class="form-checkbox-list">
+                  @for (piece of piecesDisponibles; track piece) {
+                    <div class="checkbox-item" (click)="togglePiece(piece)">
+                      <input 
+                        type="checkbox" 
+                        [checked]="isPieceSelected(piece)"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <label>{{ piece }}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Règles d'éligibilité</label>
+                <textarea 
+                  class="form-textarea" 
+                  [(ngModel)]="campagneForm.reglesEligibilite"
+                  placeholder="Ex: Avoir validé un Master..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- RÉINSCRIPTION -->
+        @if (campagneForm.type === 'REINSCRIPTION') {
+          <div class="form-section">
+            <div class="section-title">2. Paramètres Réinscription</div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Année concernée *</label>
+                <select class="form-select" [(ngModel)]="campagneForm.anneeConcernee">
+                  <option value="">-- Sélectionner --</option>
+                  <option value="1ère année">1ère année</option>
+                  <option value="2ème année">2ème année</option>
+                  <option value="3ème année">3ème année</option>
+                  <option value="4ème année et +">4ème année et +</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Dérogation 3ème année</label>
+                <div class="checkbox-item">
+                  <input 
+                    type="checkbox" 
+                    id="derogation" 
+                    [(ngModel)]="campagneForm.derogationTroisiemeAnnee"
+                  />
+                  <label for="derogation">Autoriser les dérogations pour la 3ème année</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Documents à renouveler</label>
+                <div class="form-checkbox-list">
+                  @for (doc of piecesDisponibles; track doc) {
+                    <div class="checkbox-item" (click)="toggleDocument(doc, 'renouveler')">
+                      <input 
+                        type="checkbox" 
+                        [checked]="isDocumentSelected(doc, 'renouveler')"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <label>{{ doc }}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Message informatif</label>
+                <textarea 
+                  class="form-textarea" 
+                  [(ngModel)]="campagneForm.messageInformatif"
+                  placeholder="Informations importantes pour les doctorants..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- SOUTENANCE -->
+        @if (campagneForm.type === 'SOUTENANCE') {
+          <div class="form-section">
+            <div class="section-title">2. Paramètres Soutenance</div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Checklist obligatoire</label>
+                <div class="checklist-builder">
+                  @for (item of campagneForm.checklistObligatoire; track $index) {
+                    <div class="checklist-item">
+                      <input 
+                        type="text" 
+                        class="form-input"
+                        [(ngModel)]="item.label"
+                        placeholder="Ex: 2 articles publiés Q1/Q2"
+                      />
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="item.obligatoire"
+                        title="Obligatoire"
+                      />
+                      <button 
+                        type="button"
+                        class="remove-btn"
+                        (click)="removeChecklistItem($index)"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  }
+                  <button type="button" class="add-btn" (click)="addChecklistItem()">Ajouter un critère</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Documents obligatoires</label>
+                <div class="form-checkbox-list">
+                  @for (doc of piecesDisponibles; track doc) {
+                    <div class="checkbox-item" (click)="toggleDocument(doc, 'obligatoire')">
+                      <input 
+                        type="checkbox" 
+                        [checked]="isDocumentSelected(doc, 'obligatoire')"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <label>{{ doc }}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid full">
+              <div class="form-group">
+                <label class="form-label">Modèle d'autorisation de soutenance (PDF)</label>
+                <div class="file-upload" (click)="fileInputAutorisation.click()">
+                  <input 
+                    type="file" 
+                    #fileInputAutorisation 
+                    accept=".pdf"
+                    (change)="onFileSelect($event, 'modeleAutorisation')"
+                  />
+                
+                  <div class="file-upload-text">
+                    Cliquez pour sélectionner un fichier PDF
+                  </div>
+                </div>
+                @if (campagneForm.modeleAutorisation) {
+                  <div class="file-preview">
+                    ✅ Fichier PDF sélectionné
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Step 3: Notifications -->
+      @if (currentStep() === 3) {
+        <div class="form-section">
+            <div class="section-title">3. Notifications Email</div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Email d'ouverture de campagne</label>
+              <div class="template-editor">
+                <div class="template-header">
+                  <span class="template-title">Modèle d'email d'ouverture</span>
+                </div>
+                <textarea 
+                  class="form-textarea" 
+                  [(ngModel)]="campagneForm.emailOuverture"
+                  placeholder="Chers candidats,&#10;&#10;Nous avons le plaisir de vous annoncer l'ouverture de la campagne [NOM_CAMPAGNE]...&#10;&#10;Cordialement,"
+                  style="min-height: 150px;"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Email de rappel (optionnel)</label>
+              <div class="template-editor">
+                <div class="template-header">
+                  <span class="template-title">Modèle d'email de rappel</span>
+                </div>
+                <textarea 
+                  class="form-textarea" 
+                  [(ngModel)]="campagneForm.emailRappel"
+                  placeholder="Rappel : la campagne [NOM_CAMPAGNE] se termine bientôt..."
+                  style="min-height: 120px;"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Email de fermeture</label>
+              <div class="template-editor">
+                <div class="template-header">
+                  <span class="template-title">Modèle d'email de fermeture</span>
+                </div>
+                <textarea 
+                  class="form-textarea" 
+                  [(ngModel)]="campagneForm.emailFermeture"
+                  placeholder="La campagne [NOM_CAMPAGNE] est désormais clôturée..."
+                  style="min-height: 120px;"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Navigation Buttons -->
+      <div class="modal-actions">
+        @if (currentStep() > 1) {
+          <button class="btn outline" (click)="previousStep()">Précédent</button>
+        }
+        
+        @if (currentStep() < totalSteps) {
+          <button class="btn secondary" (click)="nextStep()">Suivant</button>
+        } @else {
+          <button 
+            class="btn success" 
+            (click)="saveCampagne()"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              Enregistrement...
+            } @else {
+              Enregistrer
+            }
+          </button>
+        }
+        
+        <button class="btn outline" (click)="closeModal()">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,326 @@
+<public-navbar *ngIf="!isLoggedIn"></public-navbar>
+<candidat-navbar *ngIf="isLoggedIn"></candidat-navbar>
+
+<div class="detail-shell">
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement de la campagne...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <h3>{{ error() }}</h3>
+    <button class="btn-outline" (click)="goBack()">Retour aux campagnes</button>
+  </div>
+
+  <!-- Campaign Detail -->
+  <div *ngIf="campaign() && !loading()" class="detail-content">
+    <!-- Hero Banner -->
+    <div class="detail-hero">
+      <img *ngIf="campaign()?.photoCouverture" [src]="campaign()!.photoCouverture" [alt]="campaign()!.nom" (error)="onImgError($event)" class="hero-banner" />
+      <div class="hero-overlay"></div>
+      
+      <div class="hero-content">
+        <div class="breadcrumb">
+          <a [routerLink]="['/campaigns']">Campagnes</a>
+          <span>/</span>
+          <span>{{ campaign()!.nom }}</span>
+        </div>
+        
+        <div class="hero-header">
+          <div class="logo-container" *ngIf="campaign()?.logoEcole">
+            <img [src]="campaign()!.logoEcole" [alt]="campaign()!.etablissement" (error)="onImgError($event)" />
+          </div>
+          
+          <div class="hero-info">
+            <div class="status-row">
+              <span class="type-badge" [ngClass]="'type-' + campaign()!.type.toLowerCase()">
+                {{ getTypeLabel(campaign()!.type) }}
+              </span>
+              <span class="status-badge" [ngClass]="'status-' + getCampagneStatus()">
+                {{ getStatusLabel() }}
+              </span>
+            </div>
+            
+            <h1 class="hero-title">{{ campaign()!.nom }}</h1>
+            
+            <div class="hero-meta">
+              <div class="meta-item" *ngIf="campaign()?.etablissement">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>{{ campaign()!.etablissement }}</span>
+              </div>
+              
+              <div class="meta-item" *ngIf="campaign()?.ecoleDoctorale">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+                <span>{{ campaign()!.ecoleDoctorale }}</span>
+              </div>
+              
+              <div class="meta-item" *ngIf="campaign()?.anneeUniversitaire">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>{{ campaign()!.anneeUniversitaire }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-actions">
+          <button class="btn-favorite" [class.active]="isFavorite()" (click)="toggleFavorite()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path [attr.fill]="isFavorite()?'currentColor':'none'" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>{{ isFavorite() ? 'Retirer des favoris' : 'Ajouter aux favoris' }}</span>
+          </button>
+          
+          <button 
+            class="btn-apply-hero" 
+            (click)="applyCampaign()" 
+            [disabled]="hasApplied() || getCampagneStatus()==='ended' || !campaign()!.active"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>{{ hasApplied() ? 'Candidature soumise' : 'Postuler maintenant' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column: Main Info -->
+      <div class="left-column">
+        <!-- Description -->
+        <section class="info-card">
+          <h2 class="section-title">Description</h2>
+          <p class="description-text">{{ campaign()!.description || 'Aucune description disponible.' }}</p>
+        </section>
+
+        <!-- Timeline -->
+        <section class="info-card timeline-card">
+          <h2 class="section-title">Calendrier</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-icon start">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-label">Ouverture</div>
+                <div class="timeline-value">{{ campaign()!.dateOuverture | date:'fullDate':'':'fr' }}</div>
+                <div class="timeline-hint" *ngIf="getCampagneStatus()==='upcoming'">
+                  Commence dans {{ daysUntilStart() }} jour{{ daysUntilStart() > 1 ? 's' : '' }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-icon end">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-label">Clôture</div>
+                <div class="timeline-value">{{ campaign()!.dateFermeture | date:'fullDate':'':'fr' }}</div>
+                <div class="timeline-hint" *ngIf="getCampagneStatus()==='active'">
+                  Reste {{ daysLeft() }} jour{{ daysLeft() > 1 ? 's' : '' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Type-specific sections -->
+        
+        <!-- INSCRIPTION -->
+        <section class="info-card" *ngIf="campaign()!.type === 'INSCRIPTION'">
+          <h2 class="section-title">Pièces obligatoires</h2>
+          <div class="checklist" *ngIf="campaign()!.piecesObligatoires && campaign()!.piecesObligatoires!.length > 0; else noPieces">
+            <div class="checklist-item" *ngFor="let piece of campaign()!.piecesObligatoires">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>{{ piece }}</span>
+            </div>
+          </div>
+          <ng-template #noPieces>
+            <p class="empty-text">Aucune pièce spécifiée.</p>
+          </ng-template>
+          
+          <div class="rules-section" *ngIf="campaign()!.reglesEligibilite">
+            <h3 class="subsection-title">Règles d'éligibilité</h3>
+            <p class="rules-text">{{ campaign()!.reglesEligibilite }}</p>
+          </div>
+        </section>
+
+        <!-- REINSCRIPTION -->
+        <section class="info-card" *ngIf="campaign()!.type === 'REINSCRIPTION'">
+          <h2 class="section-title">Documents à renouveler</h2>
+          <div class="checklist" *ngIf="campaign()!.documentsARenouveler && campaign()!.documentsARenouveler!.length > 0; else noDocs">
+            <div class="checklist-item" *ngFor="let doc of campaign()!.documentsARenouveler">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span>{{ doc }}</span>
+            </div>
+          </div>
+          <ng-template #noDocs>
+            <p class="empty-text">Aucun document spécifié.</p>
+          </ng-template>
+
+          <div class="info-banner" *ngIf="campaign()!.anneeConcernee">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span><strong>Année concernée:</strong> {{ campaign()!.anneeConcernee }}</span>
+          </div>
+
+          <div class="alert-banner" *ngIf="campaign()!.derogationTroisiemeAnnee">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Dérogation 3ème année disponible</span>
+          </div>
+
+          <div class="message-box" *ngIf="campaign()!.messageInformatif">
+            <p>{{ campaign()!.messageInformatif }}</p>
+          </div>
+        </section>
+
+        <!-- SOUTENANCE -->
+        <section class="info-card" *ngIf="campaign()!.type === 'SOUTENANCE'">
+          <h2 class="section-title">Checklist obligatoire</h2>
+          <div class="checklist requirements" *ngIf="campaign()!.checklistObligatoire && campaign()!.checklistObligatoire!.length > 0; else noChecklist">
+            <div class="checklist-item" *ngFor="let item of campaign()!.checklistObligatoire" [class.required]="item.obligatoire">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              <span>{{ item.label }}</span>
+              <span class="required-badge" *ngIf="item.obligatoire">Obligatoire</span>
+            </div>
+          </div>
+          <ng-template #noChecklist>
+            <p class="empty-text">Aucune checklist définie.</p>
+          </ng-template>
+
+          <div class="documents-section" *ngIf="campaign()!.documentsObligatoires && campaign()!.documentsObligatoires!.length > 0">
+            <h3 class="subsection-title">Documents obligatoires</h3>
+            <div class="doc-grid">
+              <div class="doc-item" *ngFor="let doc of campaign()!.documentsObligatoires">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+                  <polyline points="13 2 13 9 20 9"/>
+                </svg>
+                <span>{{ doc }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Sidebar -->
+      <div class="right-column">
+        <!-- Quick Stats -->
+        <div class="sidebar-card stats-card">
+          <h3 class="sidebar-title">Statistiques</h3>
+          <div class="stat-row">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">Candidats</div>
+              <div class="stat-value">{{ campaign()!.nombreDossiers || 0 }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Application CTA -->
+        <div class="sidebar-card cta-card" *ngIf="getCampagneStatus() === 'active' && campaign()!.active">
+          <div class="cta-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <h3 class="cta-title">Prêt à postuler?</h3>
+          <p class="cta-text">Soumettez votre candidature avant la date limite.</p>
+          <button 
+            class="btn-apply-sidebar" 
+            (click)="applyCampaign()" 
+            [disabled]="hasApplied()"
+          >
+            {{ hasApplied() ? 'Candidature soumise' : 'Postuler' }}
+          </button>
+        </div>
+
+        <!-- Upcoming Notice -->
+        <div class="sidebar-card notice-card" *ngIf="getCampagneStatus() === 'upcoming'">
+          <div class="notice-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3 class="notice-title">Campagne à venir</h3>
+          <p class="notice-text">Cette campagne ouvrira dans {{ daysUntilStart() }} jour{{ daysUntilStart() > 1 ? 's' : '' }}.</p>
+        </div>
+
+        <!-- Ended Notice -->
+        <div class="sidebar-card notice-card ended" *ngIf="getCampagneStatus() === 'ended'">
+          <div class="notice-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m15 9-6 6m0-6 6 6"/>
+            </svg>
+          </div>
+          <h3 class="notice-title">Campagne terminée</h3>
+          <p class="notice-text">Cette campagne est maintenant fermée.</p>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="sidebar-card contact-card">
+          <h3 class="sidebar-title">Besoin d'aide?</h3>
+          <p class="contact-text">Contactez-nous pour toute question sur cette campagne.</p>
+          <a href="mailto:contact@suividoctorat.ma" class="contact-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span>contact@suividoctorat.ma</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

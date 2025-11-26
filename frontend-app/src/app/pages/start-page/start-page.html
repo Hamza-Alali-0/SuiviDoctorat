@@ -1,0 +1,452 @@
+<public-navbar *ngIf="!isLoggedIn"></public-navbar>
+<user-navbar *ngIf="isLoggedIn"></user-navbar>
+
+<main class="landing" [attr.dir]="pageDir()">
+  <!-- Hero Section with Animated Background -->
+  <section class="hero">
+    <div class="hero-bg-gradient"></div>
+    <div class="hero-particles"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">{{ t('hero.badge') }}</div>
+      <h1 class="hero-title">
+        {{ t('hero.title_pre') }}
+        <span class="gradient-text">{{ t('hero.title_highlight') }}</span>
+      </h1>
+      <p class="hero-subtitle">{{ t('hero.subtitle') }}</p>
+      <div class="hero-cta">
+        <button class="btn-primary" (click)="goToAuth('signup')">
+          <span>{{ t('cta.getStarted') }}</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" (click)="goToAuth('signin')">{{ t('cta.watchDemo') }}</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number">10K+</div>
+          <div class="stat-label">Active Researchers</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">95%</div>
+          <div class="stat-label">Success Rate</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Support Available</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Animated Stats Section (clean / no background / professional) -->
+  <section class="stats-section">
+    <div class="stats-container" #statsContainer role="list" aria-label="Platform statistics">
+      <article class="stat-card" *ngFor="let s of stats" role="listitem" [attr.aria-labelledby]="'label-' + s.id">
+        <div class="stat-icon" [ngClass]="s.iconBgClass">
+          <!-- simple, lightweight SVG icons — keep them subtle and consistent -->
+          <ng-container [ngSwitch]="s.id">
+            <svg *ngSwitchCase="'researchers'" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.12"/>
+              <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg *ngSwitchCase="'completion'" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <svg *ngSwitchCase="'universities'" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 7l9-4 9 4v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M9 21V10" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+            <svg *ngSwitchDefault width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </ng-container>
+        </div>
+        <div class="stat-value" aria-live="polite" aria-atomic="true">
+          <span class="count" [attr.id]="'stat-' + s.id">{{ s.displayValue }}</span>
+          <small class="stat-suffix" *ngIf="s.suffix">{{ s.suffix }}</small>
+        </div>
+        <div class="stat-desc" [attr.id]="'label-' + s.id">{{ t('stats.' + s.id) }}</div>
+      </article>
+
+      <!-- graceful fallback if no data present -->
+      <div class="stat-card placeholder" *ngIf="!stats || stats.length === 0">
+        <div class="stat-icon" aria-hidden="true"></div>
+        <div class="stat-value">—</div>
+        <div class="stat-desc">{{ t('stats.noData') }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about-section">
+    <div class="about-container">
+      <div class="about-content">
+        <span class="section-badge">{{ t('about.badge') }}</span>
+        <h2 class="section-title">{{ t('about.title') }}</h2>
+        <p class="about-text">{{ t('about.text') }}</p>
+        <div class="about-features">
+          <div class="about-feat">
+            <div class="feat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <h4>{{ t('about.features.workflow.title') }}</h4>
+              <p>{{ t('about.features.workflow.text') }}</p>
+            </div>
+          </div>
+          <div class="about-feat">
+            <div class="feat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <h4>{{ t('about.features.collaboration.title') }}</h4>
+              <p>{{ t('about.features.collaboration.text') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <!-- Replaced the chart with an image placeholder; user will provide the real image. No background behind image. -->
+        <div class="visual-card main no-bg">
+          <img src="/assets/about-visual.jpg" alt="About visual" class="about-visual-img" />
+        </div>
+        <div class="visual-card float">
+          <div class="vc-icon secure-icon" aria-hidden="true">
+            <!-- new shield + check icon (white on deep-blue background) -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2l7 4v6c0 5-3.582 9.74-7 11-3.418-1.26-7-6-7-11V6l7-4z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              <path d="M9.5 12.5l1.75 1.75L14.5 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            </svg>
+          </div>
+          <div class="vc-text">
+            <strong>{{ t('about.secure.title') }}</strong>
+            <span>{{ t('about.secure.text') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <div class="how-bg" aria-hidden="true"></div>
+    <div class="how-container">
+      <div class="section-header">
+        <h2 class="section-title">{{ t('how.title') }}</h2>
+        <p class="section-subtitle">{{ t('how.subtitle') }}</p>
+      </div>
+      <div class="timeline">
+        <div class="timeline-row">
+          <div class="timeline-col left">
+            <div class="timeline-content">
+              <h3>{{ t('how.step1.title') }}</h3>
+              <p>{{ t('how.step1.text') }}</p>
+            </div>
+          </div>
+          <div class="timeline-marker">1</div>
+          <div class="timeline-col right"></div>
+        </div>
+
+        <div class="timeline-row">
+          <div class="timeline-col left"></div>
+          <div class="timeline-marker">2</div>
+          <div class="timeline-col right">
+            <div class="timeline-content">
+              <h3>{{ t('how.step2.title') }}</h3>
+              <p>{{ t('how.step2.text') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-row">
+          <div class="timeline-col left">
+            <div class="timeline-content">
+              <h3>{{ t('how.step3.title') }}</h3>
+              <p>{{ t('how.step3.text') }}</p>
+            </div>
+          </div>
+          <div class="timeline-marker">3</div>
+          <div class="timeline-col right"></div>
+        </div>
+
+        <div class="timeline-row">
+          <div class="timeline-col left"></div>
+          <div class="timeline-marker">4</div>
+          <div class="timeline-col right">
+            <div class="timeline-content">
+              <h3>{{ t('how.step4.title') }}</h3>
+              <p>{{ t('how.step4.text') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaigns Section -->
+  <section class="campaigns-home" *ngIf="featuredCampaigns.length">
+    <div class="campaigns-home-container">
+      <div class="section-header">
+        <h2 class="section-title">{{ t('campaigns.header.title') }}</h2>
+        <p class="section-subtitle">{{ t('campaigns.header.subtitle') }}</p>
+      </div>
+      <div class="campaigns-toolbar">
+        <div class="search-wrapper">
+          <label class="sr-only" for="campaign-search">{{ t('campaigns.searchLabel') }}</label>
+          <div class="search-input">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <input id="campaign-search" type="search" placeholder="{{ t('campaigns.searchPlaceholder') }}" (input)="onSearch($event.target.value)" aria-label="{{ t('campaigns.searchLabel') }}" />
+          </div>
+        </div>
+        <div class="toolbar-cta">
+          <a class="btn-view-all smart-cta" [routerLink]="['/campaigns']" role="button" aria-label="View all campaigns">
+            <span class="cta-text">{{ t('campaigns.viewAll') }}</span>
+            <span class="cta-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 15l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <div class="campaign-grid">
+        <article class="campaign-card" *ngFor="let c of filteredCampaigns">
+          <div class="card-header">
+            <div class="banner-wrapper">
+              <img [src]="c.bannerUrl" [alt]="c.title" class="banner" />
+              <div class="overlay-gradient"></div>
+              <div class="status-badge" [ngClass]="'st-' + c.status">{{ getStatusLabel(c.status) }}</div>
+            </div>
+            <div class="logo-box" *ngIf="c.universityLogo">
+              <img [src]="c.universityLogo" [alt]="c.university" />
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="uni-name" *ngIf="c.university">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ c.university }}
+            </div>
+            <h3 class="card-title" [title]="c.title">{{ c.title }}</h3>
+            <p class="card-desc" *ngIf="c.description">{{ c.description }}</p>
+            <div class="card-tags">
+              <span class="tag" *ngIf="c.domain">{{ c.domain }}</span>
+              <span class="tag" *ngIf="c.funding">{{ t('campaigns.funded') }}</span>
+            </div>
+          </div>
+          <div class="card-footer">
+              <button class="btn-details" [routerLink]="['/campaigns']">{{ t('campaigns.details') }}</button>
+              <button class="btn-apply" (click)="goToAuth('signin')">{{ t('campaigns.apply') }}</button>
+          </div>
+        </article>
+      </div>
+      <div class="campaigns-empty" *ngIf="filteredCampaigns && filteredCampaigns.length === 0" role="status" aria-live="polite">
+        <img src="/assets/empty-campaigns.png" alt="No campaigns illustration" class="empty-illustration" />
+        <p class="empty-text">{{ t('campaigns.empty') }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="features-container">
+      <div class="section-header">
+        <span class="section-badge">{{ t('features.header.badge') }}</span>
+        <h2 class="section-title">{{ t('features.header.title') }}</h2>
+        <p class="section-subtitle">{{ t('features.header.subtitle') }}</p>
+      </div>
+
+      <div class="features-hero">
+        <div class="features-hero-media">
+          <img src="/assets/features-apps.svg" alt="Platform apps preview" class="features-hero-img" />
+        </div>
+        <div class="features-hero-list">
+          <div class="feature-grid big-apps">
+            <div class="feature-card app-tile">
+              <div class="feature-icon large">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.12"/><path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3>{{ t('features.apps.campaigns.title') }}</h3>
+              <p>{{ t('features.apps.campaigns.text') }}</p>
+            </div>
+
+            <div class="feature-card app-tile">
+              <div class="feature-icon large">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
+              </div>
+              <h3>{{ t('features.apps.defense.title') }}</h3>
+              <p>{{ t('features.apps.defense.text') }}</p>
+            </div>
+
+            <div class="feature-card app-tile">
+              <div class="feature-icon large">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12" stroke="currentColor" stroke-width="1.6"/></svg>
+              </div>
+              <h3>{{ t('features.apps.docs.title') }}</h3>
+              <p>{{ t('features.apps.docs.text') }}</p>
+            </div>
+
+            <div class="feature-card app-tile">
+              <div class="feature-icon large">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5" stroke="currentColor" stroke-width="1.6"/></svg>
+              </div>
+              <h3>{{ t('features.apps.collab.title') }}</h3>
+              <p>{{ t('features.apps.collab.text') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <div class="testimonials-container">
+      <div class="section-header">
+        <span class="section-badge">{{ t('testimonials.header.badge') }}</span>
+        <h2 class="section-title">{{ t('testimonials.header.title') }}</h2>
+        <p class="section-subtitle">{{ t('testimonials.header.subtitle') }}</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"{{ t('testimonials.t1.quote') }}"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">DR</div>
+            <div class="author-info">
+              <div class="author-name">{{ t('testimonials.t1.author') }}</div>
+              <div class="author-title">{{ t('testimonials.t1.title') }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"{{ t('testimonials.t2.quote') }}"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">MK</div>
+            <div class="author-info">
+              <div class="author-name">{{ t('testimonials.t2.author') }}</div>
+              <div class="author-title">{{ t('testimonials.t2.title') }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"{{ t('testimonials.t3.quote') }}"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">EL</div>
+            <div class="author-info">
+              <div class="author-name">{{ t('testimonials.t3.author') }}</div>
+              <div class="author-title">{{ t('testimonials.t3.title') }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq">
+    <div class="faq-container">
+      <div class="section-header">
+        <span class="section-badge">{{ t('faq.header.badge') }}</span>
+        <h2 class="section-title">{{ t('faq.header.title') }}</h2>
+        <p class="section-subtitle">{{ t('faq.header.subtitle') }}</p>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>{{ t('faq.q1.q') }}</h3>
+          <p>{{ t('faq.q1.a') }}</p>
+        </div>
+        <div class="faq-item">
+          <h3>{{ t('faq.q2.q') }}</h3>
+          <p>{{ t('faq.q2.a') }}</p>
+        </div>
+        <div class="faq-item">
+          <h3>{{ t('faq.q3.q') }}</h3>
+          <p>{{ t('faq.q3.a') }}</p>
+        </div>
+        <div class="faq-item">
+          <h3>{{ t('faq.q4.q') }}</h3>
+          <p>{{ t('faq.q4.a') }}</p>
+        </div>
+        <div class="faq-item">
+          <h3>{{ t('faq.q5.q') }}</h3>
+          <p>{{ t('faq.q5.a') }}</p>
+        </div>
+        <div class="faq-item">
+          <h3>{{ t('faq.q6.q') }}</h3>
+          <p>{{ t('faq.q6.a') }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+    <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-bg-gradient"></div>
+    <div class="cta-container">
+      <div class="cta-badge">{{ t('cta.badge') }}</div>
+      <h2>{{ t('cta.title') }}</h2>
+      <p>{{ t('cta.text') }}</p>
+      <div class="cta-buttons">
+        <button class="btn-cta" (click)="goToAuth('signup')">
+          <span>{{ t('cta.start') }}</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3l7 7-7 7M3 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-cta-secondary" (click)="goToAuth('signin')">{{ t('cta.schedule') }}</button>
+      </div>
+      <div class="cta-trust">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 0L10.5 5.5L16 8L10.5 10.5L8 16L5.5 10.5L0 8L5.5 5.5L8 0Z" fill="currentColor" opacity="0.6"/>
+        </svg>
+        <span>{{ t('cta.trust') }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>SuiviDoctorat</h3>
+        <p>{{ t('footer.description') }}</p>
+      </div>
+      <div class="footer-col">
+        <h4>{{ t('footer.col.platform') }}</h4>
+        <div class="footer-links">
+          <a [routerLink]="['/']">{{ t('footer.links.home') }}</a>
+          <a [routerLink]="['/campaigns']">{{ t('footer.links.campaigns') }}</a>
+          <a href="#">{{ t('footer.links.features') }}</a>
+          <a href="#">{{ t('footer.links.pricing') }}</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>{{ t('footer.col.resources') }}</h4>
+        <div class="footer-links">
+          <a href="#">{{ t('footer.links.documentation') }}</a>
+          <a href="#">{{ t('footer.links.help') }}</a>
+          <a href="#">{{ t('footer.links.community') }}</a>
+          <a href="#">{{ t('footer.links.blog') }}</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>{{ t('footer.col.contact') }}</h4>
+        <div class="footer-links">
+          <a href="mailto:{{ t('footer.contact.email') }}">{{ t('footer.contact.email') }}</a>
+          <a href="#">{{ t('footer.contact.phone') }}</a>
+          <a href="#">{{ t('footer.contact.location') }}</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 SuiviDoctorat. All rights reserved.
+    </div>
+  </footer>
+</main>

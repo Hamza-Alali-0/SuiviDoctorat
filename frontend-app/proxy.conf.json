@@ -1,0 +1,30 @@
+{
+  "/gestion-auth-service": {
+    "target": "http://localhost:8091",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/gestion-auth-service": "" },
+    "logLevel": "debug"
+  }
+
+  ,"/uploads": {
+    "target": "http://localhost:8091",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+
+  ,"/api": {
+    "target": "http://localhost:8091",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+  ,"/inscription-service": {
+     "target": "http://localhost:8092",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/inscription-service": "" },
+    "logLevel": "debug"
+  }
+}

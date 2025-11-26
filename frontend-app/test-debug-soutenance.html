@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Soutenance</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f0f0f0; padding: 15px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Soutenance - Test des rôles</h1>
+    
+    <div class="section">
+        <h2>Test 1: Vérifier les données brutes du backend</h2>
+        <button onclick="testBackend()">Charger toutes les demandes</button>
+        <pre id="backend-result"></pre>
+    </div>
+
+    <div class="section">
+        <h2>Test 2: Simuler le filtrage pour CANDIDAT</h2>
+        <input type="email" id="candidat-email" placeholder="Email du candidat" value="elazizcontact@gmail.com">
+        <button onclick="testCandidatFilter()">Filtrer pour Candidat</button>
+        <pre id="candidat-result"></pre>
+    </div>
+
+    <div class="section">
+        <h2>Test 3: Simuler le filtrage pour ENCADRANT</h2>
+        <button onclick="testEncadrantFilter()">Filtrer pour Encadrant (toutes les demandes)</button>
+        <pre id="encadrant-result"></pre>
+    </div>
+
+    <script>
+        let allDemandes = [];
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:8096/api/soutenance/demandes');
+                allDemandes = await response.json();
+                
+                document.getElementById('backend-result').innerHTML = 
+                    `<span class="success">✅ Succès!</span>\n` +
+                    `Nombre total de demandes dans la base: ${allDemandes.length}\n\n` +
+                    `Emails des doctorants:\n${allDemandes.map(d => `  - ${d.doctorantEmail} (ID: ${d.id})`).join('\n')}\n\n` +
+                    `Données complètes:\n${JSON.stringify(allDemandes, null, 2)}`;
+            } catch (error) {
+                document.getElementById('backend-result').innerHTML = 
+                    `<span class="error">❌ Erreur: ${error.message}</span>`;
+            }
+        }
+
+        function testCandidatFilter() {
+            const email = document.getElementById('candidat-email').value;
+            
+            if (allDemandes.length === 0) {
+                document.getElementById('candidat-result').innerHTML = 
+                    '<span class="error">⚠️ Chargez d\'abord les demandes avec le Test 1!</span>';
+                return;
+            }
+
+            // Simuler le filtrage du code frontend
+            const filtered = allDemandes.filter(d => d.doctorantEmail === email);
+            
+            document.getElementById('candidat-result').innerHTML = 
+                `Email recherché: ${email}\n` +
+                `Demandes trouvées: ${filtered.length}\n\n` +
+                `Résultat du filtre:\n${filtered.map(d => 
+                    `  - ID: ${d.id}, Titre: ${d.titreThese}, Email: ${d.doctorantEmail}`
+                ).join('\n')}\n\n` +
+                `Données complètes:\n${JSON.stringify(filtered, null, 2)}`;
+        }
+
+        function testEncadrantFilter() {
+            if (allDemandes.length === 0) {
+                document.getElementById('encadrant-result').innerHTML = 
+                    '<span class="error">⚠️ Chargez d\'abord les demandes avec le Test 1!</span>';
+                return;
+            }
+
+            // Pour l'encadrant, on retourne TOUTES les demandes
+            document.getElementById('encadrant-result').innerHTML = 
+                `<span class="success">✅ Encadrant voit TOUTES les demandes</span>\n` +
+                `Nombre de demandes: ${allDemandes.length}\n\n` +
+                `Liste des demandes:\n${allDemandes.map(d => 
+                    `  - ID: ${d.id}, Titre: ${d.titreThese}\n    Doctorant: ${d.doctorantEmail}\n    Statut: ${d.statut}`
+                ).join('\n\n')}\n\n` +
+                `Données complètes:\n${JSON.stringify(allDemandes, null, 2)}`;
+        }
+
+        // Auto-load on page load
+        window.addEventListener('load', testBackend);
+    </script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<candidat-navbar></candidat-navbar>
+
+<app-modal
+  [isOpen]="modalConfig.isOpen"
+  [type]="modalConfig.type"
+  [title]="modalConfig.title"
+  [message]="modalConfig.message"
+  [confirmText]="modalConfig.confirmText"
+  [cancelText]="modalConfig.cancelText"
+  (confirmed)="onModalConfirmed()"
+  (cancelled)="onModalCancelled()"
+></app-modal>
+
+<!-- Email Verification Code Modal -->
+<div class="modal-overlay" *ngIf="showVerifyModal" (click)="onVerifyOverlayClick($event)">
+  <div class="verify-modal-container">
+    <div class="verify-modal-header">
+      <h3 class="verify-modal-title">Vérification de l'email</h3>
+      <button class="verify-modal-close" (click)="closeVerifyModal()">×</button>
+    </div>
+    <div class="verify-modal-body">
+      <p class="verify-modal-text">
+        Un code de vérification a été envoyé à <strong>{{ newEmail }}</strong>
+      </p>
+      <input 
+        type="text" 
+        [(ngModel)]="verificationCode" 
+        class="verify-code-input" 
+        placeholder="Entrez le code à 6 chiffres"
+        maxlength="6"
+        (keyup.enter)="submitEmailVerification()"
+        autofocus
+      />
+      <p class="verify-modal-hint">Le code expire dans 15 minutes</p>
+    </div>
+    <div class="verify-modal-actions">
+      <button class="verify-btn-cancel" (click)="closeVerifyModal()">Annuler</button>
+      <button class="verify-btn-confirm" (click)="submitEmailVerification()" [disabled]="!verificationCode || verificationCode.length !== 6">
+        Vérifier
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="min-h-screen bg-zinc-50">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="profile-layout">
+      <!-- Sidebar Profile Card -->
+      <aside class="profile-sidebar">
+        <div class="profile-card">
+          <div class="avatar-block">
+            <div *ngIf="!profileImage" class="avatar-initial">{{ userInitials }}</div>
+            <img *ngIf="profileImage" [src]="profileImage" alt="avatar" class="avatar-img" (error)="profileImage = null" />
+            <label *ngIf="editMode" class="avatar-edit" title="Changer l'avatar">
+              <input type="file" (change)="onAvatar($event)" accept="image/*" />
+              ✎
+            </label>
+          </div>
+          <h1 class="name">{{ profile?.firstName }} {{ profile?.lastName }}</h1>
+          <div class="role-pill">{{ profile?.role || 'Doctorant' }}</div>
+
+          <!-- Bio Section -->
+          <div class="bio-section" *ngIf="profile?.bio || editMode">
+            <p class="bio-text" *ngIf="!editMode && profile?.bio">{{ profile.bio }}</p>
+            <p class="bio-text empty" *ngIf="!editMode && !profile?.bio">Aucune biographie</p>
+          </div>
+
+          <!-- CV Section - Smart Compact Design -->
+          <div class="cv-section-sidebar">
+            <div class="cv-header-row">
+              <div class="cv-icon-circle">
+                <div class="cv-file-blob">{{ profile?.cvUrl ? (getCvFileExt() || 'CV') : 'CV' }}</div>
+              </div>
+              <div class="cv-info">
+                <div class="cv-label">Curriculum Vitae</div>
+                <div class="cv-status" *ngIf="profile?.cvUrl; else noCvStatus">
+                  <span class="cv-filename">{{ getCvFileName() }}</span>
+                  <span class="cv-badge">Disponible • PDF</span>
+                </div>
+                <ng-template #noCvStatus>
+                  <span class="cv-status-empty">Non renseigné</span>
+                </ng-template>
+              </div>
+            </div>
+            <div class="cv-actions-row">
+              <a *ngIf="profile?.cvUrl" [href]="profile.cvUrl" target="_blank" rel="noopener" class="cv-icon-btn" title="Voir le CV">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+              <a *ngIf="profile?.cvUrl" [href]="profile.cvUrl" download class="cv-icon-btn" title="Télécharger le CV">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+              <label class="cv-icon-btn" title="Remplacer / Télécharger un CV">
+                <input type="file" (change)="onCvUpload($event)" accept=".pdf,.doc,.docx" style="display:none" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </label>
+            </div>
+          </div>
+
+          <!-- Social Links - Always visible in sidebar -->
+          <div class="social-links">
+            <a *ngIf="profile?.linkedinUrl" [href]="profile.linkedinUrl" target="_blank" rel="noopener" class="social-link" title="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6 1.1 6 0 4.88 0 3.5 0 2.12 1.1 1 2.48 1 3.86 1 4.98 2.12 4.98 3.5zM.22 24h4.53V7.98H.22V24zM8.98 7.98V24h4.53v-8.36c0-4.86 6.43-5.25 6.43 0V24H24V14.1c0-9.04-10.07-8.68-12.99-4.24V7.98H8.98z" fill="currentColor" />
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+            <a *ngIf="profile?.portfolioUrl" [href]="profile.portfolioUrl" target="_blank" rel="noopener" class="social-link" title="Portfolio">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M10.59 13.41a1 1 0 0 0 1.41 0l4.24-4.24a4 4 0 1 0-5.66-5.66L6.34 7.76a1 1 0 1 0 1.41 1.41L11 7.92a2 2 0 1 1 2.83 2.83l-4.24 4.24a1 1 0 0 0 0 1.41z" fill="currentColor"/>
+                <path d="M13.41 10.59a1 1 0 0 0-1.41 0L7.76 15.24a4 4 0 1 0 5.66 5.66l4.24-4.24a1 1 0 1 0-1.41-1.41L12 19.08a2 2 0 1 1-2.83-2.83l4.24-4.24a1 1 0 0 0 0-1.41z" fill="currentColor"/>
+              </svg>
+              <span>Portfolio</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="profile-main">
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div *ngFor="let stat of stats" class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-value" [ngClass]="getProgressColor(stat.current, stat.required)">{{ stat.current }}/{{ stat.required }}</span>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-fill" [style.width.%]="(stat.current / stat.required) * 100"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <!-- Profile Details / Edit Card -->
+          <div class="card details-card">
+            <div class="card-header">
+              <h2>Informations Profil</h2>
+              <div class="edit-controls" *ngIf="!editMode">
+                <button class="icon-btn" (click)="editMode = true" title="Modifier">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="edit-controls" *ngIf="editMode">
+                <button class="btn btn-secondary" (click)="saveProfile()">Enregistrer</button>
+                <button class="btn btn-secondary" (click)="editMode = false; loadProfile()">Annuler</button>
+              </div>
+            </div>
+            <div *ngIf="editMode" class="edit-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Prénom</label>
+                  <input type="text" [(ngModel)]="profile.firstName" class="input" placeholder="Votre prénom" />
+                </div>
+                <div class="form-group">
+                  <label>Nom</label>
+                  <input type="text" [(ngModel)]="profile.lastName" class="input" placeholder="Votre nom" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group full">
+                  <label>Biographie</label>
+                  <textarea [(ngModel)]="profile.bio" class="input textarea" rows="3" placeholder="Parlez de vous, vos intérêts de recherche..."></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group full">
+                  <label>Email</label>
+                  <div class="input-with-action">
+                    <input type="email" [(ngModel)]="newEmail" class="input" placeholder="votre.email@exemple.com" />
+                    <button *ngIf="newEmail !== profile.email" type="button" (click)="requestEmailChange()" class="verify-btn">
+                      Vérifier
+                    </button>
+                  </div>
+                  <span class="input-hint" *ngIf="newEmail !== profile.email">Un code de vérification sera envoyé à la nouvelle adresse</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Téléphone</label>
+                  <input type="tel" [(ngModel)]="profile.phone" class="input" placeholder="+212 600 000 000" />
+                </div>
+                <div class="form-group">
+                  <label>Affiliation</label>
+                  <input type="text" [(ngModel)]="profile.affiliation" class="input" placeholder="Université, Institution" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>LinkedIn</label>
+                  <input type="url" [(ngModel)]="profile.linkedinUrl" class="input" placeholder="URL LinkedIn" />
+                </div>
+                <div class="form-group">
+                  <label>Portfolio</label>
+                  <input type="url" [(ngModel)]="profile.portfolioUrl" class="input" placeholder="URL Portfolio" />
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!editMode" class="info-grid">
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Prénom</span>
+                  <span class="info-value">{{ profile?.firstName || '—' }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Nom</span>
+                  <span class="info-value">{{ profile?.lastName || '—' }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Email</span>
+                  <span class="info-value">{{ profile?.email || '—' }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Téléphone</span>
+                  <span class="info-value">{{ profile?.phone || 'Non renseigné' }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2"/><polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2"/></svg>
+                </div>
+                <div class="info-content">
+                  <span class="info-label">Affiliation</span>
+                  <span class="info-value">{{ profile?.affiliation || 'Non renseignée' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thesis Card -->
+          <div class="card thesis-card-main">
+            <div class="card-header">
+              <h2>Sujet de Thèse</h2>
+            </div>
+            <div class="thesis-content">
+              <div class="thesis-illustration">
+                <img src="assets/these_subject1.png" alt="Sujet de Thèse" class="thesis-illustration-img" />
+              </div>
+              <div class="thesis-details">
+                <div class="thesis-info-row">
+                  <div class="thesis-info-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="thesis-info-content">
+                    <span class="thesis-info-label">Titre de la Thèse</span>
+                    <span class="thesis-info-value">{{ profile?.thesisTitle || 'Non renseigné' }}</span>
+                  </div>
+                </div>
+                <div class="thesis-info-row">
+                  <div class="thesis-info-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="thesis-info-content">
+                    <span class="thesis-info-label">Directeur de Thèse</span>
+                    <span class="thesis-info-value">{{ profile?.thesisDirector || 'Non renseigné' }}</span>
+                  </div>
+                </div>
+                <div class="thesis-info-row">
+                  <div class="thesis-info-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="thesis-info-content">
+                    <span class="thesis-info-label">Laboratoire</span>
+                    <span class="thesis-info-value">{{ profile?.laboratory || 'Non renseigné' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Change Password Card - Collapsible -->
+          <div class="card password-card">
+            <div class="card-header collapsible-header" (click)="togglePasswordSection()">
+              <h2>Modifier le mot de passe</h2>
+              <svg [class.rotate]="isPasswordExpanded" width="20" height="20" viewBox="0 0 24 24" fill="none" class="chevron-icon">
+                <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="collapsible-content" [class.expanded]="isPasswordExpanded">
+              <div class="p-4">
+                <div class="form-group mb-3">
+                  <label class="label">Ancien mot de passe</label>
+                  <input type="password" [(ngModel)]="oldPassword" class="input" placeholder="Ancien mot de passe" />
+                </div>
+                <div class="form-group mb-3">
+                  <label class="label">Nouveau mot de passe</label>
+                  <input type="password" [(ngModel)]="newPassword" class="input" placeholder="Nouveau mot de passe" />
+                </div>
+                <div class="form-group mb-3">
+                  <label class="label">Confirmer le nouveau mot de passe</label>
+                  <input type="password" [(ngModel)]="confirmNewPassword" class="input" placeholder="Confirmer le mot de passe" />
+                </div>
+                <div class="flex gap-3">
+                  <button class="btn btn-secondary" (click)="changePassword()" [disabled]="changingPassword">Modifier</button>
+                  <button class="btn btn-secondary" (click)="oldPassword=''; newPassword=''; confirmNewPassword=''" [disabled]="changingPassword">Annuler</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card activity-card">
+            <div class="card-header">
+              <h2>Activité Récente</h2>
+            </div>
+            <div class="activity-list">
+              <div *ngFor="let a of recentActivity" class="activity-item">
+                <div class="activity-icon success">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-top">
+                    <strong>{{ a.action }}</strong>
+                    <span class="date">{{ a.date }}</span>
+                  </div>
+                  <div class="activity-desc">{{ a.description }}</div>
+                </div>
+              </div>
+              <div *ngIf="recentActivity.length === 0" class="empty">Aucune activité récente.</div>
+            </div>
+          </div>
+
+          <!-- Documents -->
+          <div class="card documents-card">
+            <div class="card-header">
+              <h2>Documents Récents</h2>
+                <button class="view-all" (click)="viewAllDocuments()">Voir tout</button>
+            </div>
+            <div class="documents-list">
+              <div *ngFor="let doc of documents" class="document-item" (click)="download(doc)">
+                <div class="doc-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="doc-meta">
+                  <div class="doc-name">{{ doc.name }}</div>
+                  <div class="doc-sub">{{ doc.date }} • {{ doc.size }}</div>
+                </div>
+                <button class="doc-download" title="Télécharger">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div *ngIf="documents.length === 0" class="empty">Aucun document récent.</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
