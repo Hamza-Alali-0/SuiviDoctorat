@@ -1,0 +1,58 @@
+<candidat-navbar></candidat-navbar>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">Favoris</div>
+      <div class="subtitle">Les campagnes que vous avez aimées</div>
+    </div>
+    <div class="controls">
+      <input class="control search" type="search" placeholder="Rechercher..." [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
+      <select class="control" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+        <option value="all">Tous statuts</option>
+        <option value="active">Ouvertes</option>
+        <option value="upcoming">À venir</option>
+        <option value="ended">Fermées</option>
+      </select>
+      <select class="control" [(ngModel)]="sortKey" (ngModelChange)="applyFilters()">
+        <option value="relevance">Tri: Pertinence</option>
+        <option value="deadline">Tri: Date limite</option>
+        <option value="recent">Tri: Récent</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && campaigns.length === 0" class="empty">Vous n'avez pas encore de campagnes en favoris.</div>
+
+  <div class="grid">
+    <article *ngFor="let c of campaigns" class="campaign-card">
+      <div class="card-header">
+        <button class="fav-btn" [class.active]="isFavorite(c.id)" title="Retirer des favoris" aria-label="Retirer des favoris" (click)="$event.stopPropagation(); toggleFavorite(c.id)" (keydown.enter)="$event.stopPropagation(); toggleFavorite(c.id)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-7.5-4.35-10-7.16C-1 8 3 4 6 6.5 8 8.5 12 11 12 11s4-2.5 6-4.5C21 4 25 8 22 13.84 19.5 16.65 12 21 12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="banner-wrapper">
+          <img class="banner" [src]="c.bannerUrl || c.image || c.photoCouverture || '/assets/default-banner.jpg'" [alt]="c.nom || c.title || 'Banner'" />
+          <div class="overlay-gradient"></div>
+          <div class="status-badge" *ngIf="c.status" [ngClass]="'st-' + c.status">{{ c.status }}</div>
+        </div>
+        <div class="logo-box" *ngIf="c.university || c.logo || c.logoEcole || c.universityLogo">
+          <img [src]="c.universityLogo || c.logo || c.logoEcole" [alt]="c.university || 'Logo'" />
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="uni-name" *ngIf="c.university">{{ c.university }}</div>
+        <h3 class="card-title">{{ c.nom || c.title }}</h3>
+        <p class="card-desc">{{ c.description }}</p>
+        <div class="card-meta">
+          <div>
+            <strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong>
+            <div class="dates" *ngIf="c.dateOuverture || c.dateFermeture">{{ formatDateRange(c.dateOuverture, c.dateFermeture) }}</div>
+          </div>
+          <div>
+            <a [routerLink]="['/campaigns', c.id]" class="btn-ghost">Voir détails</a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>

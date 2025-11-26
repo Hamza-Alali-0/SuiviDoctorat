@@ -1,0 +1,55 @@
+<candidat-navbar></candidat-navbar>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">Candidatures</div>
+      <div class="subtitle">Les campagnes auxquelles vous avez postulé</div>
+    </div>
+    <div class="controls">
+      <input class="control search" type="search" placeholder="Rechercher..." [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" />
+      <select class="control" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+        <option value="all">Tous statuts</option>
+        <option value="active">Ouvertes</option>
+        <option value="upcoming">À venir</option>
+        <option value="ended">Fermées</option>
+      </select>
+      <select class="control" [(ngModel)]="sortKey" (ngModelChange)="applyFilters()">
+        <option value="relevance">Tri: Pertinence</option>
+        <option value="deadline">Tri: Date limite</option>
+        <option value="recent">Tri: Récent</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && campaigns.length === 0" class="empty">Vous n'avez pas encore de candidatures.</div>
+
+  <div class="list">
+    <article *ngFor="let c of campaigns" class="campaign-card">
+      <div class="card-header">
+        <div class="banner-wrapper">
+          <img class="banner" [src]="c.bannerUrl || c.image || c.banner || c.cover || '/assets/default-banner.jpg'" [alt]="c.nom || c.title || 'Banner'" />
+          <div class="overlay-gradient"></div>
+          <div class="status-badge" *ngIf="c.status" [ngClass]="'st-' + c.status">{{ c.status }}</div>
+        </div>
+        <div class="logo-box" *ngIf="c.universityLogo || c.logo">
+          <img [src]="c.universityLogo || c.logo" [alt]="c.university || 'Logo'" />
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="uni-name" *ngIf="c.university">{{ c.university }}</div>
+        <h3 class="card-title">{{ c.nom || c.title }}</h3>
+        <p class="card-desc">{{ c.description }}</p>
+        <div class="card-meta">
+          <div><strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong></div>
+          <div>
+            <a [routerLink]="['/campaigns', c.id]" class="btn-ghost">Voir</a>
+            <div class="card-meta">
+              <div>
+                <strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong>
+                <div class="dates" *ngIf="c.dateOuverture || c.dateFermeture">{{ formatDateRange(c.dateOuverture, c.dateFermeture) }}</div>
+              </div>
+              <div>
+                <a [routerLink]="['/campaigns', c.id]" class="btn-ghost">Voir</a>
+              </div>
+            </div>

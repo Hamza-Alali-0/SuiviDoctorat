@@ -195,10 +195,15 @@ export class CampaignDetailComponent implements OnInit {
 
   loadFavoriteStatus(id: number): void {
     try {
-      const raw = localStorage.getItem('campaign_favorites');
+      // prefer namespaced key when available (per-user), fall back to legacy global key
+      const key = this.getFavoritesKey();
+      let raw = localStorage.getItem(key);
+      if (!raw) raw = localStorage.getItem('campaign_favorites');
       if (raw) {
         const favs = new Set<number>(JSON.parse(raw));
         this.isFavorite.set(favs.has(id));
+      } else {
+        this.isFavorite.set(false);
       }
     } catch {}
   }
@@ -220,9 +225,12 @@ export class CampaignDetailComponent implements OnInit {
     if (!c || !c.id) return;
 
     try {
-      const raw = localStorage.getItem('campaign_favorites');
+      // Use the namespaced key when possible, and keep the legacy key in sync for compatibility
+      const key = this.getFavoritesKey();
+      let raw = localStorage.getItem(key);
+      if (!raw) raw = localStorage.getItem('campaign_favorites');
       const favs = new Set<number>(raw ? JSON.parse(raw) : []);
-      
+
       if (favs.has(c.id)) {
         favs.delete(c.id);
         this.isFavorite.set(false);
@@ -230,9 +238,24 @@ export class CampaignDetailComponent implements OnInit {
         favs.add(c.id);
         this.isFavorite.set(true);
       }
-      
-      localStorage.setItem('campaign_favorites', JSON.stringify(Array.from(favs)));
+
+      // persist to both keys: namespaced and global (for older clients)
+      try { localStorage.setItem(key, JSON.stringify(Array.from(favs))); } catch (e) {}
+      try { localStorage.setItem('campaign_favorites', JSON.stringify(Array.from(favs))); } catch (e) {}
     } catch {}
+  }
+
+  private getFavoritesKey(): string {
+    try {
+      const token = this.auth.getToken ? this.auth.getToken() : null;
+      if (!token) return 'campaign_favorites';
+      const parts = token.split('.');
+      if (parts.length < 2) return 'campaign_favorites';
+      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+      const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
+      if (id) return `campaign_favorites_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g,'_')}`;
+    } catch (e) { /* ignore */ }
+    return 'campaign_favorites';
   }
 
   applyCampaign(): void {

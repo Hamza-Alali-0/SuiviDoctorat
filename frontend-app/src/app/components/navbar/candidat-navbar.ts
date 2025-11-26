@@ -619,6 +619,39 @@ import { AuthService } from '../../services/auth.service';
       animation: dropdown-appear 0.2s ease;
     }
 
+    .dropdown-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--color-hover);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background: var(--color-bg);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .action-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
     @keyframes dropdown-appear {
       from {
         opacity: 0;

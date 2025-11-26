@@ -84,6 +84,14 @@
             <div *ngIf="!profileImage" class="dropdown-avatar-initials">{{ userInitials }}</div>
           </div>
           <div class="dropdown-email">{{ userEmail || 'User' }}</div>
+          <div class="dropdown-actions" role="toolbar" aria-label="Quick profile actions">
+            <a [routerLink]="['/candidat/favorites']" class="action-btn" (click)="closeProfileMenu()" title="Favoris" aria-label="Favoris">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+            </a>
+            <a [routerLink]="['/candidat/applications']" class="action-btn" (click)="closeProfileMenu()" title="Candidatures" aria-label="Candidatures">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/><polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2"/></svg>
+            </a>
+          </div>
         </div>
         <div class="dropdown-divider"></div>
         <a [routerLink]="['/candidat/profile']" class="dropdown-item" (click)="closeProfileMenu()">

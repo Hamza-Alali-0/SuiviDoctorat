@@ -29,6 +29,8 @@ export const routes: Routes = [
   { path: 'candidat/documents', component: DocumentsPage },
   { path: 'candidat/documents/add', component: AddDocumentPage },
   { path: 'candidat/profile', component: ProfilePage },
+  { path: 'candidat/favorites', loadComponent: () => import('./pages/candidat/favorites/favorites').then(m => m.FavoritesPage) },
+  { path: 'candidat/applications', loadComponent: () => import('./pages/candidat/applications/applications').then(m => m.ApplicationsPage) },
   { path: 'candidat/soutenances', component: SoutenancesPage },
   { path: 'candidat/campaigns', component: CampaignsPage },
   

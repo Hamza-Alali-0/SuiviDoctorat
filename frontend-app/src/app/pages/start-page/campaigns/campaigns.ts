@@ -1,12 +1,13 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PublicNavbarComponent } from '../../../components/navbar/public-navbar';
 import { CandidatNavbarComponent } from '../../../components/navbar/candidat-navbar';
 import { AuthService } from '../../../services/auth.service';
 import { CampagnesService } from '../../../services/campagnes.service';
+import { ApplicationsService } from '../../../services/applications.service';
 
 interface ChecklistItem {
   id?: number;
@@ -293,6 +294,33 @@ interface Campagne {
       .control.search { min-width:auto; }
       .stats-strip { grid-template-columns:1fr 1fr; }
     }
+
+    /* Modal (application form) */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1.25rem; }
+    .modal-container { background: #fff; width:100%; max-width:980px; max-height:90vh; overflow:auto; border-radius:12px; box-shadow:0 20px 50px rgba(2,6,23,0.4); border:1px solid rgba(226,232,240,0.6); }
+    :host-context(.dark) .modal-container { background:#071127; color:#e6eefb; border-color:rgba(51,65,85,0.6); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(230,237,247,0.8); }
+    :host-context(.dark) .modal-header { border-bottom-color:rgba(51,65,85,0.6); }
+    .modal-body { padding:16px; }
+    .modal-close { background:transparent; border:1px solid #e6edf7; padding:6px 8px; border-radius:6px; cursor:pointer; }
+    :host-context(.dark) .modal-close { border-color:#334155; }
+
+    .application-form .form-section { margin-bottom:1rem; }
+    .application-form .form-row { display:flex; gap:1rem; flex-wrap:wrap; }
+    .application-form .form-group { flex:1; min-width:180px; display:flex; flex-direction:column; gap:6px; }
+    .application-form .form-group input,
+    .application-form .form-group select,
+    .application-form .form-group textarea { padding:0.5rem; border:1px solid #e2e8f0; border-radius:6px; background:transparent; }
+    :host-context(.dark) .application-form .form-group input,
+    :host-context(.dark) .application-form .form-group select,
+    :host-context(.dark) .application-form .form-group textarea { background:transparent; border-color:#334155; color:#e6eefb; }
+
+    .form-actions { display:flex; justify-content:flex-end; gap:0.75rem; padding:12px 0; }
+    .btn-cancel { background:transparent; border:1px solid #cbd5e1; padding:.6rem 1rem; border-radius:8px; cursor:pointer; }
+    .btn-submit { background:#2563eb; color:#fff; border:none; padding:.6rem 1rem; border-radius:8px; cursor:pointer; }
+
+    .submit-error { margin-top:0.75rem; color:#b91c1c; background:#fee2e2; padding:.6rem; border-radius:6px; }
+    .submit-success { margin-top:0.75rem; color:#065f46; background:#ecfdf5; padding:.6rem; border-radius:6px; }
   `]
 })
 export class CampaignsPage implements OnInit {
@@ -308,6 +336,7 @@ export class CampaignsPage implements OnInit {
   filterStatus = signal<'all' | 'active' | 'upcoming' | 'ended'>('all');
   sortKey = signal<'relevance' | 'deadline' | 'recent'>('relevance');
   showFavorites = signal(false);
+  showApplied = signal(false);
 
   favorites = signal(new Set<number>());
   appliedCampaignIds = signal(new Set<number>());
@@ -316,17 +345,58 @@ export class CampaignsPage implements OnInit {
   pageSize = 9;
   fetchError = signal('');
 
+  // Application modal + form state
+  showApplicationModal = signal(false);
+  selectedCampaign = signal<Campagne | null>(null);
+
+  // Simple application form model (plain object so Angular ngModel two-way binding works)
+  applicationForm: any = {
+    prenom: '',
+    nom: '',
+    email: '',
+    phone: '',
+    dateNaissance: '',
+    nationalite: '',
+    highestDegree: '',
+    university: '',
+    specialization: '',
+    rechercheTitre: '',
+    rechercheResume: '',
+    acceptTerms: false
+  };
+
+  // Uploaded files map: key -> File | File[]
+  uploadedFiles = signal<Record<string, File | File[]>>({});
+
+  submitting = signal(false);
+  submitError = signal('');
+  submitSuccess = signal('');
+
   constructor(
     private http: HttpClient, 
     private router: Router, 
+    private route: ActivatedRoute,
     public auth: AuthService,
-    private campagnesService: CampagnesService
+    private campagnesService: CampagnesService,
+    private applicationsService: ApplicationsService
   ) {}
 
   get isLoggedIn(): boolean { return this.auth.isLoggedIn ? this.auth.isLoggedIn() : false; }
 
   ngOnInit(): void {
     this.loadFavorites();
+    // react to query params so external links can open specific views
+    try {
+      this.route.queryParams.subscribe(params => {
+        const f = params['favorites'];
+        const a = params['applied'];
+        this.showFavorites.set(f === '1' || f === 'true' || f === true);
+        this.showApplied.set(a === '1' || a === 'true' || a === true);
+        // if applied filter is active, disable favorites filter
+        if (this.showApplied()) this.showFavorites.set(false);
+        this.applyFilters();
+      });
+    } catch (e) { /* ignore */ }
     this.loadCampaigns();
     document.addEventListener('click', () => this.showTypes.set(false));
   }
@@ -423,6 +493,12 @@ export class CampaignsPage implements OnInit {
       list = list.filter(c => c.id && favs.has(c.id));
     }
 
+    // Applied / Candidatures: show only campaigns the user has applied to
+    if (this.showApplied()) {
+      const applied = this.appliedCampaignIds();
+      list = list.filter(c => c.id && applied.has(c.id));
+    }
+
     this.filteredCampaigns.set(list);
     this.sortCampaigns(false);
   }
@@ -487,27 +563,99 @@ export class CampaignsPage implements OnInit {
   }
 
   saveFavorites(): void { 
-    try { 
-      localStorage.setItem('campaign_favorites', JSON.stringify(Array.from(this.favorites()))); 
-    } catch {} 
+    try {
+      const key = this.getFavoritesKey();
+      const arr = JSON.stringify(Array.from(this.favorites()));
+      localStorage.setItem(key, arr);
+      // also keep legacy global key in sync for older pages
+      try { localStorage.setItem('campaign_favorites', arr); } catch (e) {}
+    } catch {}
   }
   
   loadFavorites(): void {
-    try { 
-      const raw = localStorage.getItem('campaign_favorites'); 
-      if (raw) this.favorites.set(new Set(JSON.parse(raw))); 
+    try {
+      const key = this.getFavoritesKey();
+      const raw = localStorage.getItem(key);
+      if (raw) this.favorites.set(new Set(JSON.parse(raw)));
+      else {
+        // fallback to global key for older saved data
+        const old = localStorage.getItem('campaign_favorites');
+        if (old) this.favorites.set(new Set(JSON.parse(old)));
+      }
     } catch {}
+  }
+
+  saveApplied(): void {
+    try {
+      const key = this.getAppliedKey();
+      localStorage.setItem(key, JSON.stringify(Array.from(this.appliedCampaignIds())));
+    } catch (e) { /* ignore */ }
+  }
+
+  loadApplied(): void {
+    try {
+      const key = this.getAppliedKey();
+      const raw = localStorage.getItem(key);
+      if (raw) this.appliedCampaignIds.set(new Set(JSON.parse(raw)));
+      else {
+        const old = localStorage.getItem('campaign_applied');
+        if (old) this.appliedCampaignIds.set(new Set(JSON.parse(old)));
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  private getAppliedKey(): string {
+    try {
+      const token = this.auth.getToken ? this.auth.getToken() : null;
+      if (!token) return 'campaign_applied';
+      const parts = token.split('.');
+      if (parts.length < 2) return 'campaign_applied';
+      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+      const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
+      if (id) return `campaign_applied_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g,'_')}`;
+    } catch (e) { /* ignore */ }
+    return 'campaign_applied';
+  }
+
+  // Build a storage key for favorites. If user is logged in, use token payload (email or sub) to namespace
+  private getFavoritesKey(): string {
+    try {
+      const token = this.auth.getToken ? this.auth.getToken() : null;
+      if (!token) return 'campaign_favorites';
+      const parts = token.split('.');
+      if (parts.length < 2) return 'campaign_favorites';
+      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+      const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
+      if (id) return `campaign_favorites_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g,'_')}`;
+    } catch (e) { /* ignore */ }
+    return 'campaign_favorites';
   }
 
   applyToCampaign(c: Campagne): void {
     if (!c.id) return;
     const status = this.getCampagneStatus(c);
     if (status === 'ended' || !c.active || this.hasApplied(c.id)) return;
-    
-    const ids = new Set(this.appliedCampaignIds());
-    ids.add(c.id);
-    this.appliedCampaignIds.set(ids);
-    alert('Candidature soumise pour: ' + c.nom);
+
+    // Require authentication and candidate role
+    if (!this.isLoggedIn) {
+      // not logged in -> redirect to sign-in with returnUrl
+      this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    // normalize role string (handle ROLE_CANDIDAT / CANDIDAT / candidat)
+    let role = '';
+    try { role = (this.auth.role && typeof this.auth.role === 'function') ? (this.auth.role() || '') : (this.auth.role || ''); } catch (e) { role = '' }
+    const normalized = String(role).toLowerCase().replace(/^role_/, '');
+    if (normalized !== 'candidat') {
+      // not a candidate -> redirect to sign-in (or role request flow)
+      this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    // Open application modal and set selected campaign
+    this.selectedCampaign.set(c);
+    this.showApplicationModal.set(true);
   }
   
   hasApplied(id: number): boolean { 
@@ -577,5 +725,83 @@ export class CampaignsPage implements OnInit {
 
   onImgError(e: any): void { 
     try { e.target.style.visibility = 'hidden'; } catch {} 
+  }
+
+  closeApplicationModal(): void {
+    this.showApplicationModal.set(false);
+    this.selectedCampaign.set(null);
+    this.submitError.set('');
+    this.submitSuccess.set('');
+    this.submitting.set(false);
+    this.applicationForm = {
+      prenom: '', nom: '', email: '', phone: '', dateNaissance: '', nationalite: '',
+      highestDegree: '', university: '', specialization: '', rechercheTitre: '', rechercheResume: '', acceptTerms: false
+    };
+    this.uploadedFiles.set({});
+  }
+
+  // Handle file input changes from template
+  onFileChange(e: any, key: string, multiple = false): void {
+    const target = e.target as HTMLInputElement;
+    if (!target || !target.files) return;
+    if (multiple) {
+      const arr = Array.from(target.files);
+      this.uploadedFiles.update(m => ({ ...m, [key]: arr }));
+    } else {
+      const f = target.files[0];
+      this.uploadedFiles.update(m => ({ ...m, [key]: f }));
+    }
+  }
+
+  // Validate required fields and files before submit
+  validateApplication(): string | null {
+    const form = this.applicationForm;
+    if (!form.prenom || !form.nom || !form.email) return 'Veuillez renseigner votre nom, prénom et email.';
+    // Basic email check
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) return 'Email invalide.';
+    // Required files: cv, coverLetter, transcripts, diplomas
+    const files = this.uploadedFiles();
+    if (!files['cv']) return 'Le CV (PDF) est requis.';
+    if (!files['coverLetter']) return 'La lettre de motivation (PDF) est requise.';
+    if (!files['transcripts']) return 'Les relevés de notes (PDF) sont requis.';
+    if (!files['diplomas']) return 'Les diplômes (PDF) sont requis.';
+    if (!form.acceptTerms) return 'Vous devez accepter les termes et conditions.';
+    return null;
+  }
+
+  submitApplication(e?: Event): void {
+    if (e) e.preventDefault();
+    this.submitError.set('');
+    this.submitSuccess.set('');
+
+    const validation = this.validateApplication();
+    if (validation) { this.submitError.set(validation); return; }
+
+    const campaign = this.selectedCampaign();
+    if (!campaign || !campaign.id) { this.submitError.set('Campagne invalide.'); return; }
+
+    this.submitting.set(true);
+
+    const form = this.applicationForm;
+    const files = this.uploadedFiles();
+
+    this.applicationsService.submitApplication(campaign.id, form, files).subscribe({
+      next: (res) => {
+        this.submitting.set(false);
+        this.submitSuccess.set('Votre candidature a été envoyée avec succès. Nous vous enverrons un email de confirmation.');
+        const ids = new Set(this.appliedCampaignIds());
+        ids.add(campaign.id!);
+        this.appliedCampaignIds.set(ids);
+        // persist applied ids for the logged in user
+        try { this.saveApplied(); } catch (e) { /* ignore */ }
+        // keep modal open briefly to show success
+        setTimeout(() => this.closeApplicationModal(), 1800);
+      },
+      error: (err) => {
+        console.error('[CampaignsPage] submitApplication error', err);
+        this.submitting.set(false);
+        this.submitError.set('Impossible d\'envoyer la candidature en ligne. Elle est enregistrée localement et vous pouvez réessayer.');
+      }
+    });
   }
 }
