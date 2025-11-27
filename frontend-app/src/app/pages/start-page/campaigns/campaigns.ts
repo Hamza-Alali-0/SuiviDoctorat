@@ -661,16 +661,12 @@ export class CampaignsPage implements OnInit {
   }
 
   private getAppliedKey(): string {
+    // Delegate to AuthService to ensure consistent key format across the app
     try {
-      const token = this.auth.getToken ? this.auth.getToken() : null;
-      if (!token) return 'campaign_applied';
-      const parts = token.split('.');
-      if (parts.length < 2) return 'campaign_applied';
-      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-      const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
-      if (id) return `campaign_applied_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g,'_')}`;
-    } catch (e) { /* ignore */ }
-    return 'campaign_applied';
+      return this.auth.getAppliedKeyForUser();
+    } catch (e) {
+      return 'campaign_applied';
+    }
   }
 
   // Build a storage key for favorites. If user is logged in, use token payload (email or sub) to namespace

@@ -26,7 +26,13 @@ export class ApplicationsService {
     };
 
     // 2. Submit Form Data (JSON)
-    return this.http.post<any>(this.submitUrl, dto).pipe(
+    // If a doctorantId is provided, use the doctorant-specific endpoint so the backend
+    // associates the created dossier with the user reliably.
+    const submit$ = dto.doctorantId
+      ? this.http.post<any>(`/inscription-service/api/inscriptions/doctorant/${dto.doctorantId}/soumettre`, dto)
+      : this.http.post<any>(this.submitUrl, dto);
+
+    return submit$.pipe(
       switchMap(dossier => {
         if (!dossier || !dossier.id) {
           return throwError(() => new Error('Failed to create dossier'));

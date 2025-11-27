@@ -174,6 +174,21 @@ export class AuthService {
 
   getToken(): string | null { return localStorage.getItem('auth_token'); }
 
+  // Build a storage key used by the campaigns/applications pages to persist applied campaign ids.
+  // This centralizes the algorithm so both pages use the same key format.
+  getAppliedKeyForUser(): string {
+    try {
+      const token = this.getToken();
+      if (!token) return 'campaign_applied';
+      const parts = token.split('.');
+      if (parts.length < 2) return 'campaign_applied';
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
+      if (id) return `campaign_applied_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g, '_')}`;
+    } catch (e) { /* ignore */ }
+    return 'campaign_applied';
+  }
+
   // central cookie fallback: when token is set/cleared update JWT cookie so backend TokenFilter
   // can authenticate requests even if Authorization header is missing (single place only).
   public setCookieFallback(token: string | null) {

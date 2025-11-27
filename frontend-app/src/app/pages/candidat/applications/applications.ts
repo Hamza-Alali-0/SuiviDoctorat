@@ -74,38 +74,73 @@ export class ApplicationsPage implements OnInit {
 
   fetchApplications(): void {
     this.loading = true;
+    // Try to get an id from profile, otherwise fallback to parsing JWT token
     this.authService.getProfile().subscribe({
       next: (user: any) => {
-        if (user && user.id) {
-          this.applicationsService.getMyApplications(user.id).subscribe({
-            next: (data) => {
-              // Map dossiers to campaign view model
-              this.allCampaigns = data.map(d => ({
-                ...d.campagne,
-                applicationStatus: d.status,
-                applicationDate: d.dateCreation,
-                dossierId: d.id
-              }));
-              this.applyFilters();
-              this.loading = false;
-            },
-            error: (err) => { 
-              console.error('Failed to fetch applications', err);
-              this.loading = false; 
-              this.allCampaigns = []; 
-              this.campaigns = []; 
-            }
-          });
-        } else {
-          this.loading = false;
+        let userId: number | null = null;
+        if (user && (user.id || user.userId || user.sub)) {
+          userId = Number(user.id || user.userId || user.sub);
         }
+
+        if (!userId) {
+          // Try extracting from token
+          try {
+            const token = this.authService.getToken();
+            if (token) {
+              const parts = token.split('.');
+              if (parts.length >= 2) {
+                const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+                const candidate = payload.id || payload.sub || payload.userId || payload.name || payload.email;
+                if (candidate && !isNaN(Number(candidate))) userId = Number(candidate);
+              }
+            }
+          } catch (e) { /* ignore */ }
+        }
+
+        if (!userId) {
+          console.error('[ApplicationsPage] No numeric user id available from profile or token');
+          this.loading = false;
+          return;
+        }
+
+        this.applicationsService.getMyApplications(userId).subscribe({
+          next: (data) => {
+            // Map dossiers to campaign view model
+            this.allCampaigns = (Array.isArray(data) ? data : []).map(d => ({
+              ...d.campagne,
+              applicationStatus: d.status,
+              applicationDate: d.dateCreation,
+              dossierId: d.id
+            }));
+
+            // Persist applied campaign ids so campaigns page can read them from localStorage
+            try {
+              const ids = this.allCampaigns.map(c => c.id).filter(Boolean) as number[];
+              const key = (this.authService && typeof this.authService.getAppliedKeyForUser === 'function')
+                ? this.authService.getAppliedKeyForUser()
+                : 'campaign_applied';
+              if (key) localStorage.setItem(key, JSON.stringify(ids));
+            } catch (e) { /* ignore */ }
+
+            this.applyFilters();
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Failed to fetch applications', err);
+            this.loading = false;
+            this.allCampaigns = [];
+            this.campaigns = [];
+          }
+        });
       },
-      error: (err) => { 
+      error: (err) => {
         console.error('Failed to fetch profile', err);
-        this.loading = false; 
+        this.loading = false;
       }
     });
   }
+
+  // Note: key generation delegated to AuthService.getAppliedKeyForUser()
 
   applyFilters(): void {
     let list = this.allCampaigns.slice();
