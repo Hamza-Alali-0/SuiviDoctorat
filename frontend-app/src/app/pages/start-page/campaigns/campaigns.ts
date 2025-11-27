@@ -906,6 +906,41 @@ export class CampaignsPage implements OnInit {
         this.appliedCampaignIds.set(ids);
         // persist applied ids for the logged in user
         try { this.saveApplied(); } catch (e) { /* ignore */ }
+        // Refresh applied campaign ids from backend (canonical source) so UI reflects DB
+        (async () => {
+          try {
+            let userId: number | null = this.currentUserId || null;
+            if (!userId) {
+              const token = this.auth.getToken ? this.auth.getToken() : null;
+              if (token) {
+                try {
+                  const parts = token.split('.');
+                  if (parts.length >= 2) {
+                    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+                    const cand = payload.id || payload.sub || payload.userId || payload.name || payload.email;
+                    if (cand && !isNaN(Number(cand))) userId = Number(cand);
+                  }
+                } catch (e) { /* ignore token parse errors */ }
+              }
+            }
+
+            if (userId) {
+              this.applicationsService.getMyApplications(userId).subscribe({
+                next: (data: any[]) => {
+                  try {
+                    const appliedIds = new Set<number>();
+                    (Array.isArray(data) ? data : []).forEach(d => {
+                      if (d && d.campagne && d.campagne.id) appliedIds.add(d.campagne.id);
+                    });
+                    this.appliedCampaignIds.set(appliedIds);
+                    try { this.saveApplied(); } catch (e) { /* ignore */ }
+                  } catch (e) { /* ignore */ }
+                },
+                error: (err) => console.error('[CampaignsPage] failed to refresh applied ids', err)
+              });
+            }
+          } catch (e) { /* ignore overall refresh errors */ }
+        })();
         // keep modal open briefly to show success
         setTimeout(() => this.closeApplicationModal(), 2500);
       },

@@ -104,6 +104,24 @@ public class InMemoryEmailTemplateRepository implements EmailTemplateRepository 
         roleMessage.setVariables("userName,role,message,adminName");
         roleMessage.setDateModification(LocalDateTime.now());
         templates.put(roleMessage.getCode(), roleMessage);
+
+        // INSCRIPTION_SOUMISE_HTML template (HTML with inline logo cid)
+        EmailTemplate inscriptionHtml = new EmailTemplate();
+        inscriptionHtml.setId(20L);
+        inscriptionHtml.setCode("INSCRIPTION_SOUMISE_HTML");
+        inscriptionHtml.setSujet("Votre dossier a bien été soumis");
+        inscriptionHtml.setCorps("<div style='font-family:Arial,Helvetica,sans-serif;color:#333;max-width:600px;margin:0 auto;'>"
+            + "<div style='text-align:center;margin-bottom:12px;'><img src=\"cid:logo\" alt=\"Logo\" style='max-height:80px;'/></div>"
+            + "<h2>Bonjour ${fullname}</h2>"
+            + "<p>Votre dossier d'inscription a bien été soumis avec l'identifiant <strong>${dossierId}</strong>.</p>"
+            + "<p>Campagne: <strong>${campagneNom}</strong></p>"
+            + "<p>Vous pouvez consulter l'état de votre dossier depuis votre espace candidat.</p>"
+            + "<p>Cordialement,<br/>L'équipe Support</p>"
+            + "</div>");
+        inscriptionHtml.setTypeNotification(TypeNotification.INSCRIPTION_SOUMISE);
+        inscriptionHtml.setVariables("fullname,dossierId,campagneNom");
+        inscriptionHtml.setDateModification(java.time.LocalDateTime.now());
+        templates.put(inscriptionHtml.getCode(), inscriptionHtml);
     }
 
     @Override

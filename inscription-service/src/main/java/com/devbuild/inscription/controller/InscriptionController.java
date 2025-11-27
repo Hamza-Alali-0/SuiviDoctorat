@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/inscriptions")
@@ -45,6 +46,18 @@ public class InscriptionController {
     @PostMapping("/doctorant/{id}/soumettre")
     public ResponseEntity<?> soumettre(@PathVariable("id") Long doctorantId, @RequestBody DossierInscription payload) {
         DossierInscription saved = service.soumettreDossier(doctorantId, payload);
+        return ResponseEntity.ok(saved);
+    }
+
+    /**
+     * Submit dossier for the authenticated doctorant (uses authentication principal)
+     */
+    @PostMapping("/doctorant/me/soumettre")
+    public ResponseEntity<?> soumettrePourAuthentifie(Principal principal, @RequestBody DossierInscription payload) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        DossierInscription saved = service.soumettreDossierPourEmail(principal.getName(), payload);
         return ResponseEntity.ok(saved);
     }
 

@@ -10,6 +10,7 @@ import com.devbuild.notification.exception.EmailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.internet.MimeMessage;
@@ -74,10 +75,21 @@ public class EmailService {
             }
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            boolean looksLikeHtml = body != null && (body.contains("<html") || body.contains("<body") || body.contains("<div") || body.contains("<p") || body.contains("<img") || body.contains("<table"));
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(req.getTo());
             helper.setSubject(subject);
-            helper.setText(body, false);
+            helper.setText(body != null ? body : "", looksLikeHtml);
+
+            // Try to embed a logo if available on the classpath at /static/logo.png
+            try {
+                ClassPathResource logo = new ClassPathResource("static/logo.png");
+                if (logo.exists()) {
+                    helper.addInline("logo", logo);
+                }
+            } catch (Throwable t) {
+                log.debug("Could not embed logo inline: {}", t.getMessage());
+            }
 
             mailSender.send(message);
             log.info("Email sent to {} using template {}", req.getTo(), req.getTemplateCode());
@@ -126,10 +138,21 @@ public class EmailService {
             }
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            boolean looksLikeHtml = body != null && (body.contains("<html") || body.contains("<body") || body.contains("<div") || body.contains("<p") || body.contains("<img") || body.contains("<table"));
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
             if (subject != null) helper.setSubject(subject);
-            helper.setText(body != null ? body : "", false);
+            helper.setText(body != null ? body : "", looksLikeHtml);
+
+            // Try to embed logo inline if present
+            try {
+                ClassPathResource logo = new ClassPathResource("static/logo.png");
+                if (logo.exists()) {
+                    helper.addInline("logo", logo);
+                }
+            } catch (Throwable t) {
+                log.debug("Could not embed logo inline for raw email: {}", t.getMessage());
+            }
 
             mailSender.send(message);
             log.info("Raw email sent to {}", to);

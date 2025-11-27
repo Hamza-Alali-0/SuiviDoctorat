@@ -78,6 +78,66 @@ public class InscriptionService {
         // notifications
         notificationService.notifyDirecteur(saved);
         notificationService.notifyAdmin(saved);
+        // notify the candidate that their dossier was submitted
+        try {
+            notificationService.notifyDoctorant(saved, false);
+        } catch (Throwable t) {
+            // do not break the submission flow if notification fails
+            System.err.println("[InscriptionService] failed to notify doctorant after submit: " + t.getMessage());
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public DossierInscription soumettreDossierPourEmail(String emailOrUsername, DossierInscription payload) {
+        // Try to find doctorant by email first
+        Optional<Doctorant> dOpt = doctorantRepository.findByEmail(emailOrUsername);
+        if (!dOpt.isPresent()) {
+            // No doctorant found by email - try to interpret the username as id
+            try {
+                Long id = Long.parseLong(emailOrUsername);
+                dOpt = doctorantRepository.findById(id);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        if (!dOpt.isPresent()) throw new IllegalArgumentException("Doctorant introuvable pour l'utilisateur authentifié: " + emailOrUsername);
+        Doctorant doctorant = dOpt.get();
+
+        payload.setDoctorant(doctorant);
+        payload.setDateSoumission(LocalDateTime.now());
+        payload.setStatut(StatutDossier.SOUMIS);
+
+        if (payload.getCampagne() == null) {
+            List<CampagneInscription> campagnes = campagneRepository.findByActiveTrue();
+            if (!campagnes.isEmpty()) payload.setCampagne(campagnes.get(0));
+        }
+
+        if (payload.getCampagne() != null) {
+            CampagneInscription camp = campagneRepository.findById(payload.getCampagne().getId()).orElse(null);
+            if (camp == null) throw new IllegalArgumentException("Campagne introuvable");
+            if (!camp.isActive()) throw new IllegalStateException("La campagne n'est pas active");
+            if (camp.getDateOuverture() != null && camp.getDateFermeture() != null) {
+                java.time.LocalDate today = java.time.LocalDate.now();
+                if (today.isBefore(camp.getDateOuverture()) || today.isAfter(camp.getDateFermeture())) {
+                    throw new IllegalStateException("La campagne est fermée: soumission interdite en dehors des dates d'ouverture");
+                }
+            }
+        }
+
+        DossierInscription saved = dossierRepository.save(payload);
+
+        // notifications
+        notificationService.notifyDirecteur(saved);
+        notificationService.notifyAdmin(saved);
+        // notify the candidate that their dossier was submitted
+        try {
+            notificationService.notifyDoctorant(saved, false);
+        } catch (Throwable t) {
+            System.err.println("[InscriptionService] failed to notify doctorant after submit (email lookup): " + t.getMessage());
+        }
 
         return saved;
     }
@@ -233,11 +293,17 @@ public class InscriptionService {
         }
         
         DossierInscription saved = dossierRepository.save(dossier);
-        
+
         // Send notifications
         notificationService.notifyDirecteur(saved);
         notificationService.notifyAdmin(saved);
-        
+        // notify the candidate that their dossier was submitted
+        try {
+            notificationService.notifyDoctorant(saved, false);
+        } catch (Throwable t) {
+            System.err.println("[InscriptionService] failed to notify doctorant after submit (form): " + t.getMessage());
+        }
+
         return saved;
     }
     
