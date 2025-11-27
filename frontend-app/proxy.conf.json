@@ -25,6 +25,8 @@
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": { "^/inscription-service": "" },
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "timeout": 300000,
+    "proxyTimeout": 300000
   }
 }

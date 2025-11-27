@@ -30,4 +30,11 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 # Additional logging options can be managed here if desired

@@ -410,6 +410,8 @@ export class CampaignsPage implements OnInit {
   submitting = signal(false);
   submitError = signal('');
   submitSuccess = signal('');
+  
+  currentUserId: number | null = null;
 
   constructor(
     private http: HttpClient, 
@@ -424,7 +426,22 @@ export class CampaignsPage implements OnInit {
 
   ngOnInit(): void {
     this.loadFavorites();
-    // ...existing code...
+    
+    if (this.isLoggedIn) {
+      this.auth.getProfile().subscribe({
+        next: (user: any) => {
+          if (user && user.id) {
+            this.currentUserId = user.id;
+            // Pre-fill form
+            this.applicationForm.prenom = user.prenom || this.applicationForm.prenom;
+            this.applicationForm.nom = user.nom || this.applicationForm.nom;
+            this.applicationForm.email = user.email || this.applicationForm.email;
+          }
+        },
+        error: () => console.log('[CampaignsPage] Failed to load user profile')
+      });
+    }
+
     try {
       this.route.queryParams.subscribe(params => {
         const f = params['favorites'];
@@ -877,7 +894,11 @@ export class CampaignsPage implements OnInit {
 
     this.submitting.set(true);
 
-    const form = this.applicationForm;
+    const form = { ...this.applicationForm };
+    if (this.currentUserId) {
+      form.doctorantId = this.currentUserId;
+    }
+
     const files = this.uploadedFiles();
 
     this.applicationsService.submitApplication(campaign.id, form, files).subscribe({
