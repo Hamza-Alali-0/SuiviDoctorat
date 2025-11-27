@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CandidatNavbarComponent } from '../../../components/navbar/candidat-navbar';
-import { CampagnesService } from '../../../services/campagnes.service';
+import { ApplicationsService } from '../../../services/applications.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'candidat-applications',
@@ -31,6 +32,7 @@ import { CampagnesService } from '../../../services/campagnes.service';
     .st-open { background:rgba(22,163,74,0.9); }
     .st-closing-soon { background:rgba(234,88,12,0.9); }
     .st-closed { background:rgba(100,116,139,0.9); }
+    .app-status { position:absolute; bottom:12px; left:12px; padding:.25rem .5rem; border-radius:6px; font-size:.7rem; font-weight:600; background:#fff; color:#0f172a; box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:2; }
 
     .logo-box { position:absolute; bottom:-24px; left:1.5rem; width:64px; height:64px; background:#fff; border-radius:16px; padding:4px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); z-index:10; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
     :host-context(.dark) .logo-box { background:#1e293b; border-color:#1e293b; }
@@ -52,7 +54,6 @@ import { CampagnesService } from '../../../services/campagnes.service';
 export class ApplicationsPage implements OnInit {
   campaigns: any[] = [];
   allCampaigns: any[] = [];
-  applied = new Set<number>();
   loading = false;
 
   // filters
@@ -62,43 +63,53 @@ export class ApplicationsPage implements OnInit {
   filterStatus: 'all'|'active'|'upcoming'|'ended' = 'all';
   sortKey: 'relevance'|'deadline'|'recent' = 'relevance';
 
-  constructor(private campagnesService: CampagnesService) {}
+  constructor(
+    private applicationsService: ApplicationsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.loadApplied();
-    this.fetchCampaigns();
+    this.fetchApplications();
   }
 
-  loadApplied(): void {
-    try {
-      const raw = localStorage.getItem('campaign_applied');
-      if (raw) this.applied = new Set(JSON.parse(raw));
-      else {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i) || '';
-          if (k && k.startsWith('campaign_applied_')) {
-            const v = localStorage.getItem(k);
-            if (v) { this.applied = new Set(JSON.parse(v)); break; }
-          }
-        }
-      }
-    } catch (e) { this.applied = new Set(); }
-  }
-
-  fetchCampaigns(): void {
+  fetchApplications(): void {
     this.loading = true;
-    this.campagnesService.getActiveCampaigns().subscribe({ next: (data:any) => {
-      const list = Array.isArray(data) ? data : [];
-      this.allCampaigns = list;
-      this.applyFilters();
-      this.loading = false;
-    }, error: (err:any) => { this.loading = false; this.allCampaigns = []; this.campaigns = []; } });
+    this.authService.getProfile().subscribe({
+      next: (user: any) => {
+        if (user && user.id) {
+          this.applicationsService.getMyApplications(user.id).subscribe({
+            next: (data) => {
+              // Map dossiers to campaign view model
+              this.allCampaigns = data.map(d => ({
+                ...d.campagne,
+                applicationStatus: d.status,
+                applicationDate: d.dateCreation,
+                dossierId: d.id
+              }));
+              this.applyFilters();
+              this.loading = false;
+            },
+            error: (err) => { 
+              console.error('Failed to fetch applications', err);
+              this.loading = false; 
+              this.allCampaigns = []; 
+              this.campaigns = []; 
+            }
+          });
+        } else {
+          this.loading = false;
+        }
+      },
+      error: (err) => { 
+        console.error('Failed to fetch profile', err);
+        this.loading = false; 
+      }
+    });
   }
 
   applyFilters(): void {
     let list = this.allCampaigns.slice();
-    // only applied
-    list = list.filter(c => c.id && this.applied.has(c.id));
+    
     // search
     if (this.searchQuery && this.searchQuery.trim()){
       const q = this.searchQuery.toLowerCase();

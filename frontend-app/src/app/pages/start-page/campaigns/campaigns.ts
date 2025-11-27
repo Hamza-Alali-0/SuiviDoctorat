@@ -321,6 +321,29 @@ interface Campagne {
 
     .submit-error { margin-top:0.75rem; color:#b91c1c; background:#fee2e2; padding:.6rem; border-radius:6px; }
     .submit-success { margin-top:0.75rem; color:#065f46; background:#ecfdf5; padding:.6rem; border-radius:6px; }
+
+    /* Wizard Styles */
+    .wizard-progress { display:flex; justify-content:space-between; margin-bottom:2rem; position:relative; }
+    .wizard-progress::before { content:''; position:absolute; top:14px; left:0; right:0; height:2px; background:#e2e8f0; z-index:0; }
+    :host-context(.dark) .wizard-progress::before { background:#334155; }
+    .step-indicator { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:0.5rem; cursor:pointer; }
+    .step-num { width:30px; height:30px; border-radius:50%; background:#fff; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; color:#64748b; transition:.2s; }
+    :host-context(.dark) .step-num { background:#1e293b; border-color:#334155; color:#94a3b8; }
+    .step-indicator.active .step-num { border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 0 0 4px rgba(37,99,235,0.1); }
+    .step-indicator.completed .step-num { border-color:#2563eb; background:#2563eb; color:#fff; }
+    .step-label { font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; }
+    .step-indicator.active .step-label { color:#2563eb; }
+    
+    .wizard-step { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    
+    .file-upload-box { border:2px dashed #cbd5e1; border-radius:8px; padding:1.5rem; text-align:center; transition:.2s; cursor:pointer; position:relative; }
+    .file-upload-box:hover { border-color:#2563eb; background:#f8fafc; }
+    :host-context(.dark) .file-upload-box { border-color:#475569; }
+    :host-context(.dark) .file-upload-box:hover { background:#1e293b; border-color:#60a5fa; }
+    .file-input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .file-info { display:flex; flex-direction:column; align-items:center; gap:0.5rem; pointer-events:none; }
+    .file-name { font-size:0.9rem; font-weight:600; color:#2563eb; }
   `]
 })
 export class CampaignsPage implements OnInit {
@@ -348,20 +371,36 @@ export class CampaignsPage implements OnInit {
   // Application modal + form state
   showApplicationModal = signal(false);
   selectedCampaign = signal<Campagne | null>(null);
-
-  // Simple application form model (plain object so Angular ngModel two-way binding works)
+  
+  // Wizard state
+  currentStep = signal(1);
+  totalSteps = 4;
+  
+  // Form model matching InscriptionFormDTO
   applicationForm: any = {
+    // Step 1: Personal
     prenom: '',
     nom: '',
     email: '',
-    phone: '',
+    telephone: '',
     dateNaissance: '',
+    lieuNaissance: '',
     nationalite: '',
-    highestDegree: '',
-    university: '',
-    specialization: '',
-    rechercheTitre: '',
-    rechercheResume: '',
+    cin: '',
+    adresse: '',
+    sexe: 'M',
+    
+    // Step 2: Academic
+    highestDegree: '', // mapped to diplomesPrecedents or handled separately
+    etablissementOrigine: '',
+    diplomesPrecedents: '', // description
+    
+    // Step 3: Research
+    sujetThese: '',
+    directeurThese: '',
+    laboratoire: '',
+    
+    // Terms
     acceptTerms: false
   };
 
@@ -385,7 +424,7 @@ export class CampaignsPage implements OnInit {
 
   ngOnInit(): void {
     this.loadFavorites();
-    // react to query params so external links can open specific views
+    // ...existing code...
     try {
       this.route.queryParams.subscribe(params => {
         const f = params['favorites'];
@@ -400,7 +439,7 @@ export class CampaignsPage implements OnInit {
     this.loadCampaigns();
     document.addEventListener('click', () => this.showTypes.set(false));
   }
-
+  
   loadCampaigns(): void {
     this.fetchError.set('');
     console.log('[CampaignsPage] Requesting public active campagnes from', this.campagnesService);
@@ -733,9 +772,12 @@ export class CampaignsPage implements OnInit {
     this.submitError.set('');
     this.submitSuccess.set('');
     this.submitting.set(false);
+    this.currentStep.set(1);
     this.applicationForm = {
-      prenom: '', nom: '', email: '', phone: '', dateNaissance: '', nationalite: '',
-      highestDegree: '', university: '', specialization: '', rechercheTitre: '', rechercheResume: '', acceptTerms: false
+      prenom: '', nom: '', email: '', telephone: '', dateNaissance: '', lieuNaissance: '', nationalite: '', cin: '', adresse: '', sexe: 'M',
+      highestDegree: '', etablissementOrigine: '', diplomesPrecedents: '',
+      sujetThese: '', directeurThese: '', laboratoire: '',
+      acceptTerms: false
     };
     this.uploadedFiles.set({});
   }
@@ -753,19 +795,72 @@ export class CampaignsPage implements OnInit {
     }
   }
 
+  getFileName(key: string): string {
+    const fileOrFiles = this.uploadedFiles()[key];
+    if (!fileOrFiles) return '';
+    if (Array.isArray(fileOrFiles)) {
+      return fileOrFiles.length > 0 ? `${fileOrFiles.length} fichiers` : '';
+    }
+    return (fileOrFiles as File).name;
+  }
+  
+  nextStep(): void {
+    const step = this.currentStep();
+    if (this.validateStep(step)) {
+      this.currentStep.set(step + 1);
+    }
+  }
+  
+  prevStep(): void {
+    const step = this.currentStep();
+    if (step > 1) this.currentStep.set(step - 1);
+  }
+  
+  goToStep(step: number): void {
+    if (step < this.currentStep()) {
+      this.currentStep.set(step);
+    }
+  }
+
+  validateStep(step: number): boolean {
+    this.submitError.set('');
+    const f = this.applicationForm;
+    
+    if (step === 1) {
+      if (!f.prenom || !f.nom || !f.email || !f.telephone || !f.dateNaissance || !f.cin) {
+        this.submitError.set('Veuillez remplir tous les champs obligatoires.');
+        return false;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) {
+        this.submitError.set('Email invalide.');
+        return false;
+      }
+    }
+    
+    if (step === 2) {
+      if (!f.highestDegree || !f.etablissementOrigine) {
+        this.submitError.set('Veuillez renseigner votre parcours académique.');
+        return false;
+      }
+    }
+    
+    if (step === 3) {
+      if (!f.sujetThese) {
+        this.submitError.set('Le sujet de thèse est obligatoire.');
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
   // Validate required fields and files before submit
   validateApplication(): string | null {
-    const form = this.applicationForm;
-    if (!form.prenom || !form.nom || !form.email) return 'Veuillez renseigner votre nom, prénom et email.';
-    // Basic email check
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) return 'Email invalide.';
-    // Required files: cv, coverLetter, transcripts, diplomas
+    // Final validation (files)
     const files = this.uploadedFiles();
     if (!files['cv']) return 'Le CV (PDF) est requis.';
-    if (!files['coverLetter']) return 'La lettre de motivation (PDF) est requise.';
-    if (!files['transcripts']) return 'Les relevés de notes (PDF) sont requis.';
     if (!files['diplomas']) return 'Les diplômes (PDF) sont requis.';
-    if (!form.acceptTerms) return 'Vous devez accepter les termes et conditions.';
+    if (!this.applicationForm.acceptTerms) return 'Vous devez accepter les termes et conditions.';
     return null;
   }
 
@@ -795,12 +890,12 @@ export class CampaignsPage implements OnInit {
         // persist applied ids for the logged in user
         try { this.saveApplied(); } catch (e) { /* ignore */ }
         // keep modal open briefly to show success
-        setTimeout(() => this.closeApplicationModal(), 1800);
+        setTimeout(() => this.closeApplicationModal(), 2500);
       },
       error: (err) => {
         console.error('[CampaignsPage] submitApplication error', err);
         this.submitting.set(false);
-        this.submitError.set('Impossible d\'envoyer la candidature en ligne. Elle est enregistrée localement et vous pouvez réessayer.');
+        this.submitError.set('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
       }
     });
   }

@@ -26,7 +26,6 @@ public class WebController {
 
     @GetMapping("/login")
     public String loginPage() {
-        // Redirect to SPA entry; Angular will render the login page client-side.
         return "redirect:/";
     }
 
@@ -48,7 +47,6 @@ public class WebController {
         if (email == null || password == null || confirm == null) { model.addAttribute("error","Missing fields"); return "signup"; }
         if (!password.equals(confirm)) { model.addAttribute("error","Passwords do not match"); return "signup"; }
         if (!"on".equalsIgnoreCase(accept) && !"true".equalsIgnoreCase(accept)) { model.addAttribute("error","You must accept terms"); return "signup"; }
-    // Users sign up as generic users; requested profile is collected later via profile update
     userService.createUserWithProfile(email, password, firstName, lastName, phone, true, null, affiliation);
         return "redirect:/login";
     }

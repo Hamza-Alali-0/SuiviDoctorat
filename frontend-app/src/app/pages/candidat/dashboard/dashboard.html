@@ -9,6 +9,20 @@
       <div class="subtitle">{{ year() }}</div>
       <div class="meta">Directeur: {{ director() }} · Début: {{ startDate() }}</div>
     </div>
+    <!-- Stats overlapping the hero -->
+    <div class="hero-overlap">
+      <div class="stats-container">
+        <div *ngFor="let stat of stats()" class="stat-item">
+          <div class="stat-header">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value" [ngClass]="getProgressColor(stat.current, stat.required)">{{ stat.current }}/{{ stat.required }}</span>
+          </div>
+          <div class="stat-bar">
+            <div class="stat-fill" [style.width.%]="(stat.current / stat.required) * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="progress-circle">
       <svg class="circle-svg" viewBox="0 0 120 120">
         <circle class="circle-bg" cx="60" cy="60" r="54"></circle>
@@ -18,6 +32,16 @@
         <div class="progress-value">{{ progress() }}%</div>
         <div class="progress-label">Progression</div>
       </div>
+    </div>
+  </div>
+  <!-- CTA banner (Déposez votre CV) -->
+  <div class="cta-banner">
+    <div class="cta-text">
+      <div class="cta-title">Publiez votre CV et laissez les recruteurs venir à vous</div>
+      <div class="cta-sub">En moyenne, un CV est consulté par 30 recruteurs !</div>
+    </div>
+    <div class="cta-action">
+      <button class="cta-button">Déposez votre CV</button>
     </div>
   </div>
 

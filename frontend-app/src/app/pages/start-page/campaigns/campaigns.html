@@ -313,104 +313,225 @@
         <p class="campaign-meta">{{ selectedCampaign()!.etablissement }} • {{ getTypeLabel(selectedCampaign()!.type) }}</p>
       </div>
 
+      <!-- Wizard Progress -->
+      <div class="wizard-progress">
+        <div class="step-indicator" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1" (click)="goToStep(1)">
+          <div class="step-num">1</div>
+          <span class="step-label">Personnel</span>
+        </div>
+        <div class="step-indicator" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2" (click)="goToStep(2)">
+          <div class="step-num">2</div>
+          <span class="step-label">Académique</span>
+        </div>
+        <div class="step-indicator" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3" (click)="goToStep(3)">
+          <div class="step-num">3</div>
+          <span class="step-label">Recherche</span>
+        </div>
+        <div class="step-indicator" [class.active]="currentStep() >= 4" [class.completed]="currentStep() > 4" (click)="goToStep(4)">
+          <div class="step-num">4</div>
+          <span class="step-label">Documents</span>
+        </div>
+      </div>
+
       <form class="application-form" (submit)="submitApplication($event)">
-        <div class="form-section">
-          <h4>Informations personnelles</h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Prénom <span class="required">*</span></label>
-              <input type="text" [(ngModel)]="applicationForm.prenom" name="prenom" required />
+        
+        <!-- Step 1: Personal Info -->
+        <div class="wizard-step" *ngIf="currentStep() === 1">
+          <div class="form-section">
+            <h4>Informations personnelles</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Prénom <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="applicationForm.prenom" name="prenom" required />
+              </div>
+              <div class="form-group">
+                <label>Nom <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="applicationForm.nom" name="nom" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email <span class="required">*</span></label>
+                <input type="email" [(ngModel)]="applicationForm.email" name="email" required />
+              </div>
+              <div class="form-group">
+                <label>Téléphone <span class="required">*</span></label>
+                <input type="tel" [(ngModel)]="applicationForm.telephone" name="telephone" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date de naissance <span class="required">*</span></label>
+                <input type="date" [(ngModel)]="applicationForm.dateNaissance" name="dateNaissance" required />
+              </div>
+              <div class="form-group">
+                <label>Lieu de naissance</label>
+                <input type="text" [(ngModel)]="applicationForm.lieuNaissance" name="lieuNaissance" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nationalité</label>
+                <input type="text" [(ngModel)]="applicationForm.nationalite" name="nationalite" />
+              </div>
+              <div class="form-group">
+                <label>CIN / Passeport <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="applicationForm.cin" name="cin" required />
+              </div>
             </div>
             <div class="form-group">
-              <label>Nom <span class="required">*</span></label>
-              <input type="text" [(ngModel)]="applicationForm.nom" name="nom" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email <span class="required">*</span></label>
-              <input type="email" [(ngModel)]="applicationForm.email" name="email" required />
+              <label>Adresse</label>
+              <textarea [(ngModel)]="applicationForm.adresse" name="adresse" rows="2"></textarea>
             </div>
             <div class="form-group">
-              <label>Téléphone</label>
-              <input type="tel" [(ngModel)]="applicationForm.phone" name="phone" />
+              <label>Sexe</label>
+              <select [(ngModel)]="applicationForm.sexe" name="sexe">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+              </select>
             </div>
           </div>
         </div>
 
-        <div class="form-section">
-          <h4>Formation académique</h4>
-          <div class="form-group">
-            <label>Diplôme le plus élevé <span class="required">*</span></label>
-            <select [(ngModel)]="applicationForm.highestDegree" name="highestDegree" required>
-              <option value="">Sélectionnez...</option>
-              <option value="licence">Licence</option>
-              <option value="master">Master</option>
-              <option value="doctorat">Doctorat</option>
-            </select>
-          </div>
-          <div class="form-row">
+        <!-- Step 2: Academic Info -->
+        <div class="wizard-step" *ngIf="currentStep() === 2">
+          <div class="form-section">
+            <h4>Parcours académique</h4>
             <div class="form-group">
-              <label>Établissement</label>
-              <input type="text" [(ngModel)]="applicationForm.university" name="university" />
+              <label>Dernier diplôme obtenu <span class="required">*</span></label>
+              <select [(ngModel)]="applicationForm.highestDegree" name="highestDegree" required>
+                <option value="">Sélectionnez...</option>
+                <option value="Master">Master</option>
+                <option value="Ingénieur">Ingénieur</option>
+                <option value="Autre">Autre</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>Spécialité</label>
-              <input type="text" [(ngModel)]="applicationForm.specialization" name="specialization" />
+              <label>Établissement d'origine <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="applicationForm.etablissementOrigine" name="etablissementOrigine" required placeholder="Université ou École" />
+            </div>
+            <div class="form-group">
+              <label>Détails des diplômes précédents</label>
+              <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" placeholder="Listez vos diplômes (Année, Intitulé, Établissement, Mention)"></textarea>
             </div>
           </div>
         </div>
 
-        <div class="form-section">
-          <h4>Documents requis</h4>
-          <div class="form-group">
-            <label>CV (PDF) <span class="required">*</span></label>
-            <input type="file" (change)="onFileChange($event, 'cv')" accept=".pdf" required />
-            <small class="file-hint">Format PDF uniquement, max 10MB</small>
-          </div>
-          <div class="form-group">
-            <label>Lettre de motivation (PDF) <span class="required">*</span></label>
-            <input type="file" (change)="onFileChange($event, 'coverLetter')" accept=".pdf" required />
-            <small class="file-hint">Format PDF uniquement, max 10MB</small>
-          </div>
-          <div class="form-group">
-            <label>Relevés de notes (PDF) <span class="required">*</span></label>
-            <input type="file" (change)="onFileChange($event, 'transcripts')" accept=".pdf" required />
-          </div>
-          <div class="form-group">
-            <label>Diplômes (PDF) <span class="required">*</span></label>
-            <input type="file" (change)="onFileChange($event, 'diplomas')" accept=".pdf" required />
-          </div>
-          <div class="form-group">
-            <label>Lettres de recommandation (PDF)</label>
-            <input type="file" (change)="onFileChange($event, 'recommendations', true)" accept=".pdf" multiple />
+        <!-- Step 3: Research Project -->
+        <div class="wizard-step" *ngIf="currentStep() === 3">
+          <div class="form-section">
+            <h4>Projet de recherche</h4>
+            <div class="form-group">
+              <label>Sujet de thèse <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="applicationForm.sujetThese" name="sujetThese" required />
+            </div>
+            <div class="form-group">
+              <label>Directeur de thèse envisagé</label>
+              <input type="text" [(ngModel)]="applicationForm.directeurThese" name="directeurThese" />
+            </div>
+            <div class="form-group">
+              <label>Laboratoire d'accueil</label>
+              <input type="text" [(ngModel)]="applicationForm.laboratoire" name="laboratoire" />
+            </div>
           </div>
         </div>
 
-        <div class="form-section">
-          <h4>Projet de recherche</h4>
-          <div class="form-group">
-            <label>Titre du projet <span class="required">*</span></label>
-            <input type="text" [(ngModel)]="applicationForm.rechercheTitre" name="rechercheTitre" required />
+        <!-- Step 4: Documents -->
+        <div class="wizard-step" *ngIf="currentStep() === 4">
+          <div class="form-section">
+            <h4>Documents requis</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CV (PDF) <span class="required">*</span></label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'cv')" accept=".pdf" required />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['cv']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['cv']" class="file-name">{{ getFileName('cv') }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Lettre de motivation (PDF)</label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'coverLetter')" accept=".pdf" />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['coverLetter']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['coverLetter']" class="file-name">{{ getFileName('coverLetter') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Diplômes (PDF) <span class="required">*</span></label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'diplomas')" accept=".pdf" required />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['diplomas']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['diplomas']" class="file-name">{{ getFileName('diplomas') }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Relevés de notes (PDF)</label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'transcripts')" accept=".pdf" />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['transcripts']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['transcripts']" class="file-name">{{ getFileName('transcripts') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Photo d'identité</label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'photo')" accept="image/*" />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['photo']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['photo']" class="file-name">{{ getFileName('photo') }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>CIN / Passeport (Scan)</label>
+                <div class="file-upload-box">
+                  <input type="file" class="file-input" (change)="onFileChange($event, 'cin')" accept=".pdf,image/*" />
+                  <div class="file-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span *ngIf="!uploadedFiles()['cin']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="uploadedFiles()['cin']" class="file-name">{{ getFileName('cin') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Résumé du projet <span class="required">*</span></label>
-            <textarea [(ngModel)]="applicationForm.rechercheResume" name="rechercheResume" rows="6" required></textarea>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input type="checkbox" [(ngModel)]="applicationForm.acceptTerms" name="acceptTerms" required />
-              <span>J'accepte les termes et conditions et certifie que toutes les informations fournies sont exactes <span class="required">*</span></span>
-            </label>
+          
+          <div class="form-section">
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="applicationForm.acceptTerms" name="acceptTerms" required />
+                <span>Je certifie l'exactitude des informations fournies et j'accepte les conditions de candidature.</span>
+              </label>
+            </div>
           </div>
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="closeApplicationModal()">Annuler</button>
-          <button type="submit" class="btn-submit" [disabled]="submitting()">
+          
+          <button type="button" class="btn-outline" *ngIf="currentStep() > 1" (click)="prevStep()">Précédent</button>
+          
+          <button type="button" class="btn-primary" *ngIf="currentStep() < totalSteps" (click)="nextStep()">Suivant</button>
+          
+          <button type="submit" class="btn-submit" *ngIf="currentStep() === totalSteps" [disabled]="submitting()">
             {{ submitting() ? 'Envoi en cours...' : 'Soumettre la candidature' }}
           </button>
         </div>

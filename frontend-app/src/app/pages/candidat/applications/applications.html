@@ -31,6 +31,9 @@
           <img class="banner" [src]="c.bannerUrl || c.image || c.banner || c.cover || '/assets/default-banner.jpg'" [alt]="c.nom || c.title || 'Banner'" />
           <div class="overlay-gradient"></div>
           <div class="status-badge" *ngIf="c.status" [ngClass]="'st-' + c.status">{{ c.status }}</div>
+          <div class="app-status" *ngIf="c.applicationStatus">
+            {{ c.applicationStatus }}
+          </div>
         </div>
         <div class="logo-box" *ngIf="c.universityLogo || c.logo">
           <img [src]="c.universityLogo || c.logo" [alt]="c.university || 'Logo'" />
