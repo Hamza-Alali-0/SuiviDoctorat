@@ -1,134 +1,241 @@
 <candidat-navbar></candidat-navbar>
 
-<div class="dash">
-  <!-- Hero header -->
-  <div class="hero">
-    <div class="hero-backdrop"></div>
-    <div class="hero-content">
-      <div class="welcome">Bonjour, {{ title() }}! </div>
-      <div class="subtitle">{{ year() }}</div>
-      <div class="meta">Directeur: {{ director() }} · Début: {{ startDate() }}</div>
-    </div>
-    <!-- Stats overlapping the hero -->
-    <div class="hero-overlap">
-      <div class="stats-container">
-        <div *ngFor="let stat of stats()" class="stat-item">
-          <div class="stat-header">
-            <span class="stat-label">{{ stat.label }}</span>
-            <span class="stat-value" [ngClass]="getProgressColor(stat.current, stat.required)">{{ stat.current }}/{{ stat.required }}</span>
+<div class="dashboard">
+  <!-- Hero Section with Background Image -->
+  <section class="hero-section">
+    <div class="hero-content-wrapper">
+      <div class="hero-text">
+        <p class="hero-greeting">Bienvenue</p>
+        <h1 class="hero-name">{{ name() || 'Candidat' }}</h1>
+        <p class="hero-subtitle">{{ year() }}</p>
+        
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Directeur: {{ director() }}</span>
           </div>
-          <div class="stat-bar">
-            <div class="stat-fill" [style.width.%]="(stat.current / stat.required) * 100"></div>
+          <div class="hero-meta-item" *ngIf="startDate()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>Début: {{ startDate() }}</span>
           </div>
         </div>
       </div>
-    </div>
-    <div class="progress-circle">
-      <svg class="circle-svg" viewBox="0 0 120 120">
-        <circle class="circle-bg" cx="60" cy="60" r="54"></circle>
-        <circle class="circle-progress" cx="60" cy="60" r="54" [attr.stroke-dashoffset]="339 - (339 * progress() / 100)"></circle>
-      </svg>
-      <div class="progress-text">
-        <div class="progress-value">{{ progress() }}%</div>
-        <div class="progress-label">Progression</div>
-      </div>
-    </div>
-  </div>
-  <!-- CTA banner (Déposez votre CV) -->
-  <div class="cta-banner">
-    <div class="cta-text">
-      <div class="cta-title">Publiez votre CV et laissez les recruteurs venir à vous</div>
-      <div class="cta-sub">En moyenne, un CV est consulté par 30 recruteurs !</div>
-    </div>
-    <div class="cta-action">
-      <button class="cta-button">Déposez votre CV</button>
-    </div>
-  </div>
 
-  <!-- Quick actions -->
-  <div class="quick-actions">
-    <a routerLink="/candidat/soutenances" class="quick-link">
-      <div class="icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </div>
-      <div class="link-label">Soutenances</div>
-    </a>
-    <a routerLink="/candidat/campaigns" class="quick-link">
-      <div class="icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      </div>
-      <div class="link-label">Campagnes</div>
-    </a>
-    <a routerLink="/candidat/documents" class="quick-link">
-      <div class="icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      </div>
-      <div class="link-label">Documents</div>
-    </a>
-  </div>
-
-  <!-- Stats grid -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#d1fae5; color:#065f46">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Statut Inscription</div>
-        <div class="stat-value" style="color:#16a34a">Approuvée</div>
-        <div class="stat-detail">
-          <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
-          <div class="stat-sub">8/10 documents soumis</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#dbeafe; color:#1e40af">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Prérequis Soutenance</div>
-        <div class="prereq-grid">
-          <div><div class="prereq-label">Publications</div><div class="prereq-value">2/2</div></div>
-          <div><div class="prereq-label">Conférences</div><div class="prereq-value">3/2</div></div>
-          <div><div class="prereq-label">Formations (h)</div><div class="prereq-value">180/200</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#fef3c7; color:#92400e">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Échéances Importantes</div>
-        <div class="deadline-list">
-          <div class="deadline-item">
-            <div class="deadline-text">Réinscription 2025-2026</div>
-            <div class="badge badge-urgent">15 Sept 2025</div>
-          </div>
-          <div class="deadline-item">
-            <div class="deadline-text">Rapport d'avancement annuel</div>
-            <div class="badge badge-dark">30 Oct 2025</div>
+      <!-- Progress Ring -->
+      <div class="progress-ring-container">
+        <div class="progress-ring">
+          <svg viewBox="0 0 130 130">
+            <circle class="progress-ring-bg" cx="65" cy="65" r="55"/>
+            <circle class="progress-ring-fill" cx="65" cy="65" r="55" [attr.stroke-dashoffset]="getProgressOffset()"/>
+          </svg>
+          <div class="progress-ring-text">
+            <div class="progress-ring-value">{{ progress() }}%</div>
+            <div class="progress-ring-label">Progression</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Activities -->
-  <div class="activities">
-    <div class="section-header">
-      <h3>Activités Récentes</h3>
-      <button class="view-all">Voir tout</button>
+  <!-- Stats Overview -->
+  <section class="stats-overview">
+    <div class="stat-overview-card" *ngFor="let stat of stats()">
+      <div class="stat-overview-header">
+        <span class="stat-overview-label">{{ stat.label }}</span>
+        <span class="stat-overview-value">{{ stat.current }}/{{ stat.required }}</span>
+      </div>
+      <div class="stat-progress-bar">
+        <div class="stat-progress-fill" [style.width.%]="getStatProgress(stat.current, stat.required)"></div>
+      </div>
     </div>
-    <div class="activity-list">
-      <div *ngFor="let it of recent()" class="activity-item">
-        <div class="activity-dot"></div>
-        <div class="activity-content">
-          <div class="activity-title">{{ it.title }}</div>
-          <div class="activity-time">{{ it.when }}</div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions-section">
+    <h2 class="section-title">Accès rapide</h2>
+    <div class="quick-actions-grid">
+      <a routerLink="/soutenance" class="quick-action-card">
+        <div class="quick-action-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Soutenances</div>
+          <div class="quick-action-desc">Gérer vos soutenances</div>
+        </div>
+      </a>
+
+      <a routerLink="/candidat/campaigns" class="quick-action-card">
+        <div class="quick-action-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Campagnes</div>
+          <div class="quick-action-desc">Voir les campagnes</div>
+        </div>
+      </a>
+
+      <a routerLink="/candidat/documents" class="quick-action-card">
+        <div class="quick-action-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Documents</div>
+          <div class="quick-action-desc">Gérer vos documents</div>
+        </div>
+      </a>
+
+      <a routerLink="/candidat/profile" class="quick-action-card">
+        <div class="quick-action-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Mon Profil</div>
+          <div class="quick-action-desc">Voir mon profil</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Inscription Status Card -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Statut Inscription
+        </h3>
+      </div>
+      <div class="status-content">
+        <div class="status-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="status-details">
+          <div class="status-label">Statut actuel</div>
+          <div class="status-value">Approuvée</div>
+          <div class="status-progress">
+            <div class="status-progress-bar">
+              <div class="status-progress-fill" style="width: 80%"></div>
+            </div>
+            <div class="status-progress-text">8/10 documents soumis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prerequisites Card -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          Prérequis Soutenance
+        </h3>
+      </div>
+      <div class="prereq-grid">
+        <div class="prereq-item">
+          <div class="prereq-label">Publications</div>
+          <div class="prereq-value">2/2</div>
+        </div>
+        <div class="prereq-item">
+          <div class="prereq-label">Conférences</div>
+          <div class="prereq-value">3/2</div>
+        </div>
+        <div class="prereq-item">
+          <div class="prereq-label">Formations (h)</div>
+          <div class="prereq-value">180/200</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deadlines Card -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Échéances
+        </h3>
+      </div>
+      <div class="deadline-list">
+        <div class="deadline-item" *ngFor="let deadline of deadlines()">
+          <div class="deadline-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="deadline-content">
+            <div class="deadline-title">{{ deadline.title }}</div>
+            <div class="deadline-date">{{ deadline.date }}</div>
+          </div>
+          <span class="deadline-badge">{{ deadline.date }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities Card -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Activités Récentes
+        </h3>
+        <button class="view-all-btn">Voir tout</button>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let activity of recent()">
+          <div class="activity-indicator">
+            <div class="activity-dot"></div>
+            <div class="activity-line"></div>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">{{ activity.title }}</div>
+            <div class="activity-time">{{ activity.when }}</div>
+          </div>
+          <div class="activity-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
         </div>
       </div>
     </div>

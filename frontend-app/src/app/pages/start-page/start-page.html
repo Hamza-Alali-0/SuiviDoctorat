@@ -259,44 +259,72 @@
         <p class="section-subtitle">{{ t('features.header.subtitle') }}</p>
       </div>
 
-      <div class="features-hero">
-        <div class="features-hero-media">
-          <img src="/assets/features-apps.svg" alt="Platform apps preview" class="features-hero-img" />
+      <div class="features-grid-new">
+        <!-- Row 1 -->
+        <div class="feature-card-new large purple-bg">
+            <div class="fc-content">
+                <h3>Trouver un job ?<br>Simple comme Hello</h3>
+                <div class="fc-image-wrapper">
+                    <img src="/assets/candidat-banner.png" alt="Feature 1" class="fc-img">
+                </div>
+            </div>
         </div>
-        <div class="features-hero-list">
-          <div class="feature-grid big-apps">
-            <div class="feature-card app-tile">
-              <div class="feature-icon large">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.12"/><path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-              <h3>{{ t('features.apps.campaigns.title') }}</h3>
-              <p>{{ t('features.apps.campaigns.text') }}</p>
+        <div class="feature-card-new small white-bg">
+            <div class="fc-content-center">
+                <div class="fc-icon-circle purple">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3>Suivez votre candidature</h3>
+                <p>Enfin de la visibilité en direct étape par étape. Postulez et dès que nous avons du nouveau sur l'avancement de votre candidature, vous êtes prévenu !</p>
+                <button class="btn-outline">Voir mes candidatures</button>
             </div>
+        </div>
 
-            <div class="feature-card app-tile">
-              <div class="feature-icon large">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>
-              </div>
-              <h3>{{ t('features.apps.defense.title') }}</h3>
-              <p>{{ t('features.apps.defense.text') }}</p>
+        <!-- Row 2 -->
+        <div class="feature-card-new small white-bg">
+            <div class="fc-content-center">
+                <div class="fc-icon-circle blue">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <h3>Des offres qui ne cachent rien</h3>
+                <p>Salaire, télétravail ... N'avancez plus dans l'inconnu pour choisir votre futur job.</p>
+                <button class="btn-outline">Trouver mon job</button>
             </div>
+        </div>
+        <div class="feature-card-new large image-bg">
+             <div class="fc-bg-wrapper">
+                <img src="/assets/candidat-banner.png" alt="Feature 4" class="fc-bg-img">
+             </div>
+             <div class="fc-tags top-left">
+                 <span class="fc-tag blue">CDI</span>
+             </div>
+             <div class="fc-tags top-right">
+                 <span class="fc-tag white">30 000 - 40 000 € / an</span>
+             </div>
+             <div class="fc-tags bottom-left">
+                 <span class="fc-tag white icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Télétravail</span>
+                 <span class="fc-tag white icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Travail de nuit</span>
+             </div>
+        </div>
 
-            <div class="feature-card app-tile">
-              <div class="feature-icon large">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12" stroke="currentColor" stroke-width="1.6"/></svg>
-              </div>
-              <h3>{{ t('features.apps.docs.title') }}</h3>
-              <p>{{ t('features.apps.docs.text') }}</p>
+        <!-- Row 3 -->
+        <div class="feature-card-new large image-bg green-theme">
+             <div class="fc-bg-wrapper">
+                <img src="/assets/candidat-banner.png" alt="Feature 5" class="fc-bg-img">
+             </div>
+             <div class="fc-badge-float">
+                 <span class="icon">🏆</span> Super recruteur
+             </div>
+        </div>
+        <div class="feature-card-new small white-bg">
+            <div class="fc-content-center">
+                <div class="fc-icon-circle green">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </div>
+                <h3>Des entreprises transparentes</h3>
+                <p>Process de recrutement, délai de réponse, avantages... Vous méritez de vraies réponses, pas de perdre du temps.</p>
+                <button class="btn-outline">Voir les entreprises</button>
             </div>
-
-            <div class="feature-card app-tile">
-              <div class="feature-icon large">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5" stroke="currentColor" stroke-width="1.6"/></svg>
-              </div>
-              <h3>{{ t('features.apps.collab.title') }}</h3>
-              <p>{{ t('features.apps.collab.text') }}</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
