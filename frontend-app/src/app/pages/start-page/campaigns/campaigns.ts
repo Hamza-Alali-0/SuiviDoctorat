@@ -8,6 +8,7 @@ import { CandidatNavbarComponent } from '../../../components/navbar/candidat-nav
 import { AuthService } from '../../../services/auth.service';
 import { CampagnesService } from '../../../services/campagnes.service';
 import { ApplicationsService } from '../../../services/applications.service';
+import { TranslationService } from '../../../services/translation.service';
 
 interface ChecklistItem {
   id?: number;
@@ -25,7 +26,7 @@ interface Campagne {
   dateFermeture: string;
   active: boolean;
   visibilite: 'PUBLIC' | 'INTERNE';
-  
+
   // INSCRIPTION specific
   etablissement?: string;
   ecoleDoctorale?: string;
@@ -33,23 +34,23 @@ interface Campagne {
   photoCouverture?: string;
   piecesObligatoires?: string[];
   reglesEligibilite?: string;
-  
+
   // RÉINSCRIPTION specific
   anneeConcernee?: string;
   documentsARenouveler?: string[];
   derogationTroisiemeAnnee?: boolean;
   messageInformatif?: string;
-  
+
   // SOUTENANCE specific
   checklistObligatoire?: ChecklistItem[];
   documentsObligatoires?: string[];
   modeleAutorisation?: string;
-  
+
   // Notifications
   emailOuverture?: string;
   emailRappel?: string;
   emailFermeture?: string;
-  
+
   nombreDossiers?: number;
 }
 
@@ -371,11 +372,11 @@ export class CampaignsPage implements OnInit {
   // Application modal + form state
   showApplicationModal = signal(false);
   selectedCampaign = signal<Campagne | null>(null);
-  
+
   // Wizard state
   currentStep = signal(1);
   totalSteps = 4;
-  
+
   // Form model matching InscriptionFormDTO
   applicationForm: any = {
     // Step 1: Personal
@@ -389,17 +390,17 @@ export class CampaignsPage implements OnInit {
     cin: '',
     adresse: '',
     sexe: 'M',
-    
+
     // Step 2: Academic
     highestDegree: '', // mapped to diplomesPrecedents or handled separately
     etablissementOrigine: '',
     diplomesPrecedents: '', // description
-    
+
     // Step 3: Research
     sujetThese: '',
     directeurThese: '',
     laboratoire: '',
-    
+
     // Terms
     acceptTerms: false
   };
@@ -410,16 +411,17 @@ export class CampaignsPage implements OnInit {
   submitting = signal(false);
   submitError = signal('');
   submitSuccess = signal('');
-  
+
   currentUserId: number | null = null;
 
   constructor(
-    private http: HttpClient, 
-    private router: Router, 
+    private http: HttpClient,
+    private router: Router,
     private route: ActivatedRoute,
     public auth: AuthService,
     private campagnesService: CampagnesService,
-    private applicationsService: ApplicationsService
+    private applicationsService: ApplicationsService,
+    protected tx: TranslationService
   ) {
     // Debug effect: log whenever appliedCampaignIds changes
     effect(() => {
@@ -428,27 +430,56 @@ export class CampaignsPage implements OnInit {
     });
   }
 
+  tryExtractIdFromToken(): void {
+    try {
+      const token = this.auth.getToken ? this.auth.getToken() : null;
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length >= 2) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          const cand = payload.id || payload.sub || payload.userId;
+          if (cand && !isNaN(Number(cand))) {
+            this.currentUserId = Number(cand);
+            console.log('[CampaignsPage] Recovered userId from token:', this.currentUserId);
+            // Try to pre-fill email/name from token if available
+            if (!this.applicationForm.email && payload.email) this.applicationForm.email = payload.email;
+            if (!this.applicationForm.nom && payload.name) this.applicationForm.nom = payload.name;
+          }
+        }
+      }
+    } catch (e) { console.error('[CampaignsPage] Token parse failed:', e); }
+  }
+
   get isLoggedIn(): boolean { return this.auth.isLoggedIn ? this.auth.isLoggedIn() : false; }
 
   ngOnInit(): void {
     console.log('[CampaignsPage] Component initialized (ngOnInit)');
     this.loadFavorites();
     this.loadApplied();  // Load previously applied campaigns from localStorage
-    
+
     if (this.isLoggedIn) {
       console.log('[CampaignsPage] User is logged in, loading profile...');
       this.auth.getProfile().subscribe({
         next: (user: any) => {
-          if (user && user.id) {
-            this.currentUserId = user.id;
+          console.log('[CampaignsPage] Profile loaded:', user);
+          // Robustly extract user ID
+          const uid = user.id || user.userId || user.sub;
+          if (uid) {
+            this.currentUserId = Number(uid);
             console.log('[CampaignsPage] Set currentUserId:', this.currentUserId);
             // Pre-fill form
             this.applicationForm.prenom = user.prenom || this.applicationForm.prenom;
             this.applicationForm.nom = user.nom || this.applicationForm.nom;
             this.applicationForm.email = user.email || this.applicationForm.email;
+          } else {
+            console.warn('[CampaignsPage] Profile loaded but no ID found:', user);
+            this.tryExtractIdFromToken();
           }
         },
-        error: () => console.log('[CampaignsPage] Failed to load user profile')
+        error: (err) => {
+          console.error('[CampaignsPage] Failed to load user profile:', err);
+          this.tryExtractIdFromToken();
+        }
       });
     } else {
       console.log('[CampaignsPage] User is not logged in');
@@ -468,7 +499,7 @@ export class CampaignsPage implements OnInit {
     this.loadCampaigns();
     document.addEventListener('click', () => this.showTypes.set(false));
   }
-  
+
   loadCampaigns(): void {
     this.fetchError.set('');
     console.log('[CampaignsPage] Requesting public active campagnes from', this.campagnesService);
@@ -526,9 +557,9 @@ export class CampaignsPage implements OnInit {
     const query = this.searchQuery();
     if (query.trim()) {
       const q = query.toLowerCase();
-      list = list.filter(c => 
-        c.nom.toLowerCase().includes(q) || 
-        (c.etablissement && c.etablissement.toLowerCase().includes(q)) || 
+      list = list.filter(c =>
+        c.nom.toLowerCase().includes(q) ||
+        (c.etablissement && c.etablissement.toLowerCase().includes(q)) ||
         (c.ecoleDoctorale && c.ecoleDoctorale.toLowerCase().includes(q)) ||
         (c.description && c.description.toLowerCase().includes(q))
       );
@@ -547,7 +578,7 @@ export class CampaignsPage implements OnInit {
       list = list.filter(c => {
         const ouverture = new Date(c.dateOuverture);
         const fermeture = new Date(c.dateFermeture);
-        
+
         if (status === 'active') return c.active && now >= ouverture && now <= fermeture;
         if (status === 'upcoming') return now < ouverture;
         if (status === 'ended') return now > fermeture;
@@ -574,13 +605,13 @@ export class CampaignsPage implements OnInit {
   sortCampaigns(apply = true): void {
     const key = this.sortKey();
     const arr = this.filteredCampaigns();
-    arr.sort((a,b) => {
+    arr.sort((a, b) => {
       switch (key) {
-        case 'deadline': 
+        case 'deadline':
           return new Date(a.dateFermeture).getTime() - new Date(b.dateFermeture).getTime();
-        case 'recent': 
+        case 'recent':
           return new Date(b.dateOuverture).getTime() - new Date(a.dateOuverture).getTime();
-        default: 
+        default:
           return a.nom.localeCompare(b.nom);
       }
     });
@@ -600,46 +631,46 @@ export class CampaignsPage implements OnInit {
     this.visibleCampaigns.set(filtered.slice(0, next));
   }
 
-  toggleTypes(): void { 
-    this.showTypes.set(!this.showTypes()); 
+  toggleTypes(): void {
+    this.showTypes.set(!this.showTypes());
   }
-  
+
   toggleType(type: string, checked: boolean): void {
     const types = this.selectedTypes();
-    if (checked) { 
-      if (!types.includes(type)) this.selectedTypes.set([...types, type]); 
-    } else { 
-      this.selectedTypes.set(types.filter(t => t !== type)); 
+    if (checked) {
+      if (!types.includes(type)) this.selectedTypes.set([...types, type]);
+    } else {
+      this.selectedTypes.set(types.filter(t => t !== type));
     }
   }
-  
-  clearTypes(): void { 
-    this.selectedTypes.set([]); 
+
+  clearTypes(): void {
+    this.selectedTypes.set([]);
   }
 
   toggleFavorite(id: number): void {
     const favs = new Set(this.favorites());
-    if (favs.has(id)) favs.delete(id); 
+    if (favs.has(id)) favs.delete(id);
     else favs.add(id);
     this.favorites.set(favs);
     this.saveFavorites();
     if (this.showFavorites()) this.applyFilters();
   }
-  
-  isFavorite(id: number): boolean { 
-    return this.favorites().has(id); 
+
+  isFavorite(id: number): boolean {
+    return this.favorites().has(id);
   }
 
-  saveFavorites(): void { 
+  saveFavorites(): void {
     try {
       const key = this.getFavoritesKey();
       const arr = JSON.stringify(Array.from(this.favorites()));
       localStorage.setItem(key, arr);
       // also keep legacy global key in sync for older pages
-      try { localStorage.setItem('campaign_favorites', arr); } catch (e) {}
-    } catch {}
+      try { localStorage.setItem('campaign_favorites', arr); } catch (e) { }
+    } catch { }
   }
-  
+
   loadFavorites(): void {
     try {
       const key = this.getFavoritesKey();
@@ -650,7 +681,7 @@ export class CampaignsPage implements OnInit {
         const old = localStorage.getItem('campaign_favorites');
         if (old) this.favorites.set(new Set(JSON.parse(old)));
       }
-    } catch {}
+    } catch { }
   }
 
   saveApplied(): void {
@@ -702,9 +733,9 @@ export class CampaignsPage implements OnInit {
       if (!token) return 'campaign_favorites';
       const parts = token.split('.');
       if (parts.length < 2) return 'campaign_favorites';
-      const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
       const id = payload.email || payload.sub || payload.username || payload.user || payload.name || payload.id;
-      if (id) return `campaign_favorites_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g,'_')}`;
+      if (id) return `campaign_favorites_${String(id).toLowerCase().replace(/[^a-z0-9@.\-]/g, '_')}`;
     } catch (e) { /* ignore */ }
     return 'campaign_favorites';
   }
@@ -735,9 +766,9 @@ export class CampaignsPage implements OnInit {
     this.selectedCampaign.set(c);
     this.showApplicationModal.set(true);
   }
-  
-  hasApplied(id: number): boolean { 
-    return this.appliedCampaignIds().has(id); 
+
+  hasApplied(id: number): boolean {
+    return this.appliedCampaignIds().has(id);
   }
 
   viewDetails(c: Campagne): void {
@@ -750,7 +781,7 @@ export class CampaignsPage implements OnInit {
     const now = new Date();
     const ouverture = new Date(c.dateOuverture);
     const fermeture = new Date(c.dateFermeture);
-    
+
     if (!c.active) return 'ended';
     if (now < ouverture) return 'upcoming';
     if (now > fermeture) return 'ended';
@@ -759,16 +790,11 @@ export class CampaignsPage implements OnInit {
 
   getStatusLabel(c: Campagne): string {
     const status = this.getCampagneStatus(c);
-    return ({ 'active':'Ouverte','upcoming':'À venir','ended':'Fermée' } as any)[status] || status;
+    return this.tx.t(`campaignsPage.status.${status}`);
   }
 
   getTypeLabel(type: string): string {
-    const labels = {
-      INSCRIPTION: 'Inscription',
-      REINSCRIPTION: 'Réinscription',
-      SOUTENANCE: 'Soutenance'
-    };
-    return labels[type as keyof typeof labels] || type;
+    return this.tx.t(`campaignsPage.typeLabels.${type}`);
   }
 
   isClosingSoon(c: Campagne): boolean {
@@ -784,12 +810,12 @@ export class CampaignsPage implements OnInit {
     return d < 0 ? 0 : d;
   }
 
-  trackById(_: number, c: Campagne) { 
-    return c.id; 
+  trackById(_: number, c: Campagne) {
+    return c.id;
   }
 
-  refresh(): void { 
-    this.loadCampaigns(); 
+  refresh(): void {
+    this.loadCampaigns();
   }
 
   resetFilters(): void {
@@ -801,8 +827,8 @@ export class CampaignsPage implements OnInit {
     this.applyFilters();
   }
 
-  onImgError(e: any): void { 
-    try { e.target.style.visibility = 'hidden'; } catch {} 
+  onImgError(e: any): void {
+    try { e.target.style.visibility = 'hidden'; } catch { }
   }
 
   closeApplicationModal(): void {
@@ -842,19 +868,19 @@ export class CampaignsPage implements OnInit {
     }
     return (fileOrFiles as File).name;
   }
-  
+
   nextStep(): void {
     const step = this.currentStep();
     if (this.validateStep(step)) {
       this.currentStep.set(step + 1);
     }
   }
-  
+
   prevStep(): void {
     const step = this.currentStep();
     if (step > 1) this.currentStep.set(step - 1);
   }
-  
+
   goToStep(step: number): void {
     if (step < this.currentStep()) {
       this.currentStep.set(step);
@@ -864,7 +890,7 @@ export class CampaignsPage implements OnInit {
   validateStep(step: number): boolean {
     this.submitError.set('');
     const f = this.applicationForm;
-    
+
     if (step === 1) {
       if (!f.prenom || !f.nom || !f.email || !f.telephone || !f.dateNaissance || !f.cin) {
         this.submitError.set('Veuillez remplir tous les champs obligatoires.');
@@ -875,21 +901,21 @@ export class CampaignsPage implements OnInit {
         return false;
       }
     }
-    
+
     if (step === 2) {
       if (!f.highestDegree || !f.etablissementOrigine) {
         this.submitError.set('Veuillez renseigner votre parcours académique.');
         return false;
       }
     }
-    
+
     if (step === 3) {
       if (!f.sujetThese) {
         this.submitError.set('Le sujet de thèse est obligatoire.');
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -933,27 +959,27 @@ export class CampaignsPage implements OnInit {
         console.log('[CampaignsPage] ✓ Application submitted successfully. Response:', res);
         this.submitting.set(false);
         this.submitSuccess.set('Votre candidature a été envoyée avec succès. Nous vous enverrons un email de confirmation.');
-        
+
         // Update local state
         const ids = new Set(this.appliedCampaignIds());
         console.log('[CampaignsPage] Before adding campaign ID, appliedCampaignIds:', Array.from(ids));
         ids.add(campaign.id!);
         console.log('[CampaignsPage] After adding campaign ID, appliedCampaignIds:', Array.from(ids));
         this.appliedCampaignIds.set(ids);
-        
+
         // persist applied ids for the logged in user
-        try { 
+        try {
           this.saveApplied();
           console.log('[CampaignsPage] ✓ Saved applied IDs to localStorage');
         } catch (e) { console.error('[CampaignsPage] Failed to save applied IDs:', e); }
-        
+
         // Notify the ApplicationsService that applications have been updated
         // This will trigger the applications page to refresh the data
-        try { 
+        try {
           this.applicationsService.notifyApplicationsUpdated();
           console.log('[CampaignsPage] ✓ Notified ApplicationsService of update');
         } catch (e) { console.error('[CampaignsPage] Failed to notify:', e); }
-        
+
         // Refresh applied campaign ids from backend (canonical source) so UI reflects DB
         (async () => {
           try {
@@ -964,7 +990,7 @@ export class CampaignsPage implements OnInit {
                 try {
                   const parts = token.split('.');
                   if (parts.length >= 2) {
-                    const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+                    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
                     const cand = payload.id || payload.sub || payload.userId || payload.name || payload.email;
                     if (cand && !isNaN(Number(cand))) userId = Number(cand);
                     console.log('[CampaignsPage] Extracted userId from token:', userId);
@@ -979,14 +1005,21 @@ export class CampaignsPage implements OnInit {
                 next: (data: any[]) => {
                   console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
                   try {
-                    const appliedIds = new Set<number>();
+                    // Start with the current set of applied IDs (which includes the one we just added)
+                    const appliedIds = new Set<number>(this.appliedCampaignIds());
+
+                    // Add any IDs found in the backend response
                     (Array.isArray(data) ? data : []).forEach(d => {
                       if (d && d.campagne && d.campagne.id) {
                         appliedIds.add(d.campagne.id);
                         console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
                       }
                     });
-                    console.log('[CampaignsPage] Final appliedIds from backend:', Array.from(appliedIds));
+
+                    // Ensure the just-submitted campaign is definitely in the set
+                    if (campaign.id) appliedIds.add(campaign.id);
+
+                    console.log('[CampaignsPage] Final merged appliedIds:', Array.from(appliedIds));
                     this.appliedCampaignIds.set(appliedIds);
                     try { this.saveApplied(); } catch (e) { /* ignore */ }
                   } catch (e) { console.error('[CampaignsPage] Error processing applications:', e); }
@@ -998,7 +1031,7 @@ export class CampaignsPage implements OnInit {
             }
           } catch (e) { console.error('[CampaignsPage] Error in async refresh:', e); }
         })();
-        
+
         // keep modal open briefly to show success
         console.log('[CampaignsPage] Closing modal in 2500ms...');
         setTimeout(() => {

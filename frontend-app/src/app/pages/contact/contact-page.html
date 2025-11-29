@@ -1,0 +1,149 @@
+<div class="landing">
+  @if (isLoggedIn) {
+    <user-navbar></user-navbar>
+  } @else {
+    <public-navbar></public-navbar>
+  }
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-bg-gradient"></div>
+    <div class="hero-content">
+      <div class="hero-badge">{{ tx.translations().contact.hero.badge }}</div>
+      <h1 class="hero-title">
+        {{ tx.translations().contact.hero.title }}
+      </h1>
+      <p class="hero-subtitle">
+        {{ tx.translations().contact.hero.subtitle }}
+      </p>
+    </div>
+  </header>
+
+  <!-- Contact Content -->
+  <section class="section contact-section">
+    <div class="contact-container">
+      <!-- Contact Info -->
+      <div class="contact-info">
+        <div class="info-card">
+          <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <h3>{{ tx.translations().contact.info.phone.title }}</h3>
+          <p>{{ tx.translations().contact.info.phone.desc }}</p>
+          <a href="tel:+1234567890">+1 (555) 000-0000</a>
+        </div>
+
+        <div class="info-card">
+          <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <h3>{{ tx.translations().contact.info.email.title }}</h3>
+          <p>{{ tx.translations().contact.info.email.desc }}</p>
+          <a href="mailto:support@suividoctorat.edu">support@suividoctorat.edu</a>
+        </div>
+
+        <div class="info-card">
+          <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>{{ tx.translations().contact.info.visit.title }}</h3>
+          <p>{{ tx.translations().contact.info.visit.desc }}</p>
+          <a href="#">View on Map</a>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-wrapper">
+        <div class="form-header">
+          <h2>{{ tx.translations().contact.form.title }}</h2>
+          <p>{{ tx.translations().contact.form.subtitle }}</p>
+        </div>
+        
+        <form class="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ tx.translations().contact.form.firstName }}</label>
+              <input type="text" [placeholder]="tx.translations().contact.form.firstPlaceholder" />
+            </div>
+            <div class="form-group">
+              <label>{{ tx.translations().contact.form.lastName }}</label>
+              <input type="text" [placeholder]="tx.translations().contact.form.lastPlaceholder" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>{{ tx.translations().contact.form.email }}</label>
+            <input type="email" [placeholder]="tx.translations().contact.form.emailPlaceholder" />
+          </div>
+
+          <div class="form-group">
+            <label>{{ tx.translations().contact.form.subject }}</label>
+            <select>
+              <option>{{ tx.translations().contact.form.subjects.general }}</option>
+              <option>{{ tx.translations().contact.form.subjects.tech }}</option>
+              <option>{{ tx.translations().contact.form.subjects.feedback }}</option>
+              <option>{{ tx.translations().contact.form.subjects.partner }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>{{ tx.translations().contact.form.message }}</label>
+            <textarea rows="5" [placeholder]="tx.translations().contact.form.messagePlaceholder"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            {{ tx.translations().contact.form.submit }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-new">
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <img src="assets/logo-dark.svg" alt="SuiviDoctorat" class="footer-logo" onerror="this.style.display='none'">
+        <h3 style="margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-0.03em">SuiviDoctorat</h3>
+        <p class="footer-tagline">
+          {{ tx.translations().contact.footer.tagline }}
+        </p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-nav-col">
+        <h4>{{ tx.translations().contact.footer.platform }}</h4>
+        <a routerLink="/campaigns">{{ tx.translations().contact.footer.links.campaigns }}</a>
+        <a routerLink="/features">{{ tx.translations().contact.footer.links.features }}</a>
+        <a routerLink="/pricing">{{ tx.translations().contact.footer.links.pricing }}</a>
+      </div>
+      
+      <div class="footer-nav-col">
+        <h4>{{ tx.translations().contact.footer.company }}</h4>
+        <a routerLink="/about">{{ tx.translations().contact.footer.links.about }}</a>
+        <a routerLink="/careers">{{ tx.translations().contact.footer.links.careers }}</a>
+        <a routerLink="/contact">{{ tx.translations().contact.footer.links.contact }}</a>
+      </div>
+      
+      <div class="footer-nav-col">
+        <h4>{{ tx.translations().contact.footer.legal }}</h4>
+        <a routerLink="/privacy">{{ tx.translations().contact.footer.links.privacy }}</a>
+        <a routerLink="/terms">{{ tx.translations().contact.footer.links.terms }}</a>
+        <a routerLink="/security">{{ tx.translations().contact.footer.links.security }}</a>
+      </div>
+    </div>
+    
+    <div class="footer-bottom-new">
+      <div>{{ tx.translations().contact.footer.rights }}</div>
+      <div class="footer-bottom-links">
+        <a href="#">{{ tx.translations().contact.footer.links.privacy }}</a>
+        <a href="#">{{ tx.translations().contact.footer.links.terms }}</a>
+      </div>
+    </div>
+  </footer>
+</div>

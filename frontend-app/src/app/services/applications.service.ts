@@ -8,30 +8,33 @@ export class ApplicationsService {
   // Public submission endpoint
   private submitUrl = '/inscription-service/api/inscriptions/soumettre';
   private uploadUrl = '/inscription-service/api/inscriptions/dossier';
-  
-  // Subject to notify listeners when applications are updated
+
   private applicationsUpdated$ = new Subject<void>();
 
-  constructor(private http: HttpClient) {}
-  
+  constructor(private http: HttpClient) { }
+
   // Broadcast when applications have been updated (e.g., after submission)
   getApplicationsUpdated(): Observable<void> {
     return this.applicationsUpdated$.asObservable();
   }
-  
+
   // Emit when applications data should be refreshed
   notifyApplicationsUpdated(): void {
     console.log('[ApplicationsService] Broadcasting applicationsUpdated event to all listeners');
     this.applicationsUpdated$.next();
   }
 
-  getMyApplications(userId: number): Observable<any[]> {
-    const url = `/inscription-service/api/inscriptions/doctorant/${userId}/dashboard`;
-    console.log('[ApplicationsService] Calling getMyApplications with userId:', userId, 'URL:', url);
+  getMyApplications(userId?: number): Observable<any[]> {
+    // If userId is provided, use specific endpoint. Otherwise use 'me' endpoint which relies on token.
+    const url = userId
+      ? `/inscription-service/api/inscriptions/doctorant/${userId}/dashboard`
+      : `/inscription-service/api/inscriptions/doctorant/me/dashboard`;
+
+    console.log('[ApplicationsService] Calling getMyApplications, url:', url);
     return this.http.get<any[]>(url).pipe(
       map(data => {
         console.log('[ApplicationsService] ✓ getMyApplications returned:', data?.length || 0, 'items');
-        return data;
+        return data || [];
       }),
       catchError(err => {
         console.error('[ApplicationsService] ✗ getMyApplications failed:', err);
@@ -45,7 +48,7 @@ export class ApplicationsService {
     console.log('[ApplicationsService] submitApplication called for campaignId:', campaignId);
     console.log('[ApplicationsService] Form data:', { ...form, doctorantId: form.doctorantId ? '***' : 'not-set' });
     console.log('[ApplicationsService] Files:', Object.keys(files));
-    
+
     // 1. Prepare DTO
     const dto = {
       ...form,
@@ -63,7 +66,7 @@ export class ApplicationsService {
       ? `/inscription-service/api/inscriptions/doctorant/${dto.doctorantId}/soumettre`
       : this.submitUrl;
     console.log('[ApplicationsService] Using endpoint:', endpoint);
-    
+
     const submit$ = this.http.post<any>(endpoint, dto);
 
     return submit$.pipe(
@@ -73,17 +76,17 @@ export class ApplicationsService {
           console.error('[ApplicationsService] ✗ Invalid dossier response:', dossier);
           return throwError(() => new Error('Failed to create dossier'));
         }
-        
+
         // 3. Upload Files
         const uploads: Observable<any>[] = [];
-        
+
         for (const key of Object.keys(files || {})) {
           const val = files[key];
           if (!val) continue;
-          
+
           // Determine TypePieceJointe based on key
           const typePiece = this.getTypeFromKey(key);
-          
+
           if (Array.isArray(val)) {
             val.forEach(f => {
               console.log('[ApplicationsService] Uploading file:', key, f.name);
@@ -94,12 +97,12 @@ export class ApplicationsService {
             uploads.push(this.uploadFile(dossier.id, val as File, typePiece));
           }
         }
-        
+
         if (uploads.length === 0) {
           console.log('[ApplicationsService] No files to upload');
           return of(dossier);
         }
-        
+
         console.log('[ApplicationsService] Starting file uploads, total files:', uploads.length);
         return forkJoin(uploads).pipe(
           map(() => {
@@ -110,17 +113,7 @@ export class ApplicationsService {
       }),
       catchError(err => {
         console.error('[ApplicationsService] ✗ Application submission failed:', err);
-        // Fallback to local storage if offline or server error (optional, but good for UX)
-        try {
-          const saved = JSON.parse(localStorage.getItem('pending_applications') || '[]');
-          saved.push({ campaignId, form, filesMeta: this._filesMeta(files), date: Date.now() });
-          localStorage.setItem('pending_applications', JSON.stringify(saved));
-          console.log('[ApplicationsService] Fallback: Saved to localStorage as pending');
-          return of({ fallback: true, message: 'saved-local' });
-        } catch (e) {
-          console.error('[ApplicationsService] Fallback also failed:', e);
-          return throwError(() => err);
-        }
+        return throwError(() => err);
       })
     );
   }

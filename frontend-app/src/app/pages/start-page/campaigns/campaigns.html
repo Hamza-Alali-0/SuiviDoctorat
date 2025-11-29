@@ -11,25 +11,24 @@
     <div class="about-container">
       <div class="about-content">
         <div class="about-intro">
-          <span class="section-badge">Découvrez</span>
-          <h2 class="section-title">Campagnes Doctorales</h2>
-          <p class="about-text">Votre passerelle vers l'excellence académique. Explorez des centaines d'opportunités de doctorat, postulez en quelques clics et suivez votre progression avec des outils intelligents.</p>
+          <h2 class="section-title">{{ tx.t('campaignsPage.title') }}</h2>
+          <p class="about-text">{{ tx.t('campaignsPage.subtitle') }}</p>
         </div>
 
         <div class="about-stats">
           <div class="stat-item">
             <div class="stat-number">{{ totalCampaigns() }}</div>
-            <div class="stat-label">Campagnes Actives</div>
+            <div class="stat-label">{{ tx.t('campaignsPage.stats.active') }}</div>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <div class="stat-number">50+</div>
-            <div class="stat-label">Universités Partenaires</div>
+            <div class="stat-label">{{ tx.t('campaignsPage.stats.partners') }}</div>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <div class="stat-number">24/7</div>
-            <div class="stat-label">Support Disponible</div>
+            <div class="stat-label">{{ tx.t('campaignsPage.stats.support') }}</div>
           </div>
         </div>
 
@@ -40,8 +39,8 @@
         </div>
 
         <div class="about-cta">
-          <button class="btn-primary" [routerLink]="['/auth']" *ngIf="!isLoggedIn">Commencer Maintenant</button>
-          <button class="btn-outline" (click)="refresh()">Actualiser les Données</button>
+          <button class="btn-primary" [routerLink]="['/auth']" *ngIf="!isLoggedIn">{{ tx.t('cta.getStarted') }}</button>
+          <button class="btn-outline" (click)="refresh()">{{ tx.t('campaignsPage.cta.refresh') }}</button>
         </div>
 
         <div *ngIf="fetchError()" class="error-message">{{ fetchError() }}</div>
@@ -57,7 +56,7 @@
                 <span class="dot yellow"></span>
                 <span class="dot green"></span>
               </div>
-              <div class="screen-title">Campagnes Disponibles</div>
+              <div class="screen-title">{{ tx.t('campaignsPage.title') }}</div>
               <div class="spacer"></div>
               
             </div>
@@ -77,31 +76,12 @@
 
               <!-- Fallback static examples if no campaigns loaded -->
               <ng-container *ngIf="!visibleCampaigns().length">
-                <div class="mock-row">
-                  <div class="mock-banner" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
-                  <div class="mock-main">
-                    <h5>Université Mohammed V</h5>
-                    <p class="muted">Doctorat en Informatique</p>
+                <div class="empty-mock-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 1rem; text-align:center; height:100%;">
+                  <div class="empty-icon" style="width:64px; height:64px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; color:#94a3b8;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   </div>
-                  <div class="mock-actions"><span class="mock-status open">Ouverte</span></div>
-                </div>
-
-                <div class="mock-row">
-                  <div class="mock-banner" style="background: linear-gradient(135deg, #f093fb, #f5576c);"></div>
-                  <div class="mock-main">
-                    <h5>École Polytechnique</h5>
-                    <p class="muted">Doctorat en Physique</p>
-                  </div>
-                  <div class="mock-actions"><span class="mock-status closing">Clôture bientôt</span></div>
-                </div>
-
-                <div class="mock-row">
-                  <div class="mock-banner" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></div>
-                  <div class="mock-main">
-                    <h5>Université Cadi Ayyad</h5>
-                    <p class="muted">Doctorat en Biologie</p>
-                  </div>
-                  <div class="mock-actions"><span class="mock-status upcoming">À venir</span></div>
+                  <h5 style="margin:0 0 0.5rem; font-size:1rem; color:#334155;">{{ tx.t('campaignsPage.empty.title') }}</h5>
+                  <p style="margin:0; font-size:0.85rem; color:#64748b;">{{ tx.t('campaignsPage.empty.text') }}</p>
                 </div>
               </ng-container>
             </div>
@@ -114,14 +94,14 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </div>
               <strong>{{ favorites().size }}</strong>
-              <span>Favoris</span>
+              <span>{{ tx.t('campaignsPage.filters.favorites') }}</span>
             </div>
             <div class="float-stat">
               <div class="icon" aria-hidden>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               </div>
               <strong>{{ appliedCampaignIds().size }}</strong>
-              <span>Candidatures</span>
+              <span>{{ tx.t('campaignsPage.card.applied') }}</span>
             </div>
           </div>
         </div>
@@ -135,14 +115,14 @@
       <!-- Search -->
       <div class="control search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value); applyFilters()" placeholder="Rechercher campagne, établissement..."/>
+        <input type="search" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value); applyFilters()" [placeholder]="tx.t('campaignsPage.filters.search')"/>
       </div>
 
       <!-- Types Multi-select -->
       <div class="control multi">
         <button class="multi-trigger" (click)="toggleTypes()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>{{ selectedTypes().length ? selectedTypes().length + ' types' : 'Type de campagne' }}</span>
+          <span>{{ selectedTypes().length ? selectedTypes().length + ' types' : tx.t('campaignsPage.filters.types') }}</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [class.open]="showTypes()"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="multi-panel" *ngIf="showTypes()" (click)="$event.stopPropagation()">
@@ -153,8 +133,8 @@
             </label>
           </div>
           <div class="multi-actions">
-            <button class="btn-xs" (click)="clearTypes()">Effacer</button>
-            <button class="btn-xs primary" (click)="applyFilters()">Appliquer</button>
+            <button class="btn-xs" (click)="clearTypes()">{{ tx.t('campaignDetail.wizard.actions.cancel') }}</button>
+            <button class="btn-xs primary" (click)="applyFilters()">{{ tx.t('campaignDetail.wizard.actions.submit') }}</button>
           </div>
         </div>
       </div>
@@ -162,19 +142,19 @@
       <!-- Status -->
       <div class="control select">
         <select [value]="filterStatus()" (change)="filterStatus.set($any($event.target).value); applyFilters()">
-          <option value="all">Tous statuts</option>
-          <option value="active">Actives</option>
-          <option value="upcoming">À venir</option>
-          <option value="ended">Terminées</option>
+          <option value="all">{{ tx.t('campaignsPage.status.all') }}</option>
+          <option value="active">{{ tx.t('campaignsPage.status.active') }}</option>
+          <option value="upcoming">{{ tx.t('campaignsPage.status.upcoming') }}</option>
+          <option value="ended">{{ tx.t('campaignsPage.status.ended') }}</option>
         </select>
       </div>
 
       <!-- Sort -->
       <div class="control select">
         <select [value]="sortKey()" (change)="sortKey.set($any($event.target).value); sortCampaigns()">
-          <option value="relevance">Tri: Pertinence</option>
-          <option value="deadline">Date limite</option>
-          <option value="recent">Plus récentes</option>
+          <option value="relevance">{{ tx.t('campaignsPage.sort.relevance') }}</option>
+          <option value="deadline">{{ tx.t('campaignsPage.sort.deadline') }}</option>
+          <option value="recent">{{ tx.t('campaignsPage.sort.recent') }}</option>
         </select>
       </div>
 
@@ -182,7 +162,7 @@
       <div class="control favs">
         <label class="toggle">
           <input type="checkbox" [checked]="showFavorites()" (change)="showFavorites.set($any($event.target).checked); applyFilters()"/>
-          <span>Favoris uniquement</span>
+          <span>{{ tx.t('campaignsPage.filters.favorites') }}</span>
         </label>
       </div>
     </div>
@@ -196,7 +176,7 @@
       </div>
       <div class="stat-info">
         <div class="stat-val">{{ totalCampaigns() }}</div>
-        <div class="stat-label">Total Campagnes</div>
+        <div class="stat-label">{{ tx.t('campaignsPage.stats.active') }}</div>
       </div>
     </div>
     <div class="stat-card">
@@ -214,7 +194,7 @@
       </div>
       <div class="stat-info">
         <div class="stat-val">{{ favorites().size }}</div>
-        <div class="stat-label">Favoris</div>
+        <div class="stat-label">{{ tx.t('campaignsPage.filters.favorites') }}</div>
       </div>
     </div>
     <div class="stat-card">
@@ -223,7 +203,7 @@
       </div>
       <div class="stat-info">
         <div class="stat-val">{{ appliedCampaignIds().size }}</div>
-        <div class="stat-label">Candidatures</div>
+        <div class="stat-label">{{ tx.t('campaignsPage.card.applied') }}</div>
       </div>
     </div>
   </div>
@@ -236,7 +216,7 @@
           <img [src]="c.photoCouverture || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=400&fit=crop'" [alt]="c.nom" (error)="onImgError($event)" class="banner" />
           <div class="overlay-gradient"></div>
           <div class="status-badge" [ngClass]="'st-' + getCampagneStatus(c)">{{ getStatusLabel(c) }}</div>
-          <button class="fav-btn" [class.active]="c.id && isFavorite(c.id)" (click)="c.id && toggleFavorite(c.id)" title="Favori">
+          <button class="fav-btn" [class.active]="c.id && isFavorite(c.id)" (click)="c.id && toggleFavorite(c.id)" [title]="tx.t('campaignsPage.filters.favorites')">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path [attr.fill]="(c.id && isFavorite(c.id))?'currentColor':'none'" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
@@ -260,24 +240,24 @@
 
         <div class="meta-grid">
           <div class="meta-item">
-            <span class="label">Date limite</span>
+            <span class="label">{{ tx.t('campaignsPage.card.deadline') }}</span>
             <span class="value" [class.urgent]="isClosingSoon(c)">{{ c.dateFermeture | date:'dd/MM/yyyy' }}</span>
           </div>
           <div class="meta-item">
-            <span class="label">Candidats</span>
+            <span class="label">{{ tx.t('campaignsPage.card.candidates') }}</span>
             <span class="value">{{ c.nombreDossiers || 0 }}</span>
           </div>
           <div class="meta-item">
-            <span class="label">Jours restants</span>
+            <span class="label">{{ tx.t('campaignsPage.card.daysLeft') }}</span>
             <span class="value highlight">{{ daysLeft(c) }}</span>
           </div>
         </div>
       </div>
 
       <div class="card-footer">
-        <button class="btn-details" (click)="viewDetails(c)">Voir détails</button>
+        <button class="btn-details" (click)="viewDetails(c)">{{ tx.t('campaignsPage.card.view') }}</button>
         <button class="btn-apply" (click)="applyToCampaign(c)" [disabled]="(c.id && hasApplied(c.id)) || getCampagneStatus(c)==='ended' || !c.active">
-          {{ (c.id && hasApplied(c.id)) ? 'Candidaté' : 'Postuler' }}
+          {{ (c.id && hasApplied(c.id)) ? tx.t('campaignsPage.card.applied') : tx.t('campaignsPage.card.apply') }}
         </button>
       </div>
     </article>
@@ -291,8 +271,8 @@
   <ng-template #emptyState>
     <div class="empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v4H4zM4 12h16v8H4z" stroke="currentColor" stroke-width="2"/></svg>
-      <h3>Aucune campagne ne correspond à vos filtres.</h3>
-      <button class="btn-outline" (click)="resetFilters()">Réinitialiser les filtres</button>
+      <h3>{{ tx.t('campaignsPage.empty.title') }}</h3>
+      <button class="btn-outline" (click)="resetFilters()">{{ tx.t('campaignsPage.empty.text') }}</button>
     </div>
   </ng-template>
 </div>
@@ -301,7 +281,7 @@
 <div class="modal-overlay" *ngIf="showApplicationModal()" (click)="closeApplicationModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Postuler à la campagne</h2>
+      <h2>{{ tx.t('campaignDetail.wizard.title') }}</h2>
       <button class="modal-close" (click)="closeApplicationModal()" aria-label="Fermer">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -317,19 +297,19 @@
       <div class="wizard-progress">
         <div class="step-indicator" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1" (click)="goToStep(1)">
           <div class="step-num">1</div>
-          <span class="step-label">Personnel</span>
+          <span class="step-label">{{ tx.t('campaignDetail.wizard.steps.personal') }}</span>
         </div>
         <div class="step-indicator" [class.active]="currentStep() >= 2" [class.completed]="currentStep() > 2" (click)="goToStep(2)">
           <div class="step-num">2</div>
-          <span class="step-label">Académique</span>
+          <span class="step-label">{{ tx.t('campaignDetail.wizard.steps.academic') }}</span>
         </div>
         <div class="step-indicator" [class.active]="currentStep() >= 3" [class.completed]="currentStep() > 3" (click)="goToStep(3)">
           <div class="step-num">3</div>
-          <span class="step-label">Recherche</span>
+          <span class="step-label">{{ tx.t('campaignDetail.wizard.steps.research') }}</span>
         </div>
         <div class="step-indicator" [class.active]="currentStep() >= 4" [class.completed]="currentStep() > 4" (click)="goToStep(4)">
           <div class="step-num">4</div>
-          <span class="step-label">Documents</span>
+          <span class="step-label">{{ tx.t('campaignDetail.wizard.steps.documents') }}</span>
         </div>
       </div>
 
@@ -338,53 +318,53 @@
         <!-- Step 1: Personal Info -->
         <div class="wizard-step" *ngIf="currentStep() === 1">
           <div class="form-section">
-            <h4>Informations personnelles</h4>
+            <h4>{{ tx.t('campaignDetail.wizard.personal.title') }}</h4>
             <div class="form-row">
               <div class="form-group">
-                <label>Prénom <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.first') }} <span class="required">*</span></label>
                 <input type="text" [(ngModel)]="applicationForm.prenom" name="prenom" required />
               </div>
               <div class="form-group">
-                <label>Nom <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.last') }} <span class="required">*</span></label>
                 <input type="text" [(ngModel)]="applicationForm.nom" name="nom" required />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Email <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.email') }} <span class="required">*</span></label>
                 <input type="email" [(ngModel)]="applicationForm.email" name="email" required />
               </div>
               <div class="form-group">
-                <label>Téléphone <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.phone') }} <span class="required">*</span></label>
                 <input type="tel" [(ngModel)]="applicationForm.telephone" name="telephone" required />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Date de naissance <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.dob') }} <span class="required">*</span></label>
                 <input type="date" [(ngModel)]="applicationForm.dateNaissance" name="dateNaissance" required />
               </div>
               <div class="form-group">
-                <label>Lieu de naissance</label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.pob') }}</label>
                 <input type="text" [(ngModel)]="applicationForm.lieuNaissance" name="lieuNaissance" />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Nationalité</label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.nat') }}</label>
                 <input type="text" [(ngModel)]="applicationForm.nationalite" name="nationalite" />
               </div>
               <div class="form-group">
-                <label>CIN / Passeport <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.personal.cin') }} <span class="required">*</span></label>
                 <input type="text" [(ngModel)]="applicationForm.cin" name="cin" required />
               </div>
             </div>
             <div class="form-group">
-              <label>Adresse</label>
+              <label>{{ tx.t('campaignDetail.wizard.personal.address') }}</label>
               <textarea [(ngModel)]="applicationForm.adresse" name="adresse" rows="2"></textarea>
             </div>
             <div class="form-group">
-              <label>Sexe</label>
+              <label>{{ tx.t('campaignDetail.wizard.personal.gender') }}</label>
               <select [(ngModel)]="applicationForm.sexe" name="sexe">
                 <option value="M">Masculin</option>
                 <option value="F">Féminin</option>
@@ -396,9 +376,9 @@
         <!-- Step 2: Academic Info -->
         <div class="wizard-step" *ngIf="currentStep() === 2">
           <div class="form-section">
-            <h4>Parcours académique</h4>
+            <h4>{{ tx.t('campaignDetail.wizard.academic.title') }}</h4>
             <div class="form-group">
-              <label>Dernier diplôme obtenu <span class="required">*</span></label>
+              <label>{{ tx.t('campaignDetail.wizard.academic.degree') }} <span class="required">*</span></label>
               <select [(ngModel)]="applicationForm.highestDegree" name="highestDegree" required>
                 <option value="">Sélectionnez...</option>
                 <option value="Master">Master</option>
@@ -407,11 +387,11 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Établissement d'origine <span class="required">*</span></label>
+              <label>{{ tx.t('campaignDetail.wizard.academic.institution') }} <span class="required">*</span></label>
               <input type="text" [(ngModel)]="applicationForm.etablissementOrigine" name="etablissementOrigine" required placeholder="Université ou École" />
             </div>
             <div class="form-group">
-              <label>Détails des diplômes précédents</label>
+              <label>{{ tx.t('campaignDetail.wizard.academic.details') }}</label>
               <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" placeholder="Listez vos diplômes (Année, Intitulé, Établissement, Mention)"></textarea>
             </div>
           </div>
@@ -420,17 +400,17 @@
         <!-- Step 3: Research Project -->
         <div class="wizard-step" *ngIf="currentStep() === 3">
           <div class="form-section">
-            <h4>Projet de recherche</h4>
+            <h4>{{ tx.t('campaignDetail.wizard.research.title') }}</h4>
             <div class="form-group">
-              <label>Sujet de thèse <span class="required">*</span></label>
+              <label>{{ tx.t('campaignDetail.wizard.research.subject') }} <span class="required">*</span></label>
               <input type="text" [(ngModel)]="applicationForm.sujetThese" name="sujetThese" required />
             </div>
             <div class="form-group">
-              <label>Directeur de thèse envisagé</label>
+              <label>{{ tx.t('campaignDetail.wizard.research.director') }}</label>
               <input type="text" [(ngModel)]="applicationForm.directeurThese" name="directeurThese" />
             </div>
             <div class="form-group">
-              <label>Laboratoire d'accueil</label>
+              <label>{{ tx.t('campaignDetail.wizard.research.lab') }}</label>
               <input type="text" [(ngModel)]="applicationForm.laboratoire" name="laboratoire" />
             </div>
           </div>
@@ -439,26 +419,26 @@
         <!-- Step 4: Documents -->
         <div class="wizard-step" *ngIf="currentStep() === 4">
           <div class="form-section">
-            <h4>Documents requis</h4>
+            <h4>{{ tx.t('campaignDetail.wizard.documents.title') }}</h4>
             <div class="form-row">
               <div class="form-group">
-                <label>CV (PDF) <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.cv') }} <span class="required">*</span></label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'cv')" accept=".pdf" required />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['cv']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['cv']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['cv']" class="file-name">{{ getFileName('cv') }}</span>
                   </div>
                 </div>
               </div>
               <div class="form-group">
-                <label>Lettre de motivation (PDF)</label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.cover') }}</label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'coverLetter')" accept=".pdf" />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['coverLetter']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['coverLetter']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['coverLetter']" class="file-name">{{ getFileName('coverLetter') }}</span>
                   </div>
                 </div>
@@ -466,23 +446,23 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Diplômes (PDF) <span class="required">*</span></label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.diplomas') }} <span class="required">*</span></label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'diplomas')" accept=".pdf" required />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['diplomas']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['diplomas']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['diplomas']" class="file-name">{{ getFileName('diplomas') }}</span>
                   </div>
                 </div>
               </div>
               <div class="form-group">
-                <label>Relevés de notes (PDF)</label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.transcripts') }}</label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'transcripts')" accept=".pdf" />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['transcripts']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['transcripts']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['transcripts']" class="file-name">{{ getFileName('transcripts') }}</span>
                   </div>
                 </div>
@@ -490,23 +470,23 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Photo d'identité</label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.photo') }}</label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'photo')" accept="image/*" />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['photo']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['photo']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['photo']" class="file-name">{{ getFileName('photo') }}</span>
                   </div>
                 </div>
               </div>
               <div class="form-group">
-                <label>CIN / Passeport (Scan)</label>
+                <label>{{ tx.t('campaignDetail.wizard.documents.cin') }}</label>
                 <div class="file-upload-box">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'cin')" accept=".pdf,image/*" />
                   <div class="file-info">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <span *ngIf="!uploadedFiles()['cin']">Glissez ou cliquez pour uploader</span>
+                    <span *ngIf="!uploadedFiles()['cin']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['cin']" class="file-name">{{ getFileName('cin') }}</span>
                   </div>
                 </div>
@@ -518,21 +498,21 @@
             <div class="form-group checkbox-group">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="applicationForm.acceptTerms" name="acceptTerms" required />
-                <span>Je certifie l'exactitude des informations fournies et j'accepte les conditions de candidature.</span>
+                <span>{{ tx.t('auth.signup.terms') }}</span>
               </label>
             </div>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="closeApplicationModal()">Annuler</button>
+          <button type="button" class="btn-cancel" (click)="closeApplicationModal()">{{ tx.t('campaignDetail.wizard.actions.cancel') }}</button>
           
-          <button type="button" class="btn-outline" *ngIf="currentStep() > 1" (click)="prevStep()">Précédent</button>
+          <button type="button" class="btn-outline" *ngIf="currentStep() > 1" (click)="prevStep()">{{ tx.t('campaignDetail.wizard.actions.prev') }}</button>
           
-          <button type="button" class="btn-primary" *ngIf="currentStep() < totalSteps" (click)="nextStep()">Suivant</button>
+          <button type="button" class="btn-primary" *ngIf="currentStep() < totalSteps" (click)="nextStep()">{{ tx.t('campaignDetail.wizard.actions.next') }}</button>
           
           <button type="submit" class="btn-submit" *ngIf="currentStep() === totalSteps" [disabled]="submitting()">
-            {{ submitting() ? 'Envoi en cours...' : 'Soumettre la candidature' }}
+            {{ submitting() ? tx.t('campaignDetail.wizard.actions.submitting') : tx.t('campaignDetail.wizard.actions.submit') }}
           </button>
         </div>
 

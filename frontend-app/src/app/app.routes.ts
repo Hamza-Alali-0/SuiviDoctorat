@@ -23,6 +23,8 @@ export const routes: Routes = [
   { path: 'campaigns/:id', loadComponent: () => import('./pages/start-page/campaign-detail/campaign-detail').then(m => m.CampaignDetailComponent) },
   // About page
   { path: 'about', loadComponent: () => import('./pages/about/about-page').then(m => m.AboutPage) },
+  // Contact page
+  { path: 'contact', loadComponent: () => import('./pages/contact/contact-page').then(m => m.ContactPage) },
   
   // Candidat-specific routes
   { path: 'candidat/dashboard', component: DashboardPage },

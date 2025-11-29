@@ -30,12 +30,17 @@ public class SecurityConfig {
                 // Allow public access to campaigns listing/details
                 .requestMatchers(HttpMethod.GET, "/api/inscriptions/campagnes/actives", "/api/inscriptions/campagnes/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/api/inscriptions/doctorant/*/soumettre").hasRole("DOCTORANT")
-                .requestMatchers("/api/inscriptions/doctorant/*/reinscription").hasRole("DOCTORANT")
-                .requestMatchers("/api/inscriptions/doctorant/*/dashboard").hasRole("DOCTORANT")
-                .requestMatchers("/api/inscriptions/dossier/*/upload").hasRole("DOCTORANT")
+                
+                // Doctorant/Candidat endpoints
+                .requestMatchers("/api/inscriptions/doctorant/*/soumettre").hasAnyRole("DOCTORANT", "CANDIDAT")
+                .requestMatchers("/api/inscriptions/doctorant/*/reinscription").hasAnyRole("DOCTORANT", "CANDIDAT")
+                .requestMatchers("/api/inscriptions/doctorant/*/dashboard").hasAnyRole("DOCTORANT", "CANDIDAT")
+                .requestMatchers("/api/inscriptions/doctorant/me/dashboard").hasAnyRole("DOCTORANT", "CANDIDAT")
+                .requestMatchers("/api/inscriptions/dossier/*/upload").hasAnyRole("DOCTORANT", "CANDIDAT")
+                .requestMatchers("/api/inscriptions/dossier/*/upload-typed").hasAnyRole("DOCTORANT", "CANDIDAT")
                 .requestMatchers("/api/inscriptions/dossier/*/directeur/avis").hasRole("DIRECTEUR")
                 .requestMatchers("/api/inscriptions/dossier/*/admin/valider").hasRole("ADMIN")
+                
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

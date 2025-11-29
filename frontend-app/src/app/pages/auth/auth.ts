@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -382,12 +383,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       background: var(--color-primary);
       color: white;
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: 999px;
       font-size: 0.9375rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -397,32 +398,41 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
     .btn-primary:hover {
       background: var(--color-primary-hover);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -2px rgba(37, 99, 235, 0.1);
     }
 
     .btn-primary:active {
-      transform: translateY(1px);
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .btn-primary svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
 
     .btn-secondary {
-      padding: 0.625rem 1.5rem;
-      background: var(--color-bg-tertiary);
-      color: var(--color-text-primary);
-      border: none;
-      border-radius: var(--radius-md);
+      padding: 0.875rem 1.5rem;
+      background: white;
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
       font-size: 0.9375rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s ease;
     }
 
     .btn-secondary:hover {
-      background: var(--color-border);
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+      border-color: #cbd5e1;
     }
 
     /* ========== Alerts ========== */
@@ -540,10 +550,22 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     }
 
     .modal-footer {
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 1.5rem;
       border-top: 1px solid var(--color-border);
       display: flex;
       justify-content: flex-end;
+      gap: 1rem;
+      background: var(--color-bg-secondary);
+    }
+
+    .modal-footer .btn-primary {
+      width: auto;
+      margin-top: 0;
+      min-width: 120px;
+    }
+
+    .modal-footer .btn-secondary {
+      margin-top: 0;
     }
 
     /* ========== Responsive Design ========== */
@@ -630,7 +652,8 @@ export class AuthPage {
     private router: Router,
     private fb: FormBuilder,
     private auth: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    protected tx: TranslationService
   ) {
     this.route.queryParams.subscribe(q => {
       const m = q['mode'];

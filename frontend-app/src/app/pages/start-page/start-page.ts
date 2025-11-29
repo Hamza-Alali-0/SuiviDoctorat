@@ -536,6 +536,51 @@ interface Campaign {
       .about-container { grid-template-columns:1fr }
       .about-image { height:300px }
     }
+
+    /* New Footer Styles */
+    .footer-new { background:#f8fafc; padding:5rem 2rem 2rem; border-top:1px solid #e2e8f0 }
+    :host-context(.dark) .footer-new { background:#0f172a; border-color:#1e293b }
+    .footer-top { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:4rem; margin-bottom:4rem }
+    .footer-brand-col { display:flex; flex-direction:column; gap:1.5rem }
+    .footer-logo { height:40px; width:auto; align-self:flex-start }
+    .footer-tagline { color:#64748b; line-height:1.6; font-size:1rem; max-width:300px }
+    :host-context(.dark) .footer-tagline { color:#94a3b8 }
+    .social-links { display:flex; gap:1rem }
+    .social-links a { width:40px; height:40px; border-radius:50%; background:#eff6ff; color:#3b82f6; display:flex; align-items:center; justify-content:center; transition:all 0.2s }
+    .social-links a:hover { background:#3b82f6; color:#fff; transform:translateY(-2px) }
+    :host-context(.dark) .social-links a { background:rgba(59,130,246,0.1); color:#60a5fa }
+    :host-context(.dark) .social-links a:hover { background:#3b82f6; color:#fff }
+    
+    .footer-nav-col h4 { font-size:0.95rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#0f172a; margin:0 0 1.5rem }
+    :host-context(.dark) .footer-nav-col h4 { color:#f1f5f9 }
+    .footer-nav-col a { display:block; color:#64748b; text-decoration:none; margin-bottom:0.8rem; font-size:0.95rem; transition:color 0.2s }
+    .footer-nav-col a:hover { color:#2563eb }
+    :host-context(.dark) .footer-nav-col a { color:#94a3b8 }
+    :host-context(.dark) .footer-nav-col a:hover { color:#60a5fa }
+    
+    .footer-bottom-new { max-width:1200px; margin:0 auto; padding-top:2rem; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; color:#94a3b8; font-size:0.875rem }
+    :host-context(.dark) .footer-bottom-new { border-color:#1e293b }
+    .footer-bottom-links { display:flex; gap:2rem }
+    .footer-bottom-links a { color:#94a3b8; text-decoration:none }
+    .footer-bottom-links a:hover { color:#64748b }
+    
+    @media (max-width: 900px) {
+        .footer-top { grid-template-columns:1fr 1fr; gap:3rem }
+        .footer-brand-col { grid-column:span 2 }
+    }
+    @media (max-width: 600px) {
+        .footer-top { grid-template-columns:1fr }
+        .footer-brand-col { grid-column:span 1 }
+        .footer-bottom-new { flex-direction:column; gap:1rem }
+    }
+
+    /* CTA Updates */
+    .cta-logo-wrapper { margin-bottom:2rem }
+    .cta-logo { height:60px; width:auto; opacity:0.9 }
+    .cta-trust { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-top:3rem }
+    .avatars-stack { display:flex; align-items:center }
+    .avatar-circle { width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); margin-left:-10px; background-size:cover; background-position:center }
+    .avatar-circle:first-child { margin-left:0 }
   `]
 })
 export class StartPage implements OnInit, AfterViewInit {

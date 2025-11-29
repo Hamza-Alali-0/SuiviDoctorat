@@ -22,6 +22,7 @@ import { AuthService } from '../../services/auth.service';
       --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
       --transition: all 0.2s ease;
       display: block;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     /* Dark mode support */
