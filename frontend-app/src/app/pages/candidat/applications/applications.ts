@@ -17,7 +17,12 @@ import { AuthService } from '../../../services/auth.service';
     .header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
     .title { font-size:1.5rem; font-weight:800; }
     .controls { display:flex; gap:0.75rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap }
-    .control { padding:0.5rem 0.75rem; border-radius:8px; background:#fff; border:1px solid #e6eef8; box-shadow:0 4px 12px rgba(2,6,23,0.04); }
+    .control { padding:0.5rem 0.75rem; border-radius:8px; background:#fff; border:1px solid #e6eef8; box-shadow:0 4px 12px rgba(2,6,23,0.04); cursor:pointer; }
+    .control:hover:not(:disabled) { border-color:#2563eb; }
+    .control:disabled { opacity:0.5; cursor:not-allowed; }
+    .btn-refresh { display:flex; align-items:center; justify-content:center; padding:0.5rem 0.75rem; }
+    .btn-refresh svg { transition:transform 0.3s ease; }
+    .btn-refresh:not(:disabled):hover svg { transform:rotate(180deg); }
     .list { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1rem; }
     .campaign-card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; overflow:hidden; transition:all .3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.04) }
     .campaign-card:hover { transform:translateY(-6px); box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border-color:#cbd5e1 }
@@ -66,52 +71,86 @@ export class ApplicationsPage implements OnInit {
   constructor(
     private applicationsService: ApplicationsService,
     private authService: AuthService
-  ) {}
+  ) {
+    // Listen for updates from the campaigns page (when user submits an application)
+    this.applicationsService.getApplicationsUpdated().subscribe(() => {
+      console.log('[ApplicationsPage] ✓ Detected application update notification, refreshing...');
+      this.fetchApplications();
+    });
+  }
 
   ngOnInit(): void {
+    console.log('[ApplicationsPage] Component initialized, loading applications...');
+    this.fetchApplications();
+  }
+  
+  refresh(): void {
+    console.log('[ApplicationsPage] Manual refresh triggered by user');
     this.fetchApplications();
   }
 
   fetchApplications(): void {
+    console.log('[ApplicationsPage] Starting fetchApplications()');
     this.loading = true;
     // Try to get an id from profile, otherwise fallback to parsing JWT token
     this.authService.getProfile().subscribe({
       next: (user: any) => {
+        console.log('[ApplicationsPage] Received profile data:', user);
         let userId: number | null = null;
         if (user && (user.id || user.userId || user.sub)) {
           userId = Number(user.id || user.userId || user.sub);
+          console.log('[ApplicationsPage] Extracted userId from profile:', userId);
         }
 
         if (!userId) {
           // Try extracting from token
           try {
             const token = this.authService.getToken();
+            console.log('[ApplicationsPage] No userId in profile, attempting token parse...');
             if (token) {
               const parts = token.split('.');
               if (parts.length >= 2) {
                 const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
                 const candidate = payload.id || payload.sub || payload.userId || payload.name || payload.email;
+                console.log('[ApplicationsPage] Token payload:', { id: payload.id, sub: payload.sub, userId: payload.userId, name: payload.name, email: payload.email });
                 if (candidate && !isNaN(Number(candidate))) userId = Number(candidate);
+                console.log('[ApplicationsPage] Extracted userId from token:', userId);
               }
             }
-          } catch (e) { /* ignore */ }
+          } catch (e) { console.error('[ApplicationsPage] Error parsing token:', e); }
         }
 
         if (!userId) {
-          console.error('[ApplicationsPage] No numeric user id available from profile or token');
+          console.error('[ApplicationsPage] ✗ No numeric user id available from profile or token');
           this.loading = false;
           return;
         }
 
+        console.log('[ApplicationsPage] Calling getMyApplications with userId:', userId);
         this.applicationsService.getMyApplications(userId).subscribe({
           next: (data) => {
+            console.log('[ApplicationsPage] ✓ Received raw data from getMyApplications:', data);
+            console.log('[ApplicationsPage] Number of dossiers received:', Array.isArray(data) ? data.length : 0);
+            
             // Map dossiers to campaign view model
-            this.allCampaigns = (Array.isArray(data) ? data : []).map(d => ({
-              ...d.campagne,
-              applicationStatus: d.status,
-              applicationDate: d.dateCreation,
-              dossierId: d.id
-            }));
+            this.allCampaigns = (Array.isArray(data) ? data : []).map(d => {
+              console.log('[ApplicationsPage]   Processing dossier:', {
+                dossierId: d.id,
+                campaignId: d.campagne?.id,
+                campaignName: d.campagne?.nom,
+                status: d.status,
+                dateCreation: d.dateCreation
+              });
+              return {
+                ...d.campagne,
+                applicationStatus: d.status,
+                applicationDate: d.dateCreation,
+                dossierId: d.id
+              };
+            });
+
+            console.log('[ApplicationsPage] ✓ Mapped to allCampaigns, total:', this.allCampaigns.length);
+            console.log('[ApplicationsPage] All campaigns:', this.allCampaigns.map(c => ({ id: c.id, nom: c.nom, status: c.applicationStatus })));
 
             // Persist applied campaign ids so campaigns page can read them from localStorage
             try {
@@ -119,14 +158,16 @@ export class ApplicationsPage implements OnInit {
               const key = (this.authService && typeof this.authService.getAppliedKeyForUser === 'function')
                 ? this.authService.getAppliedKeyForUser()
                 : 'campaign_applied';
+              console.log('[ApplicationsPage] Saving applied campaign IDs to localStorage:', { key, ids });
               if (key) localStorage.setItem(key, JSON.stringify(ids));
-            } catch (e) { /* ignore */ }
+            } catch (e) { console.error('[ApplicationsPage] Error saving to localStorage:', e); }
 
             this.applyFilters();
             this.loading = false;
+            console.log('[ApplicationsPage] ✓ fetchApplications() complete. Final campaigns count:', this.campaigns.length);
           },
           error: (err) => {
-            console.error('Failed to fetch applications', err);
+            console.error('[ApplicationsPage] ✗ Failed to fetch applications from backend:', err);
             this.loading = false;
             this.allCampaigns = [];
             this.campaigns = [];
@@ -134,7 +175,7 @@ export class ApplicationsPage implements OnInit {
         });
       },
       error: (err) => {
-        console.error('Failed to fetch profile', err);
+        console.error('[ApplicationsPage] ✗ Failed to fetch profile:', err);
         this.loading = false;
       }
     });
@@ -143,15 +184,20 @@ export class ApplicationsPage implements OnInit {
   // Note: key generation delegated to AuthService.getAppliedKeyForUser()
 
   applyFilters(): void {
+    console.log('[ApplicationsPage] applyFilters() called. allCampaigns count:', this.allCampaigns.length);
     let list = this.allCampaigns.slice();
     
     // search
     if (this.searchQuery && this.searchQuery.trim()){
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c => (c.nom||'').toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q));
+      console.log('[ApplicationsPage] After search filter:', list.length);
     }
     // types
-    if (this.selectedTypes.length){ list = list.filter(c => this.selectedTypes.includes(c.type)); }
+    if (this.selectedTypes.length){ 
+      list = list.filter(c => this.selectedTypes.includes(c.type));
+      console.log('[ApplicationsPage] After type filter:', list.length);
+    }
     // status
     if (this.filterStatus !== 'all'){
       const now = new Date();
@@ -163,12 +209,20 @@ export class ApplicationsPage implements OnInit {
         if (this.filterStatus==='ended') return now > fermeture;
         return true;
       });
+      console.log('[ApplicationsPage] After status filter:', list.length);
     }
     // sort
-    if (this.sortKey === 'deadline') list.sort((a,b)=> new Date(a.dateFermeture).getTime() - new Date(b.dateFermeture).getTime());
-    if (this.sortKey === 'recent') list.sort((a,b)=> new Date(b.dateOuverture).getTime() - new Date(a.dateOuverture).getTime());
+    if (this.sortKey === 'deadline') {
+      list.sort((a,b)=> new Date(a.dateFermeture).getTime() - new Date(b.dateFermeture).getTime());
+      console.log('[ApplicationsPage] Sorted by deadline');
+    }
+    if (this.sortKey === 'recent') {
+      list.sort((a,b)=> new Date(b.dateOuverture).getTime() - new Date(a.dateOuverture).getTime());
+      console.log('[ApplicationsPage] Sorted by recent');
+    }
 
     this.campaigns = list;
+    console.log('[ApplicationsPage] ✓ applyFilters() complete. Final campaigns count:', this.campaigns.length);
   }
 
   formatDateRange(start?: string, end?: string): string {

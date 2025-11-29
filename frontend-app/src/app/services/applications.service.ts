@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of, throwError } from 'rxjs';
+import { Observable, forkJoin, of, throwError, Subject } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
@@ -8,15 +8,44 @@ export class ApplicationsService {
   // Public submission endpoint
   private submitUrl = '/inscription-service/api/inscriptions/soumettre';
   private uploadUrl = '/inscription-service/api/inscriptions/dossier';
+  
+  // Subject to notify listeners when applications are updated
+  private applicationsUpdated$ = new Subject<void>();
 
   constructor(private http: HttpClient) {}
+  
+  // Broadcast when applications have been updated (e.g., after submission)
+  getApplicationsUpdated(): Observable<void> {
+    return this.applicationsUpdated$.asObservable();
+  }
+  
+  // Emit when applications data should be refreshed
+  notifyApplicationsUpdated(): void {
+    console.log('[ApplicationsService] Broadcasting applicationsUpdated event to all listeners');
+    this.applicationsUpdated$.next();
+  }
 
   getMyApplications(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`/inscription-service/api/inscriptions/doctorant/${userId}/dashboard`);
+    const url = `/inscription-service/api/inscriptions/doctorant/${userId}/dashboard`;
+    console.log('[ApplicationsService] Calling getMyApplications with userId:', userId, 'URL:', url);
+    return this.http.get<any[]>(url).pipe(
+      map(data => {
+        console.log('[ApplicationsService] ✓ getMyApplications returned:', data?.length || 0, 'items');
+        return data;
+      }),
+      catchError(err => {
+        console.error('[ApplicationsService] ✗ getMyApplications failed:', err);
+        return throwError(() => err);
+      })
+    );
   }
 
   // form: InscriptionFormDTO-like object, files: map of key -> File | File[]
   submitApplication(campaignId: number, form: any, files: Record<string, File | File[]>): Observable<any> {
+    console.log('[ApplicationsService] submitApplication called for campaignId:', campaignId);
+    console.log('[ApplicationsService] Form data:', { ...form, doctorantId: form.doctorantId ? '***' : 'not-set' });
+    console.log('[ApplicationsService] Files:', Object.keys(files));
+    
     // 1. Prepare DTO
     const dto = {
       ...form,
@@ -25,16 +54,23 @@ export class ApplicationsService {
       dateNaissance: form.dateNaissance instanceof Date ? form.dateNaissance.toISOString().split('T')[0] : form.dateNaissance
     };
 
+    console.log('[ApplicationsService] Prepared DTO with campagneId:', dto.campagneId);
+
     // 2. Submit Form Data (JSON)
     // If a doctorantId is provided, use the doctorant-specific endpoint so the backend
     // associates the created dossier with the user reliably.
-    const submit$ = dto.doctorantId
-      ? this.http.post<any>(`/inscription-service/api/inscriptions/doctorant/${dto.doctorantId}/soumettre`, dto)
-      : this.http.post<any>(this.submitUrl, dto);
+    const endpoint = dto.doctorantId
+      ? `/inscription-service/api/inscriptions/doctorant/${dto.doctorantId}/soumettre`
+      : this.submitUrl;
+    console.log('[ApplicationsService] Using endpoint:', endpoint);
+    
+    const submit$ = this.http.post<any>(endpoint, dto);
 
     return submit$.pipe(
       switchMap(dossier => {
+        console.log('[ApplicationsService] ✓ Form submission successful, dossier created:', { id: dossier?.id, status: dossier?.status });
         if (!dossier || !dossier.id) {
+          console.error('[ApplicationsService] ✗ Invalid dossier response:', dossier);
           return throwError(() => new Error('Failed to create dossier'));
         }
         
@@ -49,29 +85,40 @@ export class ApplicationsService {
           const typePiece = this.getTypeFromKey(key);
           
           if (Array.isArray(val)) {
-            val.forEach(f => uploads.push(this.uploadFile(dossier.id, f, typePiece)));
+            val.forEach(f => {
+              console.log('[ApplicationsService] Uploading file:', key, f.name);
+              uploads.push(this.uploadFile(dossier.id, f, typePiece));
+            });
           } else {
+            console.log('[ApplicationsService] Uploading file:', key, (val as File).name);
             uploads.push(this.uploadFile(dossier.id, val as File, typePiece));
           }
         }
         
         if (uploads.length === 0) {
+          console.log('[ApplicationsService] No files to upload');
           return of(dossier);
         }
         
+        console.log('[ApplicationsService] Starting file uploads, total files:', uploads.length);
         return forkJoin(uploads).pipe(
-          map(() => dossier)
+          map(() => {
+            console.log('[ApplicationsService] ✓ All files uploaded successfully');
+            return dossier;
+          })
         );
       }),
       catchError(err => {
-        console.error('Application submission failed', err);
+        console.error('[ApplicationsService] ✗ Application submission failed:', err);
         // Fallback to local storage if offline or server error (optional, but good for UX)
         try {
           const saved = JSON.parse(localStorage.getItem('pending_applications') || '[]');
           saved.push({ campaignId, form, filesMeta: this._filesMeta(files), date: Date.now() });
           localStorage.setItem('pending_applications', JSON.stringify(saved));
+          console.log('[ApplicationsService] Fallback: Saved to localStorage as pending');
           return of({ fallback: true, message: 'saved-local' });
         } catch (e) {
+          console.error('[ApplicationsService] Fallback also failed:', e);
           return throwError(() => err);
         }
       })
@@ -82,7 +129,18 @@ export class ApplicationsService {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('typePiece', type);
-    return this.http.post(`${this.uploadUrl}/${dossierId}/upload-typed`, fd);
+    const url = `${this.uploadUrl}/${dossierId}/upload-typed`;
+    console.log('[ApplicationsService] Uploading to:', url, 'type:', type, 'file:', file.name);
+    return this.http.post(url, fd).pipe(
+      map(res => {
+        console.log('[ApplicationsService] ✓ File uploaded:', file.name);
+        return res;
+      }),
+      catchError(err => {
+        console.error('[ApplicationsService] ✗ File upload failed:', file.name, err);
+        return throwError(() => err);
+      })
+    );
   }
 
   private getTypeFromKey(key: string): string {

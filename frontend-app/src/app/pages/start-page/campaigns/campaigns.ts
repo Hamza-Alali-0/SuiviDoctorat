@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -420,18 +420,28 @@ export class CampaignsPage implements OnInit {
     public auth: AuthService,
     private campagnesService: CampagnesService,
     private applicationsService: ApplicationsService
-  ) {}
+  ) {
+    // Debug effect: log whenever appliedCampaignIds changes
+    effect(() => {
+      const applied = this.appliedCampaignIds();
+      console.log('[CampaignsPage] ✓ appliedCampaignIds UPDATED:', Array.from(applied), 'total:', applied.size);
+    });
+  }
 
   get isLoggedIn(): boolean { return this.auth.isLoggedIn ? this.auth.isLoggedIn() : false; }
 
   ngOnInit(): void {
+    console.log('[CampaignsPage] Component initialized (ngOnInit)');
     this.loadFavorites();
+    this.loadApplied();  // Load previously applied campaigns from localStorage
     
     if (this.isLoggedIn) {
+      console.log('[CampaignsPage] User is logged in, loading profile...');
       this.auth.getProfile().subscribe({
         next: (user: any) => {
           if (user && user.id) {
             this.currentUserId = user.id;
+            console.log('[CampaignsPage] Set currentUserId:', this.currentUserId);
             // Pre-fill form
             this.applicationForm.prenom = user.prenom || this.applicationForm.prenom;
             this.applicationForm.nom = user.nom || this.applicationForm.nom;
@@ -440,6 +450,8 @@ export class CampaignsPage implements OnInit {
         },
         error: () => console.log('[CampaignsPage] Failed to load user profile')
       });
+    } else {
+      console.log('[CampaignsPage] User is not logged in');
     }
 
     try {
@@ -644,20 +656,34 @@ export class CampaignsPage implements OnInit {
   saveApplied(): void {
     try {
       const key = this.getAppliedKey();
-      localStorage.setItem(key, JSON.stringify(Array.from(this.appliedCampaignIds())));
-    } catch (e) { /* ignore */ }
+      const ids = Array.from(this.appliedCampaignIds());
+      localStorage.setItem(key, JSON.stringify(ids));
+      console.log('[CampaignsPage] ✓ Saved appliedCampaignIds to localStorage:', { key, ids });
+    } catch (e) { console.error('[CampaignsPage] Error saving appliedCampaignIds:', e); }
   }
 
   loadApplied(): void {
     try {
       const key = this.getAppliedKey();
+      console.log('[CampaignsPage] Loading appliedCampaignIds from localStorage with key:', key);
       const raw = localStorage.getItem(key);
-      if (raw) this.appliedCampaignIds.set(new Set(JSON.parse(raw)));
-      else {
-        const old = localStorage.getItem('campaign_applied');
-        if (old) this.appliedCampaignIds.set(new Set(JSON.parse(old)));
+      if (raw) {
+        const ids = JSON.parse(raw);
+        console.log('[CampaignsPage] ✓ Loaded appliedCampaignIds from', key, ':', ids);
+        this.appliedCampaignIds.set(new Set(ids));
       }
-    } catch (e) { /* ignore */ }
+      else {
+        console.log('[CampaignsPage] No data in', key, ', trying legacy key...');
+        const old = localStorage.getItem('campaign_applied');
+        if (old) {
+          const ids = JSON.parse(old);
+          console.log('[CampaignsPage] ✓ Loaded appliedCampaignIds from legacy key:', ids);
+          this.appliedCampaignIds.set(new Set(ids));
+        } else {
+          console.log('[CampaignsPage] No applied campaigns found in localStorage');
+        }
+      }
+    } catch (e) { console.error('[CampaignsPage] Error loading appliedCampaignIds:', e); }
   }
 
   private getAppliedKey(): string {
@@ -889,23 +915,45 @@ export class CampaignsPage implements OnInit {
     if (!campaign || !campaign.id) { this.submitError.set('Campagne invalide.'); return; }
 
     this.submitting.set(true);
+    console.log('[CampaignsPage] Submitting application for campaign:', campaign.id, campaign.nom);
 
     const form = { ...this.applicationForm };
     if (this.currentUserId) {
       form.doctorantId = this.currentUserId;
+      console.log('[CampaignsPage] Using doctorantId:', this.currentUserId);
+    } else {
+      console.warn('[CampaignsPage] WARNING: No currentUserId set!');
     }
 
     const files = this.uploadedFiles();
+    console.log('[CampaignsPage] Files uploaded:', Object.keys(files));
 
     this.applicationsService.submitApplication(campaign.id, form, files).subscribe({
       next: (res) => {
+        console.log('[CampaignsPage] ✓ Application submitted successfully. Response:', res);
         this.submitting.set(false);
         this.submitSuccess.set('Votre candidature a été envoyée avec succès. Nous vous enverrons un email de confirmation.');
+        
+        // Update local state
         const ids = new Set(this.appliedCampaignIds());
+        console.log('[CampaignsPage] Before adding campaign ID, appliedCampaignIds:', Array.from(ids));
         ids.add(campaign.id!);
+        console.log('[CampaignsPage] After adding campaign ID, appliedCampaignIds:', Array.from(ids));
         this.appliedCampaignIds.set(ids);
+        
         // persist applied ids for the logged in user
-        try { this.saveApplied(); } catch (e) { /* ignore */ }
+        try { 
+          this.saveApplied();
+          console.log('[CampaignsPage] ✓ Saved applied IDs to localStorage');
+        } catch (e) { console.error('[CampaignsPage] Failed to save applied IDs:', e); }
+        
+        // Notify the ApplicationsService that applications have been updated
+        // This will trigger the applications page to refresh the data
+        try { 
+          this.applicationsService.notifyApplicationsUpdated();
+          console.log('[CampaignsPage] ✓ Notified ApplicationsService of update');
+        } catch (e) { console.error('[CampaignsPage] Failed to notify:', e); }
+        
         // Refresh applied campaign ids from backend (canonical source) so UI reflects DB
         (async () => {
           try {
@@ -919,33 +967,47 @@ export class CampaignsPage implements OnInit {
                     const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
                     const cand = payload.id || payload.sub || payload.userId || payload.name || payload.email;
                     if (cand && !isNaN(Number(cand))) userId = Number(cand);
+                    console.log('[CampaignsPage] Extracted userId from token:', userId);
                   }
-                } catch (e) { /* ignore token parse errors */ }
+                } catch (e) { console.error('[CampaignsPage] Failed to parse token:', e); }
               }
             }
 
             if (userId) {
+              console.log('[CampaignsPage] Refreshing applications from backend for userId:', userId);
               this.applicationsService.getMyApplications(userId).subscribe({
                 next: (data: any[]) => {
+                  console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
                   try {
                     const appliedIds = new Set<number>();
                     (Array.isArray(data) ? data : []).forEach(d => {
-                      if (d && d.campagne && d.campagne.id) appliedIds.add(d.campagne.id);
+                      if (d && d.campagne && d.campagne.id) {
+                        appliedIds.add(d.campagne.id);
+                        console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
+                      }
                     });
+                    console.log('[CampaignsPage] Final appliedIds from backend:', Array.from(appliedIds));
                     this.appliedCampaignIds.set(appliedIds);
                     try { this.saveApplied(); } catch (e) { /* ignore */ }
-                  } catch (e) { /* ignore */ }
+                  } catch (e) { console.error('[CampaignsPage] Error processing applications:', e); }
                 },
-                error: (err) => console.error('[CampaignsPage] failed to refresh applied ids', err)
+                error: (err) => console.error('[CampaignsPage] ✗ Failed to refresh applied ids from backend:', err)
               });
+            } else {
+              console.warn('[CampaignsPage] WARNING: Could not determine userId for backend refresh');
             }
-          } catch (e) { /* ignore overall refresh errors */ }
+          } catch (e) { console.error('[CampaignsPage] Error in async refresh:', e); }
         })();
+        
         // keep modal open briefly to show success
-        setTimeout(() => this.closeApplicationModal(), 2500);
+        console.log('[CampaignsPage] Closing modal in 2500ms...');
+        setTimeout(() => {
+          console.log('[CampaignsPage] Closing application modal now');
+          this.closeApplicationModal();
+        }, 2500);
       },
       error: (err) => {
-        console.error('[CampaignsPage] submitApplication error', err);
+        console.error('[CampaignsPage] ✗ Application submission FAILED:', err);
         this.submitting.set(false);
         this.submitError.set('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
       }
