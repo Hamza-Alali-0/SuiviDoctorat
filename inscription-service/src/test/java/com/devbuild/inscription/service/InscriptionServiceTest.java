@@ -39,6 +39,9 @@ class InscriptionServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private PdfGeneratorService pdfGeneratorService;
+
     @InjectMocks
     private InscriptionService inscriptionService;
 

@@ -9,6 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class NotificationService {
 
@@ -16,14 +19,20 @@ public class NotificationService {
     private final DoctorantRepository doctorantRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
+    private final PdfGeneratorService pdfGeneratorService;
     @Value("${app.notifications.target-roles:ROLE_USER}")
     private String targetRolesConfig;
 
-    public NotificationService(NotificationClient notificationClient, DoctorantRepository doctorantRepository, JdbcTemplate jdbcTemplate, UserRepository userRepository) {
+    public NotificationService(NotificationClient notificationClient, 
+                              DoctorantRepository doctorantRepository, 
+                              JdbcTemplate jdbcTemplate, 
+                              UserRepository userRepository,
+                              PdfGeneratorService pdfGeneratorService) {
         this.notificationClient = notificationClient;
         this.doctorantRepository = doctorantRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.userRepository = userRepository;
+        this.pdfGeneratorService = pdfGeneratorService;
     }
 
     public void notifyDirecteur(DossierInscription dossier) {
@@ -48,11 +57,70 @@ public class NotificationService {
 
     public void notifyDoctorant(DossierInscription dossier, boolean accepted) {
         String recipient = dossier.getDoctorant().getEmail();
-        String subject = accepted ? "Dossier d'inscription validé" : "Dossier d'inscription rejeté";
-        String message = "Votre dossier d'inscription (ID: " + dossier.getId() + ") a été " + 
-                        (accepted ? "validé" : "rejeté") + " par l'administration.";
+        String subject = accepted ? "Dossier d'inscription validé" : "Dossier d'inscription soumis";
         
-        notificationClient.sendNotification(recipient, subject, message, "EMAIL");
+        // Build HTML email body
+        StringBuilder htmlBody = new StringBuilder();
+        htmlBody.append("<html><body>");
+        htmlBody.append("<h2>").append(accepted ? "Félicitations !" : "Confirmation de soumission").append("</h2>");
+        
+        if (accepted) {
+            htmlBody.append("<p>Votre dossier d'inscription (ID: ").append(dossier.getId()).append(") a été validé par l'administration.</p>");
+        } else {
+            htmlBody.append("<p>Votre dossier d'inscription a bien été soumis avec succès.</p>");
+            htmlBody.append("<p><strong>Numéro de dossier :</strong> ").append(dossier.getId()).append("</p>");
+            htmlBody.append("<p><strong>Candidat :</strong> ").append(dossier.getDoctorant().getPrenom()).append(" ").append(dossier.getDoctorant().getNom()).append("</p>");
+            
+            if (dossier.getSujetThese() != null) {
+                htmlBody.append("<p><strong>Sujet de thèse :</strong> ").append(dossier.getSujetThese()).append("</p>");
+            }
+            if (dossier.getDirecteurThese() != null) {
+                htmlBody.append("<p><strong>Directeur de thèse :</strong> ").append(dossier.getDirecteurThese()).append("</p>");
+            }
+            
+            htmlBody.append("<p>Vous trouverez en pièces jointes les documents suivants :</p>");
+            htmlBody.append("<ul>");
+            htmlBody.append("<li>Attestation d'inscription</li>");
+            htmlBody.append("<li>Autorisation de soutenance</li>");
+            htmlBody.append("<li>Procès-verbal de soutenance (pré-rempli)</li>");
+            htmlBody.append("</ul>");
+            htmlBody.append("<p>Votre dossier sera examiné par le directeur de thèse et l'administration.</p>");
+        }
+        
+        htmlBody.append("<p>Cordialement,<br/>L'équipe administrative</p>");
+        htmlBody.append("</body></html>");
+        
+        // Generate PDF documents if not accepted (submission confirmation)
+        if (!accepted) {
+            try {
+                Map<String, byte[]> attachments = new HashMap<>();
+                
+                // Generate attestation d'inscription
+                byte[] attestation = pdfGeneratorService.generateAttestationInscription(dossier);
+                attachments.put("attestation_inscription_" + dossier.getId() + ".pdf", attestation);
+                
+                // Generate autorisation de soutenance
+                byte[] autorisation = pdfGeneratorService.generateAutorisationSoutenance(dossier);
+                attachments.put("autorisation_soutenance_" + dossier.getId() + ".pdf", autorisation);
+                
+                // Generate procès-verbal
+                byte[] procesVerbal = pdfGeneratorService.generateProcesVerbalSoutenance(dossier);
+                attachments.put("proces_verbal_" + dossier.getId() + ".pdf", procesVerbal);
+                
+                System.out.println("[NotificationService] Generated " + attachments.size() + " PDF documents for dossier " + dossier.getId());
+                
+                // Send email with attachments
+                notificationClient.sendEmailWithAttachments(recipient, subject, htmlBody.toString(), attachments);
+            } catch (Exception e) {
+                System.err.println("[NotificationService] Failed to generate or send PDFs: " + e.getMessage());
+                e.printStackTrace();
+                // Fallback: send simple notification without attachments
+                notificationClient.sendNotification(recipient, subject, htmlBody.toString(), "EMAIL");
+            }
+        } else {
+            // For validation emails, no attachments needed
+            notificationClient.sendNotification(recipient, subject, htmlBody.toString(), "EMAIL");
+        }
     }
 
     // Send opening email to all users with ROLE_USER. Returns the list of targeted email addresses.

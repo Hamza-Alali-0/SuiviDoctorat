@@ -7,6 +7,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.core.io.ByteArrayResource;
+
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class NotificationClient {
@@ -53,6 +59,52 @@ public class NotificationClient {
             e.printStackTrace();
             // Fall back to console logging to ensure notification not lost
             System.out.println("[FALLBACK] " + type + " to " + recipient + ": " + subject + " - " + message);
+        }
+    }
+
+    /**
+     * Send email with attachments
+     */
+    public void sendEmailWithAttachments(String recipient, String subject, String message, Map<String, byte[]> attachments) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            if (internalSecret != null && !internalSecret.isBlank()) {
+                headers.set("X-INTERNAL-AUTH", internalSecret);
+            }
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("to", recipient);
+            body.add("subject", subject);
+            body.add("body", message);
+            
+            // Add attachments
+            if (attachments != null && !attachments.isEmpty()) {
+                for (Map.Entry<String, byte[]> entry : attachments.entrySet()) {
+                    ByteArrayResource fileResource = new ByteArrayResource(entry.getValue()) {
+                        @Override
+                        public String getFilename() {
+                            return entry.getKey();
+                        }
+                    };
+                    body.add("attachments", fileResource);
+                }
+            }
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+            String url = notificationServiceUrl + "/api/notifications/email/with-attachments";
+            
+            System.out.println("[NOTIFICATION-CLIENT] Sending email with attachments to " + recipient + " via " + url);
+            var response = restTemplate.postForEntity(url, requestEntity, String.class);
+            System.out.println("[NOTIFICATION-CLIENT] Email with attachments sent: " + (response != null ? response.getStatusCode() : "null"));
+        } catch (Exception e) {
+            System.err.println("[NOTIFICATION-CLIENT] Failed to send email with attachments: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to console logging
+            System.out.println("[FALLBACK] Email with attachments to " + recipient + ": " + subject);
+            if (attachments != null) {
+                System.out.println("[FALLBACK] Attachments: " + attachments.keySet());
+            }
         }
     }
 

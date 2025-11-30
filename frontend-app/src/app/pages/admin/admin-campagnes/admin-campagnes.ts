@@ -98,31 +98,34 @@ interface CampagneStats {
     .search-box { flex:1; min-width:240px; }
     .search-input { width:100%; padding:0.6rem 0.8rem; border-radius:8px; border:1px solid var(--color-border); font-size:0.85rem; }
 
-    /* Cards */
-    .campagnes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; }
-    .campagne-card { background:#fff; border:1px solid var(--color-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; transition:var(--transition-fast); }
-    .campagne-card:hover { box-shadow:var(--shadow-md); }
-    .campagne-banner { position:relative; width:100%; height:160px; background:var(--gradient-primary); }
-    .campagne-banner img { width:100%; height:100%; object-fit:cover; }
-    .campagne-logo-overlay { position:absolute; bottom:-28px; left:1.25rem; width:70px; height:70px; background:#fff; border-radius:12px; padding:0.4rem; box-shadow:0 4px 12px rgba(0,0,0,0.15); border:3px solid #fff; }
-    .campagne-logo-overlay img, .campagne-logo-small img { width:100%; height:100%; object-fit:contain; }
+    /* Cards - Matching candidat campaign cards */
+    .campagnes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:2rem; }
+    .campagne-card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); overflow:hidden; transition:all .3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; position:relative; }
+    .campagne-card:hover { transform:translateY(-6px); box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border-color:#cbd5e1; }
+    .campagne-banner { position:relative; width:100%; height:180px; overflow:hidden; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index:1; }
+    .campagne-banner img { width:100%; height:100%; object-fit:cover; transition:transform .7s ease; display:block; position:relative; z-index:2; }
+    .campagne-card:hover .campagne-banner img { transform:scale(1.08); }
+    .campagne-logo-overlay { position:absolute; bottom:-24px; left:1.5rem; width:64px; height:64px; background:#fff; border-radius:16px; padding:4px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); z-index:10; display:flex; align-items:center; justify-content:center; border:2px solid #fff; }
+    .campagne-logo-overlay img, .campagne-logo-small img { width:100%; height:100%; object-fit:contain; border-radius:12px; }
     .campagne-logo-small { width:50px; height:50px; background:#fff; border-radius:10px; padding:0.4rem; box-shadow:0 2px 6px rgba(0,0,0,0.1); border:2px solid #f3f4f6; }
-    .campagne-content { padding:1.25rem; }
+    .campagne-content { padding:2rem 1.5rem 1.5rem; flex:1; display:flex; flex-direction:column; position:relative; z-index:5; background:#fff; }
     .campagne-banner + .campagne-content { padding-top:2.5rem; }
-    .campagne-header-row { display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:0.75rem; }
-    .campagne-title { font-size:1.05rem; font-weight:700; color:var(--color-text); margin:0 0 0.4rem; }
-    .campagne-type { display:inline-block; padding:0.25rem 0.65rem; border-radius:999px; font-size:0.6rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+    .campagne-header-row { display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:0.75rem; flex-wrap:wrap; }
+    .campagne-title { font-size:1.25rem; font-weight:700; color:#0f172a; margin:0 0 0.5rem; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; flex:1; min-width:200px; }
+    .campagne-type { display:inline-block; padding:0.25rem 0.6rem; border-radius:6px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:#f1f5f9; color:#475569; }
     .type-inscription { background:#dbeafe; color:#1e40af; }
     .type-reinscription { background:#fef3c7; color:#92400e; }
     .type-soutenance { background:#ede9fe; color:#5b21b6; }
-    .campagne-badge { padding:0.3rem 0.6rem; border-radius:999px; font-size:0.55rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-    .badge-active { background:#10b981; color:#fff; }
-    .badge-inactive { background:#ef4444; color:#fff; }
-    .badge-upcoming { background:#f59e0b; color:#fff; }
-    .badge-ended { background:#6b7280; color:#fff; }
-    .campagne-info { font-size:0.75rem; color:var(--color-muted); margin-bottom:0.75rem; }
-    .info-row { margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem; }
-    .campagne-actions { display:flex; gap:0.4rem; justify-content:flex-end; padding-top:0.75rem; border-top:1px solid #f3f4f6; }
+    .campagne-badge { position:absolute; top:12px; right:12px; padding:.35rem .75rem; border-radius:100px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#fff; backdrop-filter:blur(4px); box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:2; }
+    .badge-active { background:rgba(22,163,74,0.9); }
+    .badge-inactive { background:rgba(239,68,68,0.9); }
+    .badge-upcoming { background:rgba(234,88,12,0.9); }
+    .badge-ended { background:rgba(100,116,139,0.9); }
+    .campagne-info { font-size:0.85rem; color:#64748b; margin-bottom:1rem; display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem; padding-top:1rem; border-top:1px solid #e2e8f0; margin-top:auto; }
+    .info-row { display:flex; flex-direction:column; gap:0.25rem; }
+    .info-row .label { font-size:.65rem; text-transform:uppercase; color:#94a3b8; font-weight:600; letter-spacing:.05em; }
+    .info-row .value { font-size:.85rem; font-weight:600; color:#334155; }
+    .campagne-actions { display:flex; gap:0.75rem; padding:1rem 1.5rem 1.5rem; }
 
     /* Modal */
     .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000; }

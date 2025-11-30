@@ -107,15 +107,6 @@ public class InscriptionController {
         List<DossierInscription> dossiers = service.getDossiersForDoctorant(doctorantId);
         return ResponseEntity.ok(dossiers);
     }
-
-    @GetMapping("/doctorant/me/dashboard")
-    public ResponseEntity<?> dashboardMe(Principal principal) {
-        if (principal == null || principal.getName() == null) {
-            return ResponseEntity.status(401).build();
-        }
-        List<DossierInscription> dossiers = service.getDossiersForPrincipal(principal.getName());
-        return ResponseEntity.ok(dossiers);
-    }
     
     /**
      * Get enhanced dashboard with workflow timeline

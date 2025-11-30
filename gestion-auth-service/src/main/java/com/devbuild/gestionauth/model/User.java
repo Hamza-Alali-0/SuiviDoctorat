@@ -115,6 +115,40 @@ public class User {
     @Column(name = "email_change_expiry", nullable = true)
     private java.time.LocalDateTime emailChangeExpiry;
 
+    // Encadrant-specific fields
+    @Column(name = "etablissement", nullable = true)
+    private String etablissement;
+
+    @Column(name = "laboratoire", nullable = true)
+    private String laboratoire;
+
+    @Column(name = "specialite", nullable = true)
+    private String specialite;
+
+    @Column(name = "grade", nullable = true)
+    private String grade;
+
+    @Column(name = "domaines_recherche", nullable = true, length = 1000)
+    private String domainesRecherche;
+
+    @Column(name = "nombre_publications", nullable = true)
+    private Integer nombrePublications;
+
+    @Column(name = "h_index", nullable = true)
+    private Integer hIndex;
+
+    @Column(name = "orcid_id", nullable = true)
+    private String orcidId;
+
+    @Column(name = "research_gate_url", nullable = true)
+    private String researchGateUrl;
+
+    @Column(name = "google_scholar_url", nullable = true)
+    private String googleScholarUrl;
+
+    @Column(name = "avatar_url", nullable = true)
+    private String avatarUrl;
+
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public String getLastName() { return lastName; }
@@ -185,4 +219,34 @@ public class User {
     public void setEmailChangeToken(String emailChangeToken) { this.emailChangeToken = emailChangeToken; }
     public java.time.LocalDateTime getEmailChangeExpiry() { return emailChangeExpiry; }
     public void setEmailChangeExpiry(java.time.LocalDateTime emailChangeExpiry) { this.emailChangeExpiry = emailChangeExpiry; }
+
+    // Encadrant-specific getters and setters
+    public String getEtablissement() { return etablissement; }
+    public void setEtablissement(String etablissement) { this.etablissement = etablissement; }
+    public String getLaboratoire() { return laboratoire; }
+    public void setLaboratoire(String laboratoire) { this.laboratoire = laboratoire; }
+    public String getSpecialite() { return specialite; }
+    public void setSpecialite(String specialite) { this.specialite = specialite; }
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
+    public String getDomainesRecherche() { return domainesRecherche; }
+    public void setDomainesRecherche(String domainesRecherche) { this.domainesRecherche = domainesRecherche; }
+    public Integer getNombrePublications() { return nombrePublications; }
+    public void setNombrePublications(Integer nombrePublications) { this.nombrePublications = nombrePublications; }
+    public Integer getHIndex() { return hIndex; }
+    public void setHIndex(Integer hIndex) { this.hIndex = hIndex; }
+    public String getOrcidId() { return orcidId; }
+    public void setOrcidId(String orcidId) { this.orcidId = orcidId; }
+    public String getResearchGateUrl() { return researchGateUrl; }
+    public void setResearchGateUrl(String researchGateUrl) { this.researchGateUrl = researchGateUrl; }
+    public String getGoogleScholarUrl() { return googleScholarUrl; }
+    public void setGoogleScholarUrl(String googleScholarUrl) { this.googleScholarUrl = googleScholarUrl; }
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+
+    // Helper method to get role as string for backward compatibility
+    public String getRole() {
+        if (roles == null || roles.isEmpty()) return null;
+        return roles.iterator().next().name();
+    }
 }

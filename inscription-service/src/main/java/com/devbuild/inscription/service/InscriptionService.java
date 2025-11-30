@@ -469,45 +469,4 @@ public class InscriptionService {
         doctorant.setEtablissementOrigine(dto.getEtablissementOrigine());
     }
 
-    /**
-     * Get dossiers for a principal (email or username/id)
-     */
-    public List<DossierInscription> getDossiersForPrincipal(String principalName) {
-        System.out.println("[InscriptionService] getDossiersForPrincipal called with: " + principalName);
-        
-        try {
-            // Try to find doctorant by email first
-            Optional<Doctorant> dOpt = doctorantRepository.findByEmail(principalName);
-            
-            if (!dOpt.isPresent()) {
-                System.out.println("[InscriptionService] No doctorant found by email, trying to parse as ID...");
-                // No doctorant found by email - try to interpret the username as id
-                try {
-                    Long id = Long.parseLong(principalName);
-                    dOpt = doctorantRepository.findById(id);
-                    if (dOpt.isPresent()) {
-                        System.out.println("[InscriptionService] Found doctorant by ID: " + id);
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("[InscriptionService] Principal name is not a valid ID");
-                }
-            } else {
-                System.out.println("[InscriptionService] Found doctorant by email: " + principalName);
-            }
-            
-            if (dOpt.isPresent()) {
-                List<DossierInscription> dossiers = dossierRepository.findByDoctorantId(dOpt.get().getId());
-                System.out.println("[InscriptionService] Found " + dossiers.size() + " dossiers for doctorant");
-                return dossiers;
-            }
-            
-            System.out.println("[InscriptionService] No doctorant found, returning empty list");
-            return new ArrayList<>();
-        } catch (Exception e) {
-            System.err.println("[InscriptionService] Error in getDossiersForPrincipal: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
 }

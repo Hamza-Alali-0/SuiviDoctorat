@@ -46,7 +46,9 @@ import { AdminNavbarComponent } from '../../components/navbar/admin-navbar';
     .user-card { background:#fff; border-radius:12px; padding:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #f3f4f6; display:flex; flex-direction:column; gap:0.75rem; transition:all 0.2s }
     .user-card:hover{ box-shadow:0 8px 24px rgba(2,6,23,0.08); border-color:#e6eef8 }
     .user-card{ position:relative }
-    .avatar { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; flex-shrink:0 }
+    .avatar { width:52px; height:52px; border-radius:50%; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; flex-shrink:0; overflow:hidden; position:relative; }
+    .avatar img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+    .avatar span { position:relative; z-index:1; }
     .meta { display:flex; gap:0.875rem; align-items:flex-start }
     .role { font-size:0.875rem; color:#6b7280; margin-top:0.2rem }
     .actions { margin-top:auto; display:flex; gap:0.5rem; padding-top:0.5rem; border-top:1px solid #f3f4f6 }
@@ -95,13 +97,23 @@ import { AdminNavbarComponent } from '../../components/navbar/admin-navbar';
     .modal-title{ font-size:1.125rem; font-weight:700 }
     .modal-sub{ color:#6b7280; font-size:0.95rem }
     .modal-body{ display:flex; gap:18px; margin-top:12px }
-    .modal-avatar{ width:88px; height:88px; border-radius:12px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.25rem }
+    .modal-avatar{ width:88px; height:88px; border-radius:12px; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.25rem; overflow:hidden; position:relative; }
+    .modal-avatar img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+    .modal-avatar span { position:relative; z-index:1; }
     .info-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 16px }
     .info-row{ display:flex; gap:8px; align-items:center }
     .info-label{ color:#374151; font-weight:700; min-width:110px }
     .info-value{ color:#475569 }
     .modal-input{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e6eef8; font-size:0.95rem; box-sizing:border-box }
     .modal-input:focus{ outline:none; border-color:#3b82f6; box-shadow:0 0 0 4px rgba(59,130,246,0.06) }
+    .cv-action-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; background:#16a34a; color:#fff; border-radius:6px; font-size:0.85rem; font-weight:600; text-decoration:none; transition:all 0.2s }
+    .cv-action-btn:hover { background:#15803d; transform:translateY(-1px) }
+    .social-badge { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; text-decoration:none; transition:all 0.2s }
+    .social-badge:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.15) }
+    .social-badge.linkedin { background:#0ea5e9; color:#fff }
+    .social-badge.portfolio { background:#8b5cf6; color:#fff }
+    .social-badge.github { background:#1f2937; color:#fff }
+    .social-badge.twitter { background:#3b82f6; color:#fff }
     .modal-actions{ display:flex; gap:8px; align-items:center }
     .field-error{ color:#b91c1c; font-size:0.88rem; margin-top:6px }
     .form-error{ color:#b91c1c; font-weight:700; margin-top:8px }
@@ -410,45 +422,136 @@ export class AdminDashboard {
     const aff = r.affiliation || '';
     const just = r.justification || '';
 
-    const styles = `
-      body{ font-family: Arial, Helvetica, sans-serif; color:#0f172a; padding:18px }
-      .card{ border:1px solid #e6eef8; border-radius:8px; padding:18px; max-width:760px }
-      .header{ display:flex; justify-content:space-between; align-items:center }
-      .meta{ color:#475569 }
-      .images{ display:flex; gap:12px; margin-top:12px }
-      .images img{ width:320px; height:220px; object-fit:cover; border:1px solid #e6eef8; border-radius:6px }
-      .info{ margin-top:12px }
-      .label{ font-weight:700; margin-right:6px }
-      @media print{ img{ max-width:100%; height:auto } }
-    `;
+    const statusColor = status === 'APPROVED' ? '#16a34a' : status === 'REJECTED' ? '#dc2626' : '#f59e0b';
+    const statusBg = status === 'APPROVED' ? '#f0fdf4' : status === 'REJECTED' ? '#fef2f2' : '#fef3c7';
+    const statusLabel = status === 'APPROVED' ? '✓ Approuvée' : status === 'REJECTED' ? '✗ Rejetée' : '⏳ En attente';
 
-    const imgHtml = `
-      <div class="images">
-        ${ front ? `<img src="${front}" alt="recto"/>` : `<div style="width:320px;height:220px;border:1px dashed #e6eef8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#9ca3af">Recto</div>` }
-        ${ back ? `<img src="${back}" alt="verso"/>` : `<div style="width:320px;height:220px;border:1px dashed #e6eef8;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#9ca3af">Verso</div>` }
-      </div>
+    const styles = `
+      @page { margin: 2cm; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #fff; padding: 20px; line-height: 1.6; }
+      .print-container { max-width: 800px; margin: 0 auto; }
+      .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; }
+      .logo-section { display: flex; align-items: center; gap: 12px; }
+      .logo { height: 50px; width: auto; }
+      .system-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+      .system-subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
+      .print-date { text-align: right; font-size: 12px; color: #64748b; }
+      .request-banner { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+      .request-banner h1 { font-size: 24px; margin-bottom: 8px; }
+      .request-meta { font-size: 14px; opacity: 0.9; }
+      .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; background: ${statusBg}; color: ${statusColor}; }
+      .section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; page-break-inside: avoid; }
+      .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+      .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .info-item { display: flex; flex-direction: column; }
+      .info-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+      .info-value { font-size: 14px; color: #0f172a; font-weight: 500; }
+      .full-width { grid-column: 1 / -1; }
+      .images-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .image-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; }
+      .image-label { background: #0f172a; color: #fff; padding: 8px 12px; font-size: 12px; font-weight: 600; text-align: center; }
+      .image-wrapper { padding: 12px; display: flex; align-items: center; justify-content: center; min-height: 200px; background: #f8fafc; }
+      .image-wrapper img { max-width: 100%; height: auto; border-radius: 4px; }
+      .image-placeholder { color: #94a3b8; font-size: 14px; text-align: center; }
+      .justification-box { background: #fff; border-left: 3px solid #3b82f6; padding: 12px; border-radius: 4px; font-size: 13px; color: #475569; line-height: 1.8; }
+      .print-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+      @media print { body { padding: 0; } .print-container { max-width: 100%; } }
     `;
 
     const html = `
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>Role Request - ${name}</title>
+          <title>Demande de Rôle - ${name}</title>
           <meta charset="utf-8" />
           <style>${styles}</style>
         </head>
         <body>
-          <div class="card">
-            <div class="header">
-              <div>
-                <div style="font-size:20px;font-weight:700">${name}</div>
-                <div class="meta">${email} · ${role} · ${status}</div>
+          <div class="print-container">
+            <!-- Header with Logo -->
+            <div class="print-header">
+              <div class="logo-section">
+                <img src="/assets/logo_white.png" alt="Logo" class="logo" />
+                <div>
+                  <div class="system-title">Système de Suivi Doctoral</div>
+                  <div class="system-subtitle">Demande de Changement de Rôle</div>
+                </div>
               </div>
-              <div style="text-align:right; color:#6b7280">Soumis: ${created}</div>
+              <div class="print-date">
+                Imprimé le: ${new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
+                ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
-            ${imgHtml}
-            <div class="info">
-              <div><span class="label">Affiliation:</span>${aff}</div>
-              <div style="margin-top:8px"><span class="label">Justification:</span>${just}</div>
+
+            <!-- Request Banner -->
+            <div class="request-banner">
+              <h1>Demande de Rôle: ${role}</h1>
+              <div class="request-meta">${name} • ${email}</div>
+              ${created ? `<div class="request-meta" style="margin-top:4px">Soumise le: ${created}</div>` : ''}
+              <span class="status-badge">${statusLabel}</span>
+            </div>
+
+            <!-- User Information -->
+            <div class="section">
+              <div class="section-title">👤 Informations du Demandeur</div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">Nom complet</div>
+                  <div class="info-value">${name}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">${email}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Rôle demandé</div>
+                  <div class="info-value">${role}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Statut</div>
+                  <div class="info-value">${status}</div>
+                </div>
+                ${aff ? `
+                <div class="info-item full-width">
+                  <div class="info-label">Affiliation</div>
+                  <div class="info-value">${aff}</div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Justification -->
+            ${just ? `
+            <div class="section">
+              <div class="section-title">📝 Justification</div>
+              <div class="justification-box">${just}</div>
+            </div>
+            ` : ''}
+
+            <!-- ID Documents -->
+            <div class="section">
+              <div class="section-title">🆔 Pièces d'Identité</div>
+              <div class="images-section">
+                <div class="image-card">
+                  <div class="image-label">Recto de la CIN</div>
+                  <div class="image-wrapper">
+                    ${front ? `<img src="${front}" alt="Recto" />` : `<div class="image-placeholder">Aucune image fournie</div>`}
+                  </div>
+                </div>
+                <div class="image-card">
+                  <div class="image-label">Verso de la CIN</div>
+                  <div class="image-wrapper">
+                    ${back ? `<img src="${back}" alt="Verso" />` : `<div class="image-placeholder">Aucune image fournie</div>`}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="print-footer">
+              Document généré automatiquement par le Système de Suivi Doctoral<br/>
+              Ce document est confidentiel et destiné uniquement à un usage administratif interne
             </div>
           </div>
         </body>
@@ -464,35 +567,228 @@ export class AdminDashboard {
     const email = u.email || '';
     const role = u.role || '';
     const created = u.createdAt || '';
-    const requests = this.requests().filter((r:any) => (r.user && r.user.id ? r.user.id : r.userId) === u.id);
+    const avatar = u.avatar || u.avatarUrl || u.profileImage || '';
+    const initials = ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase();
 
-    const styles = `body{ font-family: Arial, Helvetica, sans-serif; color:#0f172a; padding:18px } .card{ border:1px solid #e6eef8; border-radius:8px; padding:18px; max-width:760px } .header{ display:flex; justify-content:space-between; align-items:center } .meta{ color:#475569 } .req{ padding:8px 0; border-bottom:1px dashed #eef2f7 } .label{ font-weight:700; margin-right:6px }`;
+    const styles = `
+      @page { margin: 2cm; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; background: #fff; padding: 20px; line-height: 1.6; }
+      .print-container { max-width: 800px; margin: 0 auto; }
+      .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; }
+      .logo-section { display: flex; align-items: center; gap: 12px; }
+      .logo { height: 50px; width: auto; }
+      .system-title { font-size: 16px; font-weight: 700; color: #0f172a; }
+      .system-subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
+      .print-date { text-align: right; font-size: 12px; color: #64748b; }
+      .profile-banner { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; padding: 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; }
+      .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #0f172a; overflow: hidden; flex-shrink: 0; border: 3px solid #fff; }
+      .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+      .profile-info h1 { font-size: 24px; margin-bottom: 4px; }
+      .profile-meta { font-size: 14px; opacity: 0.9; }
+      .section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; page-break-inside: avoid; }
+      .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e1; }
+      .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .info-item { display: flex; flex-direction: column; }
+      .info-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+      .info-value { font-size: 14px; color: #0f172a; font-weight: 500; }
+      .full-width { grid-column: 1 / -1; }
+      .bio-content { font-size: 13px; color: #475569; line-height: 1.8; padding: 12px; background: #fff; border-left: 3px solid #3b82f6; border-radius: 4px; }
+      .cv-section { background: #f0fdf4; border: 1px solid #86efac; }
+      .cv-info { display: flex; align-items: center; gap: 12px; }
+      .cv-icon { width: 48px; height: 48px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .cv-details { flex: 1; }
+      .cv-title { font-weight: 700; color: #166534; font-size: 14px; }
+      .cv-meta { font-size: 12px; color: #15803d; margin-top: 2px; }
+      .thesis-section { background: #fef3c7; border: 1px solid #fbbf24; }
+      .social-links { display: flex; flex-wrap: wrap; gap: 8px; }
+      .social-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #fff; }
+      .social-badge.linkedin { background: #0ea5e9; }
+      .social-badge.portfolio { background: #8b5cf6; }
+      .social-badge.github { background: #1f2937; }
+      .social-badge.twitter { background: #3b82f6; }
+      .print-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+      @media print { body { padding: 0; } .print-container { max-width: 100%; } }
+    `;
 
-    // For printing user profile we only include user info (no demandes)
     const html = `
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>User - ${name}</title>
+          <title>Profil Utilisateur - ${name}</title>
           <meta charset="utf-8" />
           <style>${styles}</style>
         </head>
         <body>
-          <div class="card">
-            <div class="header">
-              <div>
-                <div style="font-size:20px;font-weight:700">${name}</div>
-                <div class="meta">${email} · ${role}</div>
+          <div class="print-container">
+            <!-- Header with Logo -->
+            <div class="print-header">
+              <div class="logo-section">
+                <img src="/assets/logo_white.png" alt="Logo" class="logo" />
+                <div>
+                  <div class="system-title">Système de Suivi Doctoral</div>
+                  <div class="system-subtitle">Profil Utilisateur</div>
+                </div>
               </div>
-              <div style="text-align:right; color:#6b7280">${created}</div>
+              <div class="print-date">
+                Imprimé le: ${new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}<br/>
+                ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
-            <div style="margin-top:12px">
-              <div><span class="label">Prénom:</span>${u.firstName || '—'}</div>
-              <div style="margin-top:6px"><span class="label">Nom:</span>${u.lastName || '—'}</div>
-              <div style="margin-top:6px"><span class="label">Email:</span>${email}</div>
-              <div style="margin-top:6px"><span class="label">Role:</span>${role}</div>
-              ${ !( (u.role||'').toString().toLowerCase().includes('encadrant') ) ? `<div style="margin-top:6px"><span class="label">ID:</span>${u.id || '—'}</div>` : '' }
-              <div style="margin-top:6px"><span class="label">Téléphone:</span>${u.phone || u.phoneNumber || u.telephone || '—'}</div>
-              <div style="margin-top:6px"><span class="label">Adresse:</span>${u.address || '—'}</div>
+
+            <!-- Profile Banner -->
+            <div class="profile-banner">
+              <div class="profile-avatar">
+                ${avatar ? `<img src="${avatar}" alt="${name}" />` : `<span>${initials}</span>`}
+              </div>
+              <div class="profile-info">
+                <h1>${name}</h1>
+                <div class="profile-meta">${email} • ${role}</div>
+                ${created ? `<div class="profile-meta" style="margin-top:4px">Membre depuis: ${created}</div>` : ''}
+              </div>
+            </div>
+
+            <!-- Bio Section -->
+            ${u.bio ? `
+            <div class="section">
+              <div class="section-title">📝 Biographie</div>
+              <div class="bio-content">${u.bio}</div>
+            </div>
+            ` : ''}
+
+            <!-- Personal Information -->
+            <div class="section">
+              <div class="section-title"> Informations Personnelles</div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">Prénom</div>
+                  <div class="info-value">${u.firstName || '—'}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Nom</div>
+                  <div class="info-value">${u.lastName || '—'}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">${email || '—'}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Rôle</div>
+                  <div class="info-value">${role || '—'}</div>
+                </div>
+                ${!((u.role||'').toString().toLowerCase().includes('encadrant')) ? `
+                <div class="info-item">
+                  <div class="info-label">Identifiant</div>
+                  <div class="info-value">${u.id || '—'}</div>
+                </div>
+                ` : ''}
+                <div class="info-item">
+                  <div class="info-label">Téléphone</div>
+                  <div class="info-value">${u.phone || u.phoneNumber || u.telephone || '—'}</div>
+                </div>
+                <div class="info-item full-width">
+                  <div class="info-label">Adresse</div>
+                  <div class="info-value">${u.address || '—'}</div>
+                </div>
+                ${u.dateNaissance || u.birthDate ? `
+                <div class="info-item">
+                  <div class="info-label">Date de naissance</div>
+                  <div class="info-value">${u.dateNaissance || u.birthDate}</div>
+                </div>
+                ` : ''}
+                ${u.lieuNaissance || u.birthPlace ? `
+                <div class="info-item">
+                  <div class="info-label">Lieu de naissance</div>
+                  <div class="info-value">${u.lieuNaissance || u.birthPlace}</div>
+                </div>
+                ` : ''}
+                ${u.nationalite || u.nationality ? `
+                <div class="info-item">
+                  <div class="info-label">Nationalité</div>
+                  <div class="info-value">${u.nationalite || u.nationality}</div>
+                </div>
+                ` : ''}
+                ${u.cin || u.idCard ? `
+                <div class="info-item">
+                  <div class="info-label">CIN</div>
+                  <div class="info-value">${u.cin || u.idCard}</div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- CV Section -->
+            ${u.cvUrl || u.cv ? `
+            <div class="section cv-section">
+              <div class="section-title" style="color:#166534;border-color:#86efac"> Curriculum Vitae</div>
+              <div class="cv-info">
+                <div class="cv-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#16a34a" stroke-width="2"/>
+                    <polyline points="14 2 14 8 20 8" stroke="#16a34a" stroke-width="2"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="#16a34a" stroke-width="2"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="#16a34a" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="cv-details">
+                  <div class="cv-title">Curriculum Vitae</div>
+                  <div class="cv-meta">Document disponible • Format PDF</div>
+                  <div style="margin-top:6px;font-size:11px;color:#15803d;word-break:break-all">${u.cvUrl || u.cv}</div>
+                </div>
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- Social Links -->
+            ${(u.linkedinUrl || u.portfolioUrl || u.githubUrl || u.twitterUrl) ? `
+            <div class="section">
+              <div class="section-title">🔗 Liens Professionnels & Réseaux Sociaux</div>
+              <div class="social-links">
+                ${u.linkedinUrl ? `<span class="social-badge linkedin">LinkedIn: ${u.linkedinUrl}</span>` : ''}
+                ${u.portfolioUrl ? `<span class="social-badge portfolio">Portfolio: ${u.portfolioUrl}</span>` : ''}
+                ${u.githubUrl ? `<span class="social-badge github">GitHub: ${u.githubUrl}</span>` : ''}
+                ${u.twitterUrl ? `<span class="social-badge twitter">Twitter: ${u.twitterUrl}</span>` : ''}
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- Thesis Information -->
+            ${(u.sujetThese || u.directeurThese || u.laboratoire || u.etablissementOrigine) ? `
+            <div class="section thesis-section">
+              <div class="section-title" style="color:#78350f;border-color:#fbbf24">🎓 Informations de Thèse</div>
+              <div class="info-grid">
+                ${u.sujetThese ? `
+                <div class="info-item full-width">
+                  <div class="info-label">Sujet de thèse</div>
+                  <div class="info-value">${u.sujetThese}</div>
+                </div>
+                ` : ''}
+                ${u.directeurThese ? `
+                <div class="info-item">
+                  <div class="info-label">Directeur de thèse</div>
+                  <div class="info-value">${u.directeurThese}</div>
+                </div>
+                ` : ''}
+                ${u.laboratoire ? `
+                <div class="info-item">
+                  <div class="info-label">Laboratoire</div>
+                  <div class="info-value">${u.laboratoire}</div>
+                </div>
+                ` : ''}
+                ${u.etablissementOrigine ? `
+                <div class="info-item full-width">
+                  <div class="info-label">Établissement d'origine</div>
+                  <div class="info-value">${u.etablissementOrigine}</div>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- Footer -->
+            <div class="print-footer">
+              Document généré automatiquement par le Système de Suivi Doctoral<br/>
+              Ce document est confidentiel et destiné uniquement à un usage administratif interne
             </div>
           </div>
         </body>

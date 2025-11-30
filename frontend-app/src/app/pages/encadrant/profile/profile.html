@@ -1,0 +1,278 @@
+<encadrant-navbar></encadrant-navbar>
+
+<app-modal
+  [isOpen]="modalConfig.isOpen"
+  [type]="modalConfig.type"
+  [title]="modalConfig.title"
+  [message]="modalConfig.message"
+  [confirmText]="modalConfig.confirmText"
+  [cancelText]="modalConfig.cancelText"
+  (confirmed)="onModalConfirmed()"
+  (cancelled)="onModalCancelled()"
+></app-modal>
+
+<div class="min-h-screen bg-zinc-50">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="profile-layout">
+      <!-- Sidebar Profile Card -->
+      <aside class="profile-sidebar">
+        <div class="profile-card">
+          <div class="avatar-block">
+            <div *ngIf="!profileImage" class="avatar-initial">{{ userInitials }}</div>
+            <img *ngIf="profileImage" [src]="profileImage" alt="avatar" class="avatar-img" (error)="profileImage = null" />
+            <label *ngIf="editMode" class="avatar-edit" title="Changer l'avatar">
+              <input type="file" (change)="onAvatar($event)" accept="image/*" />
+              ✎
+            </label>
+          </div>
+          <h1 class="name">{{ profile?.firstName }} {{ profile?.lastName }}</h1>
+          <div class="role-pill">{{ profile?.role || 'Encadrant' }}</div>
+
+          <!-- Bio Section -->
+          <div class="bio-section" *ngIf="profile?.bio || editMode">
+            <p class="bio-text" *ngIf="!editMode && profile?.bio">{{ profile.bio }}</p>
+            <p class="bio-text empty" *ngIf="!editMode && !profile?.bio">Aucune biographie</p>
+          </div>
+
+          <!-- CV Section -->
+          <div class="cv-section-sidebar">
+            <div class="cv-header-row">
+              <div class="cv-icon-circle">
+                <div class="cv-file-blob">{{ profile?.cvUrl ? 'PDF' : 'CV' }}</div>
+              </div>
+              <div class="cv-info">
+                <div class="cv-label">Curriculum Vitae</div>
+                <div class="cv-status" *ngIf="profile?.cvUrl; else noCvStatus">
+                  <span class="cv-filename">{{ getCvFileName() }}</span>
+                  <span class="cv-badge">Disponible • PDF</span>
+                </div>
+                <ng-template #noCvStatus>
+                  <span class="cv-status-empty">Non renseigné</span>
+                </ng-template>
+              </div>
+            </div>
+            <div class="cv-actions-row">
+              <a *ngIf="profile?.cvUrl" [href]="profile.cvUrl" target="_blank" rel="noopener" class="cv-icon-btn" title="Voir le CV">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+              <a *ngIf="profile?.cvUrl" [href]="profile.cvUrl" download class="cv-icon-btn" title="Télécharger le CV">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </a>
+              <label class="cv-icon-btn" title="Remplacer / Télécharger un CV">
+                <input type="file" (change)="onCvUpload($event)" accept=".pdf,.doc,.docx" style="display:none" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"/>
+                  <polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2"/>
+                  <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </label>
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div class="social-links">
+            <a *ngIf="profile?.linkedinUrl" [href]="profile.linkedinUrl" target="_blank" rel="noopener" class="social-link" title="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6 1.1 6 0 4.88 0 3.5 0 2.12 1.1 1 2.48 1 3.86 1 4.98 2.12 4.98 3.5zM.22 24h4.53V7.98H.22V24zM8.98 7.98V24h4.53v-8.36c0-4.86 6.43-5.25 6.43 0V24H24V14.1c0-9.04-10.07-8.68-12.99-4.24V7.98H8.98z" fill="currentColor" />
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+            <a *ngIf="profile?.portfolioUrl" [href]="profile.portfolioUrl" target="_blank" rel="noopener" class="social-link" title="Portfolio">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M10.59 13.41a1 1 0 0 0 1.41 0l4.24-4.24a4 4 0 1 0-5.66-5.66L6.34 7.76a1 1 0 1 0 1.41 1.41L11 7.92a2 2 0 1 1 2.83 2.83l-4.24 4.24a1 1 0 0 0 0 1.41z" fill="currentColor"/>
+                <path d="M13.41 10.59a1 1 0 0 0-1.41 0L7.76 15.24a4 4 0 1 0 5.66 5.66l4.24-4.24a1 1 0 1 0-1.41-1.41L12 19.08a2 2 0 1 1-2.83-2.83l4.24-4.24a1 1 0 0 0 0-1.41z" fill="currentColor"/>
+              </svg>
+              <span>Portfolio</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="profile-main">
+        <!-- Stats Row for Encadrant -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Doctorants encadrés</span>
+              <span class="stat-value">{{ stats.doctorants || 0 }}</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Soutenances à venir</span>
+              <span class="stat-value">{{ stats.soutenances || 0 }}</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Publications</span>
+              <span class="stat-value">{{ stats.publications || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <!-- Profile Details / Edit Card -->
+          <div class="card details-card">
+            <div class="card-header">
+              <h2>Informations Profil</h2>
+              <div class="edit-controls" *ngIf="!editMode">
+                <button class="icon-btn" (click)="editMode = true" title="Modifier">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="edit-controls" *ngIf="editMode">
+                <button class="btn btn-secondary" (click)="saveProfile()">Enregistrer</button>
+                <button class="cancel-btn" (click)="cancelEdit()">Annuler</button>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <!-- Personal Information -->
+              <div class="form-group">
+                <label>Prénom</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.firstName" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.firstName || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Nom</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.lastName" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.lastName || '—' }}</div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>Biographie</label>
+                <textarea *ngIf="editMode" [(ngModel)]="editData.bio" class="textarea" rows="3" placeholder="Parlez de votre parcours, vos domaines de recherche..."></textarea>
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.bio || '—' }}</div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>Email</label>
+                <input *ngIf="editMode" type="email" [(ngModel)]="editData.email" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.email || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Téléphone</label>
+                <input *ngIf="editMode" type="tel" [(ngModel)]="editData.phone" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.phone || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Établissement</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.etablissement" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.etablissement || '—' }}</div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>Laboratoire</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.laboratoire" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.laboratoire || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Spécialité de recherche</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.specialite" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.specialite || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Grade académique</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.grade" class="input" placeholder="Ex: Professeur, Maître de conférences..." />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.grade || '—' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Research & Publications Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>Recherche & Publications</h2>
+            </div>
+            <div class="form-grid">
+              <div class="form-group col-span-2">
+                <label>Domaines de recherche</label>
+                <textarea *ngIf="editMode" [(ngModel)]="editData.domainesRecherche" class="textarea" rows="3" placeholder="Intelligence artificielle, Machine Learning..."></textarea>
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.domainesRecherche || '—' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>Nombre de publications</label>
+                <input *ngIf="editMode" type="number" [(ngModel)]="editData.nombrePublications" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.nombrePublications || '0' }}</div>
+              </div>
+
+              <div class="form-group">
+                <label>H-index</label>
+                <input *ngIf="editMode" type="number" [(ngModel)]="editData.hIndex" class="input" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.hIndex || '—' }}</div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>ORCID iD</label>
+                <input *ngIf="editMode" type="text" [(ngModel)]="editData.orcidId" class="input" placeholder="0000-0000-0000-0000" />
+                <div *ngIf="!editMode" class="readonly-value">{{ profile?.orcidId || '—' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Links Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>Liens professionnels</h2>
+            </div>
+            <div class="form-grid">
+              <div class="form-group col-span-2">
+                <label>LinkedIn</label>
+                <input *ngIf="editMode" type="url" [(ngModel)]="editData.linkedinUrl" class="input" placeholder="https://linkedin.com/in/..." />
+                <div *ngIf="!editMode" class="readonly-value">
+                  <a *ngIf="profile?.linkedinUrl" [href]="profile.linkedinUrl" target="_blank" class="link">{{ profile.linkedinUrl }}</a>
+                  <span *ngIf="!profile?.linkedinUrl">—</span>
+                </div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>Site Web / Portfolio</label>
+                <input *ngIf="editMode" type="url" [(ngModel)]="editData.portfolioUrl" class="input" placeholder="https://..." />
+                <div *ngIf="!editMode" class="readonly-value">
+                  <a *ngIf="profile?.portfolioUrl" [href]="profile.portfolioUrl" target="_blank" class="link">{{ profile.portfolioUrl }}</a>
+                  <span *ngIf="!profile?.portfolioUrl">—</span>
+                </div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>ResearchGate</label>
+                <input *ngIf="editMode" type="url" [(ngModel)]="editData.researchGateUrl" class="input" placeholder="https://researchgate.net/profile/..." />
+                <div *ngIf="!editMode" class="readonly-value">
+                  <a *ngIf="profile?.researchGateUrl" [href]="profile.researchGateUrl" target="_blank" class="link">{{ profile.researchGateUrl }}</a>
+                  <span *ngIf="!profile?.researchGateUrl">—</span>
+                </div>
+              </div>
+
+              <div class="form-group col-span-2">
+                <label>Google Scholar</label>
+                <input *ngIf="editMode" type="url" [(ngModel)]="editData.googleScholarUrl" class="input" placeholder="https://scholar.google.com/..." />
+                <div *ngIf="!editMode" class="readonly-value">
+                  <a *ngIf="profile?.googleScholarUrl" [href]="profile.googleScholarUrl" target="_blank" class="link">{{ profile.googleScholarUrl }}</a>
+                  <span *ngIf="!profile?.googleScholarUrl">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

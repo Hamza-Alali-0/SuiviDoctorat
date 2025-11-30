@@ -93,10 +93,23 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       color: var(--color-primary);
     }
+
+    .brand-logo {
+      display: block;
+      width: 67px;
+      height: 67px;
+      object-fit: contain;
+    }
+
+    /* show white/colored logo depending on theme */
+    .brand-logo--light { display: block; }
+    .brand-logo--dark { display: none; }
+    :host-context(.dark) .brand-logo--light { display: none; }
+    :host-context(.dark) .brand-logo--dark { display: block; }
 
     .brand-text {
       font-size: 1.125rem;
@@ -231,7 +244,7 @@ import { AuthService } from '../../services/auth.service';
       font-size: 0.875rem;
       font-weight: 600;
       color: #fff;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #000;
       user-select: none;
     }
 
@@ -486,7 +499,7 @@ import { AuthService } from '../../services/auth.service';
       font-size: 0.875rem;
       font-weight: 600;
       color: #fff;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #000;
     }
 
     .sidebar-user-info {
@@ -586,7 +599,7 @@ import { AuthService } from '../../services/auth.service';
       font-size: 1.75rem;
       font-weight: 600;
       color: #fff;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #000;
       user-select: none;
     }
 

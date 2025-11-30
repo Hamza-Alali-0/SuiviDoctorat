@@ -472,6 +472,9 @@ export class CampaignsPage implements OnInit {
             this.applicationForm.prenom = user.prenom || this.applicationForm.prenom;
             this.applicationForm.nom = user.nom || this.applicationForm.nom;
             this.applicationForm.email = user.email || this.applicationForm.email;
+            
+            // Load applied campaigns from backend to ensure accuracy
+            this.loadAppliedFromBackend(this.currentUserId);
           } else {
             console.warn('[CampaignsPage] Profile loaded but no ID found:', user);
             this.tryExtractIdFromToken();
@@ -1042,8 +1045,65 @@ export class CampaignsPage implements OnInit {
       },
       error: (err) => {
         console.error('[CampaignsPage] ✗ Application submission FAILED:', err);
+        console.error('[CampaignsPage] Error status:', err.status);
+        console.error('[CampaignsPage] Error statusText:', err.statusText);
+        console.error('[CampaignsPage] Error body type:', typeof err.error);
+        console.error('[CampaignsPage] Error body:', err.error);
+        console.error('[CampaignsPage] Error message:', err.message);
         this.submitting.set(false);
-        this.submitError.set('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
+        
+        // Extract meaningful error message
+        let errorMsg = 'Une erreur est survenue lors de l\'envoi.';
+        
+        // Special case: 200 OK but JSON parse error
+        if (err.status === 200 && err.message && err.message.includes('JSON')) {
+          errorMsg = 'Le serveur a retourné une réponse invalide. Vérifiez les logs du backend (inscription-service).';
+          console.error('[CampaignsPage] ⚠️ Backend returned 200 but invalid JSON - check backend logs!');
+        } else if (err.error) {
+          if (typeof err.error === 'string') {
+            errorMsg = err.error;
+          } else if (err.error.message) {
+            errorMsg = err.error.message;
+          } else if (err.error.error) {
+            errorMsg = err.error.error;
+          }
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+        
+        // Add status code if available
+        if (err.status) {
+          errorMsg += ` (Code: ${err.status})`;
+        }
+        
+        this.submitError.set(errorMsg);
+      }
+    });
+  }
+
+  // Load applied campaigns from backend on component init
+  private loadAppliedFromBackend(userId: number): void {
+    console.log('[CampaignsPage] Loading applied campaigns from backend for userId:', userId);
+    this.applicationsService.getMyApplications(userId).subscribe({
+      next: (data: any[]) => {
+        console.log('[CampaignsPage] ✓ Loaded applications from backend:', data.length, 'applications');
+        const appliedIds = new Set<number>();
+        (Array.isArray(data) ? data : []).forEach(d => {
+          if (d && d.campagne && d.campagne.id) {
+            appliedIds.add(d.campagne.id);
+            console.log('[CampaignsPage]   - Found application for campaign:', d.campagne.id, d.campagne.nom);
+          }
+        });
+        
+        console.log('[CampaignsPage] Setting appliedCampaignIds:', Array.from(appliedIds));
+        this.appliedCampaignIds.set(appliedIds);
+        
+        // Save to localStorage for offline viewing
+        try { this.saveApplied(); } catch (e) { console.error('[CampaignsPage] Failed to save:', e); }
+      },
+      error: (err) => {
+        console.error('[CampaignsPage] ✗ Failed to load applications from backend:', err);
+        // Keep localStorage data as fallback
       }
     });
   }

@@ -48,6 +48,7 @@ export class ApplicationsService {
     console.log('[ApplicationsService] submitApplication called for campaignId:', campaignId);
     console.log('[ApplicationsService] Form data:', { ...form, doctorantId: form.doctorantId ? '***' : 'not-set' });
     console.log('[ApplicationsService] Files:', Object.keys(files));
+    console.log('[ApplicationsService] Files detail:', this._filesMeta(files));
 
     // 1. Prepare DTO
     const dto = {
@@ -113,6 +114,10 @@ export class ApplicationsService {
       }),
       catchError(err => {
         console.error('[ApplicationsService] ✗ Application submission failed:', err);
+        console.error('[ApplicationsService] Error status:', err.status);
+        console.error('[ApplicationsService] Error statusText:', err.statusText);
+        console.error('[ApplicationsService] Error body:', err.error);
+        console.error('[ApplicationsService] Error message:', err.message);
         return throwError(() => err);
       })
     );
@@ -121,9 +126,12 @@ export class ApplicationsService {
   private uploadFile(dossierId: number, file: File, type: string): Observable<any> {
     const fd = new FormData();
     fd.append('file', file);
+    // Spring expects the enum name exactly as defined (e.g., "CV", "DIPLOME")
+    // Backend will parse this as TypePieceJointe enum
     fd.append('typePiece', type);
     const url = `${this.uploadUrl}/${dossierId}/upload-typed`;
     console.log('[ApplicationsService] Uploading to:', url, 'type:', type, 'file:', file.name);
+    console.log('[ApplicationsService] FormData entries:', Array.from(fd.entries()));
     return this.http.post(url, fd).pipe(
       map(res => {
         console.log('[ApplicationsService] ✓ File uploaded:', file.name);
@@ -131,21 +139,39 @@ export class ApplicationsService {
       }),
       catchError(err => {
         console.error('[ApplicationsService] ✗ File upload failed:', file.name, err);
+        console.error('[ApplicationsService] Error status:', err.status);
+        console.error('[ApplicationsService] Error statusText:', err.statusText);
+        console.error('[ApplicationsService] Error body type:', typeof err.error);
+        console.error('[ApplicationsService] Error body:', err.error);
+        console.error('[ApplicationsService] Error message:', err.message);
+        
+        // If status is 200 but parsing failed, log the raw response
+        if (err.status === 200 && err.message && err.message.includes('JSON')) {
+          console.error('[ApplicationsService] ⚠️ Backend returned 200 but response is not valid JSON!');
+          console.error('[ApplicationsService] This usually means the backend returned an error page instead of JSON');
+          console.error('[ApplicationsService] Raw error text (first 500 chars):', String(err.error).substring(0, 500));
+        }
+        
         return throwError(() => err);
       })
     );
   }
 
   private getTypeFromKey(key: string): string {
+    // Must match TypePieceJointe enum exactly: CV, LETTRE_MOTIVATION, DIPLOME, PHOTO_IDENTITE, CARTE_IDENTITE, CERTIFICAT_SCOLARITE, ATTESTATION, AUTRE
     switch (key) {
       case 'cv': return 'CV';
       case 'coverLetter': return 'LETTRE_MOTIVATION';
       case 'diplomas': return 'DIPLOME';
-      case 'transcripts': return 'AUTRE'; // Or maybe create a TRANSCRIPT type if available, else AUTRE
+      case 'transcripts': return 'AUTRE';
       case 'recommendations': return 'AUTRE';
       case 'photo': return 'PHOTO_IDENTITE';
       case 'cin': return 'CARTE_IDENTITE';
-      default: return 'AUTRE';
+      case 'certificat': return 'CERTIFICAT_SCOLARITE';
+      case 'attestation': return 'ATTESTATION';
+      default: 
+        console.warn('[ApplicationsService] Unknown file key:', key, '- using AUTRE');
+        return 'AUTRE';
     }
   }
 

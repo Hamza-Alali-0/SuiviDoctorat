@@ -69,16 +69,20 @@
       @for (campagne of filteredCampagnes(); track campagne.id) {
         <div class="campagne-card">
           <!-- Banner Image -->
-          @if (campagne.photoCouverture) {
-            <div class="campagne-banner">
+          <div class="campagne-banner">
+            @if (campagne.photoCouverture) {
               <img [src]="campagne.photoCouverture" alt="Bannière de campagne" />
-              @if (campagne.logoEcole) {
-                <div class="campagne-logo-overlay">
-                  <img [src]="campagne.logoEcole" alt="Logo école" />
-                </div>
-              }
-            </div>
-          }
+            }
+            <!-- Status badge on top of banner -->
+            <span class="campagne-badge" [class]="getCampagneBadgeClass(campagne)">
+              {{ getCampagneStatusLabel(campagne) }}
+            </span>
+            @if (campagne.logoEcole) {
+              <div class="campagne-logo-overlay">
+                <img [src]="campagne.logoEcole" alt="Logo école" />
+              </div>
+            }
+          </div>
           
           <div class="campagne-content">
             <div class="campagne-header-row">
@@ -93,9 +97,6 @@
                   {{ getTypeLabel(campagne.type) }}
                 </span>
               </div>
-              <span class="campagne-badge" [class]="getCampagneBadgeClass(campagne)">
-                {{ getCampagneStatusLabel(campagne) }}
-              </span>
             </div>
             
             <div class="campagne-info">

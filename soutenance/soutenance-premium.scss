@@ -1,0 +1,1131 @@
+// Professional and Elegant Soutenance Design
+// Clean, minimal, academic-inspired styling with subtle accents
+
+@use 'sass:color';
+
+// Color Palette - Professional and Subdued
+$primary-color: #1a365d; // Deep navy blue
+$secondary-color: #2d3748; // Dark gray
+$text-color: #2d3748; // Dark gray for text
+$text-muted: #718096; // Muted gray
+$background: #ffffff; // Pure white
+$background-secondary: #f7fafc; // Very light gray
+$border-color: #e2e8f0; // Light border
+$accent: #3182ce; // Subtle blue accent
+$success: #38a169; // Muted green
+$warning: #d69e2e; // Muted yellow
+$error: #e53e3e; // Muted red
+
+// Typography
+$font-family: 'Georgia', 'Times New Roman', serif; // Elegant serif for headings
+$font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; // Clean sans-serif for body
+
+// Spacing and Layout
+$border-radius: 8px;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+// Main Container
+.soutenance-premium {
+  min-height: 100vh;
+  background: $background-secondary;
+  color: $text-color;
+  font-family: $font-family-body;
+  line-height: 1.6;
+}
+
+// Page Header
+.page-header {
+  background: $background;
+  border-bottom: 1px solid $border-color;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-text h1 {
+    font-family: $font-family;
+    font-size: 2.5rem;
+    font-weight: 400;
+    margin: 0;
+    color: $primary-color;
+    letter-spacing: -0.025em;
+  }
+
+  .header-text p {
+    margin: 0.5rem 0 0 0;
+    color: $text-muted;
+    font-size: 1.1rem;
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
+/* Filter bar - smart, compact controls */
+.filter-bar {
+  max-width: 1200px;
+  margin: 0.5rem auto 1.5rem auto;
+  padding: 0 2rem;
+}
+
+.filter-inner {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  background: $background;
+  padding: 0.6rem;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  box-shadow: $shadow;
+}
+
+.filter-input {
+  flex: 1 1 320px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 0.95rem;
+}
+
+.filter-select {
+  padding: 0.55rem 0.75rem;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  background: $background;
+  font-size: 0.95rem;
+}
+
+.filter-date {
+  padding: 0.45rem 0.65rem;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  background: $background;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .filter-inner { flex-wrap: wrap; gap: 0.5rem }
+  .filter-input { flex-basis: 100% }
+  .filter-select, .filter-date { flex-basis: calc(50% - 8px) }
+}
+
+// Buttons
+.btn-primary {
+  background: $primary-color;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: $border-radius;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: $font-family-body;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: $shadow;
+}
+
+.btn-primary:hover {
+  // Use `color.adjust` instead of deprecated `darken`
+  background: color.adjust($primary-color, $lightness: -10%);
+  box-shadow: $shadow-hover;
+}
+
+.btn-secondary {
+  background: $background;
+  border: 1px solid $border-color;
+  color: $text-color;
+  padding: 0.75rem 1.5rem;
+  border-radius: $border-radius;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: $font-family-body;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: $background-secondary;
+  border-color: $text-muted;
+}
+
+// Main Content Areas
+.list-view, .create-view, .detail-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+// Modal/Popup Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid $border-color;
+}
+
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.icon-success {
+  color: white;
+  background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-error {
+  color: white;
+  background: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-confirm {
+  color: white;
+  background: linear-gradient(135deg, #3182ce 0%, #63b3ed 100%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-info {
+  color: white;
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-title {
+  font-family: $font-family;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $primary-color;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 1.5rem 2rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: $text-color;
+
+  strong {
+    color: $primary-color;
+    font-weight: 600;
+  }
+
+  ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+
+    li {
+      margin: 0.5rem 0;
+      color: $text-muted;
+    }
+  }
+}
+
+.modal-footer {
+  padding: 1rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid $border-color;
+
+  button {
+    min-width: 100px;
+  }
+}
+
+// Loading and Empty States
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: $background;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+  margin: 2rem 0;
+}
+
+.loading-state .spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid $border-color;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state h3 {
+  font-family: $font-family;
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0 0 0.5rem 0;
+  color: $text-color;
+}
+
+.empty-state p {
+  color: $text-muted;
+  font-size: 1rem;
+  margin: 0;
+}
+
+// Demandes Grid
+.demandes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.demande-card {
+  background: $background;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: $shadow;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.demande-card:hover {
+  box-shadow: $shadow-hover;
+  transform: translateY(-2px);
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $border-color;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.card-title h3 {
+  font-family: $font-family;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0;
+  color: $primary-color;
+  line-height: 1.4;
+}
+
+.status-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+// Status Colors - Subdued
+.status-BROUILLON { background: $background-secondary; color: $text-muted; border: 1px solid $border-color; }
+.status-SOUMISE { background: rgba($accent, 0.1); color: $accent; }
+.status-EN_VERIFICATION { background: rgba($warning, 0.1); color: $warning; }
+.status-PREREQUIS_VALIDES { background: rgba($success, 0.1); color: $success; }
+.status-EN_ATTENTE_JURY, .status-JURY_PROPOSE { background: rgba($accent, 0.08); color: $primary-color; }
+.status-AUTORISEE { background: rgba($success, 0.1); color: $success; }
+.status-PLANIFIEE { background: rgba($accent, 0.08); color: $primary-color; }
+.status-TERMINEE { background: rgba($success, 0.08); color: $primary-color; }
+.status-REJETEE { background: rgba($error, 0.1); color: $error; }
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  font-weight: 500;
+  color: $text-muted;
+  font-size: 0.9rem;
+}
+
+.info-row .value {
+  font-weight: 600;
+  color: $text-color;
+  font-size: 0.9rem;
+}
+
+.card-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+  text-align: right;
+}
+
+.view-details {
+  color: $accent;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.view-details:hover {
+  text-decoration: underline;
+}
+
+// Create View
+.create-view {
+  margin: 2rem 0;
+}
+
+.form-container {
+  background: $background;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+/* New create grid layout */
+.create-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.form-main { padding: 0.5rem }
+
+.form-title { display:flex; gap:1rem; align-items:center }
+.emblem-svg { flex-shrink:0; }
+.muted { color: $text-muted; margin:0 }
+.required { color: $error; font-weight:700; margin-left:4px }
+
+.row { display:flex; gap:1rem }
+.flex-1 { flex:1 }
+
+.hint { font-size:0.9rem; color:$text-muted; margin-top:0.5rem }
+
+/* Info square */
+.info-square {
+  background: linear-gradient(180deg, $background, $background-secondary);
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1rem;
+  box-shadow: $shadow;
+}
+
+.info-inner { display:flex; flex-direction:column; gap:1rem }
+.info-header h4 { margin:0; font-family:$font-family; color:$primary-color }
+.checklist { list-style:none; padding:0; margin:0 }
+.checklist li { display:flex; align-items:center; gap:0.6rem; padding:0.45rem 0; color:$text-muted }
+.dot { width:12px; height:12px; border-radius:50% }
+.dot.pending { background:#f1f5f9; border:1px solid $border-color }
+.dot.valid { background:$success }
+
+.info-tip { font-size:0.95rem }
+.info-actions { margin-top:auto }
+
+@media (max-width: 900px) {
+  .create-grid { grid-template-columns: 1fr }
+  .row { flex-direction:column }
+}
+
+.form-header {
+  padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+  border-bottom: 1px solid $border-color;
+  background: $background-secondary;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+}
+
+.form-header h2 {
+  font-family: $font-family;
+  font-size: 1.75rem;
+  font-weight: 400;
+  margin: 0;
+  color: $primary-color;
+}
+
+.premium-form {
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+}
+
+.section-title {
+  font-family: $font-family;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  color: $primary-color;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: $text-color;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input, .form-textarea, select.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  font-family: $font-family-body;
+  background: $background;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus, .form-textarea:focus, select.form-input:focus {
+  outline: none;
+  border-color: $accent;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+}
+
+// Assets Section
+.assets-section {
+  background: transparent;
+  border: none;
+  border-radius: $border-radius;
+  padding: 0;
+  box-shadow: none;
+}
+
+.asset-card {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.asset-card img {
+  width: 100%;
+  height: auto;
+  border-radius: $border-radius;
+  margin-bottom: 1rem;
+  border: 1px solid $border-color;
+}
+
+.asset-card h4 {
+  font-family: $font-family;
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin: 0;
+  color: $primary-color;
+}
+
+/* Horizontal assets scroller */
+.assets-scroll-wrap { padding: 0.6rem 0 1rem 0; margin-bottom: 0.5rem }
+.assets-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:0.5rem }
+.assets-heading { margin:0; font-family:$font-family; color:$primary-color }
+.assets-scroll { display:flex; gap:1rem; overflow-x:auto; padding:0.75rem 0.25rem; scroll-snap-type:x mandatory }
+.assets-scroll::-webkit-scrollbar { height:10px }
+.assets-scroll::-webkit-scrollbar-thumb { background: rgba(45,55,72,0.12); border-radius:6px }
+
+.assets-scroll .asset-card { flex: 0 0 220px; min-width: 220px; box-shadow: $shadow; border-radius: 10px; padding:0.75rem; background:$background; border:1px solid $border-color; scroll-snap-align:start }
+.assets-scroll .asset-card img { width:100%; height:120px; object-fit:cover; border-radius:6px }
+.asset-caption { font-size:0.9rem; margin:0.35rem 0 0 0 }
+
+@media (max-width: 900px) {
+  .assets-scroll .asset-card { flex: 0 0 180px; min-width:180px }
+}
+
+/* Make the info panel sticky and limit its height on large screens */
+.info-square {
+  align-self: start;
+  position: sticky;
+  top: 96px;
+}
+
+@media (max-width: 1024px) {
+  .info-square { position: static; }
+}
+
+// Detail View
+.detail-banner {
+  height: 200px;
+  border-radius: $border-radius;
+  overflow: hidden;
+  background: $background-secondary;
+  border: 1px solid $border-color;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.banner-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
+}
+
+.banner-overlay h2 {
+  font-family: $font-family;
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 0;
+  color: $primary-color;
+}
+
+.banner-meta {
+  margin-top: 1rem;
+}
+
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.detail-section {
+  background: $background;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 2rem;
+  box-shadow: $shadow;
+}
+
+.detail-section h3 {
+  font-family: $font-family;
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0 0 1.5rem 0;
+  color: $primary-color;
+}
+
+// Prerequisites
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  
+  .jury-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+}
+
+.progress-indicator {
+  text-align: right;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: $text-muted;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  width: 120px;
+  height: 8px;
+  background: $border-color;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: $success;
+  transition: width 0.3s ease;
+}
+
+.prerequis-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.prerequis-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: $background;
+  transition: all 0.2s ease;
+}
+
+.prerequis-card.validated {
+  border-color: $success;
+  background: rgba($success, 0.05);
+}
+
+.prerequis-indicator .indicator-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: $border-color;
+  flex-shrink: 0;
+}
+
+.prerequis-card.validated .indicator-dot {
+  background: $success;
+}
+
+.prerequis-content h4 {
+  font-family: $font-family;
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin: 0 0 0.25rem 0;
+  color: $primary-color;
+}
+
+.prerequis-content p {
+  margin: 0;
+  color: $text-muted;
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.validated {
+  background: rgba($success, 0.1);
+  color: $success;
+}
+
+.status-badge.pending {
+  background: $background-secondary;
+  color: $text-muted;
+}
+
+// Jury Section
+.jury-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.jury-card {
+  background: $background;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  box-shadow: $shadow;
+}
+
+.jury-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.jury-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: $primary-color;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.jury-info h4 {
+  font-family: $font-family;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0 0 0.25rem 0;
+  color: $primary-color;
+}
+
+.jury-role {
+  color: $accent;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.jury-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.detail-item .label {
+  font-weight: 500;
+  color: $text-muted;
+  font-size: 0.85rem;
+}
+
+.detail-item .value {
+  font-weight: 600;
+  color: $text-color;
+  font-size: 0.85rem;
+}
+
+.jury-avis {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+}
+
+.avis-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.avis-badge.favorable {
+  background: rgba($success, 0.1);
+  color: $success;
+}
+
+.avis-badge.pending {
+  background: $background-secondary;
+  color: $text-muted;
+}
+
+// Info Grid and Resume
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  padding: 1rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: $background-secondary;
+}
+
+.info-item .label {
+  font-weight: 500;
+  color: $text-muted;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.info-item .value {
+  font-weight: 600;
+  color: $text-color;
+  font-size: 1rem;
+}
+
+.resume-block {
+  padding: 1.5rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: $background-secondary;
+}
+
+.resume-block h4 {
+  font-family: $font-family;
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0 0 1rem 0;
+  color: $primary-color;
+}
+
+.resume-block p {
+  margin: 0;
+  line-height: 1.7;
+  color: $text-color;
+}
+
+// Assets in Detail
+.assets-section-detail .assets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.assets-section-detail .assets-grid img {
+  width: 100%;
+  height: auto;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+}
+
+// Action Section
+.action-section {
+  border: 2px solid $accent;
+  background: rgba($accent, 0.02);
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.action-group label {
+  font-weight: 500;
+  color: $text-color;
+  font-size: 0.9rem;
+}
+
+.status-select {
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  background: $background;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+// Jury Form
+.jury-form {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: $background-secondary;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .create-view {
+    grid-template-columns: 1fr;
+  }
+
+  .demandes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .prerequis-list, .jury-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-text h1 {
+    font-size: 2rem;
+  }
+
+  .demandes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-banner {
+    height: 150px;
+  }
+
+  .banner-overlay {
+    padding: 1.5rem;
+  }
+
+  .banner-overlay h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 1rem 0;
+  }
+
+  .header-content {
+    padding: 0 1rem;
+  }
+
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .list-view, .create-view, .detail-view {
+    padding: 0 1rem;
+  }
+
+  .demande-card, .form-container, .detail-section {
+    padding: 1rem;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+

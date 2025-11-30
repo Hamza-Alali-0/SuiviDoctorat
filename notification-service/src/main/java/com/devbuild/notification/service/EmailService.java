@@ -32,16 +32,9 @@ public class EmailService {
         this.templateRepository = templateRepository;
         this.dryRun = dryRun;
         this.debugErrors = debugErrors;
-        // Log constructor-initialized values to help debug inconsistent property injection
-        try {
-            log.info("[EmailService] constructed with dryRun={} debugErrors={} mailSenderImpl={}", this.dryRun, this.debugErrors, this.mailSender != null ? this.mailSender.getClass().getName() : "<none>");
-        } catch (Throwable t) {
-            // ignore logging errors
-        }
     }
 
     public boolean sendFromTemplate(SendEmailRequest req) {
-        log.debug("[EmailService] sendFromTemplate called. instance dryRun={}", this.dryRun);
         if (req == null || req.getTo() == null || req.getTemplateCode() == null) {
             return false;
         }
@@ -127,7 +120,6 @@ public class EmailService {
 
     // Send an email using raw subject/body (no template lookup)
     public boolean sendRaw(String to, String subject, String body) {
-        log.debug("[EmailService] sendRaw called. instance dryRun={}", this.dryRun);
         if (to == null || (subject == null && body == null)) return false;
         try {
             // If dry-run or mail sender not configured, log and return true
@@ -170,6 +162,75 @@ public class EmailService {
             log.debug("Full exception for failed raw send:", e);
             if (debugErrors) {
                 throw new EmailSendException("Failed to send raw email: " + e.getMessage(), e);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Send an email with file attachments
+     */
+    public boolean sendWithAttachments(String to, String subject, String body, java.util.Map<String, byte[]> attachments) {
+        if (to == null || (subject == null && body == null)) return false;
+        try {
+            // If dry-run or mail sender not configured, log and return true
+            boolean senderConfigured = true;
+            if (mailSender instanceof JavaMailSenderImpl) {
+                JavaMailSenderImpl impl = (JavaMailSenderImpl) mailSender;
+                String host = impl.getHost();
+                if (host == null || host.isBlank()) {
+                    senderConfigured = false;
+                }
+            }
+
+            if (dryRun || !senderConfigured) {
+                log.info("[EmailService] dry-run mode - email with attachments to={} subject={} attachmentCount={}",
+                    to, subject, attachments != null ? attachments.size() : 0);
+                if (attachments != null) {
+                    log.info("[EmailService] dry-run - attachments: {}", attachments.keySet());
+                }
+                return true;
+            }
+
+            MimeMessage message = mailSender.createMimeMessage();
+            boolean looksLikeHtml = body != null && (body.contains("<html") || body.contains("<body") || body.contains("<div") || body.contains("<p") || body.contains("<img") || body.contains("<table"));
+
+            // Use multipart mode for attachments
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            if (subject != null) helper.setSubject(subject);
+            helper.setText(body != null ? body : "", looksLikeHtml);
+
+            // Try to embed logo inline if present
+            try {
+                ClassPathResource logo = new ClassPathResource("static/logo.png");
+                if (logo.exists()) {
+                    helper.addInline("logo", logo);
+                }
+            } catch (Throwable t) {
+                log.debug("Could not embed logo inline for email with attachments: {}", t.getMessage());
+            }
+
+            // Add attachments
+            if (attachments != null && !attachments.isEmpty()) {
+                for (java.util.Map.Entry<String, byte[]> entry : attachments.entrySet()) {
+                    String filename = entry.getKey();
+                    byte[] content = entry.getValue();
+                    helper.addAttachment(filename, new org.springframework.core.io.ByteArrayResource(content));
+                    log.debug("Added attachment: {} ({} bytes)", filename, content.length);
+                }
+            }
+
+            mailSender.send(message);
+            log.info("Email with {} attachments sent to {}", attachments != null ? attachments.size() : 0, to);
+            return true;
+        } catch (Exception e) {
+            try {
+                log.error("Failed to send email with attachments to {} : {}", to, e.toString());
+            } catch (Throwable t) {}
+            log.debug("Full exception for failed send with attachments:", e);
+            if (debugErrors) {
+                throw new EmailSendException("Failed to send email with attachments: " + e.getMessage(), e);
             }
             return false;
         }

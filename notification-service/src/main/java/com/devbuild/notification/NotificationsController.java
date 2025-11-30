@@ -189,4 +189,52 @@ public class NotificationsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "failed", "reason", "send_failed"));
         }
     }
+
+    @PostMapping("/email/with-attachments")
+    public ResponseEntity<?> sendEmailWithAttachments(
+            @org.springframework.web.bind.annotation.RequestParam("to") String to,
+            @org.springframework.web.bind.annotation.RequestParam("subject") String subject,
+            @org.springframework.web.bind.annotation.RequestParam("body") String body,
+            @org.springframework.web.bind.annotation.RequestParam(value = "attachments", required = false) org.springframework.web.multipart.MultipartFile[] attachments,
+            @RequestHeader(value = "X-INTERNAL-AUTH", required = false) String header) {
+        
+        if (expectedInternalSecret != null && !expectedInternalSecret.isBlank()) {
+            if (header == null || !expectedInternalSecret.equals(header)) {
+                System.out.println("[notification] rejected email with attachments: invalid internal auth");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+            }
+        }
+
+        try {
+            System.out.println("[notification] /email/with-attachments received: to=" + to + " subject=" + subject + " attachmentCount=" + (attachments != null ? attachments.length : 0));
+            
+            java.util.Map<String, byte[]> attachmentMap = new java.util.HashMap<>();
+            if (attachments != null && attachments.length > 0) {
+                for (org.springframework.web.multipart.MultipartFile file : attachments) {
+                    String filename = file.getOriginalFilename();
+                    byte[] content = file.getBytes();
+                    attachmentMap.put(filename, content);
+                    System.out.println("[notification] Received attachment: " + filename + " (" + content.length + " bytes)");
+                }
+            }
+
+            boolean sent = emailService.sendWithAttachments(to, subject, body, attachmentMap);
+            
+            if (sent) {
+                System.out.println("[notification] email with attachments sent successfully to=" + to);
+                return ResponseEntity.ok(Map.of("status", "sent", "attachmentCount", attachmentMap.size()));
+            } else {
+                System.out.println("[notification] email with attachments failed for to=" + to);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "failed", "reason", "send_failed"));
+            }
+        } catch (Exception e) {
+            System.err.println("[notification] error sending email with attachments: " + e.getMessage());
+            e.printStackTrace();
+            if (debugErrors) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "failed", "error", e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "failed", "reason", "exception"));
+        }
+    }
 }
+

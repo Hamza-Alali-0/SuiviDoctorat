@@ -38,6 +38,7 @@ export const routes: Routes = [
   
   // Encadrant-specific routes
   { path: 'encadrant/dashboard', component: EncadrantDashboardPremiumPage },
+  { path: 'encadrant/profile', loadComponent: () => import('./pages/encadrant/profile/profile').then(m => m.EncadrantProfileComponent) },
   
   // Legacy redirects for backward compatibility
   { path: 'dashboard', redirectTo: 'candidat/dashboard', pathMatch: 'full' },
