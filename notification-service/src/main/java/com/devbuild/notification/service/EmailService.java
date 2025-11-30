@@ -26,15 +26,22 @@ public class EmailService {
     private final boolean debugErrors;
 
     public EmailService(JavaMailSender mailSender, EmailTemplateRepository templateRepository,
-                        @Value("${app.notification.dry-run:true}") boolean dryRun,
+                        @Value("${app.notification.dry-run:false}") boolean dryRun,
                         @Value("${app.notification.debug-errors:false}") boolean debugErrors) {
         this.mailSender = mailSender;
         this.templateRepository = templateRepository;
         this.dryRun = dryRun;
         this.debugErrors = debugErrors;
+        // Log constructor-initialized values to help debug inconsistent property injection
+        try {
+            log.info("[EmailService] constructed with dryRun={} debugErrors={} mailSenderImpl={}", this.dryRun, this.debugErrors, this.mailSender != null ? this.mailSender.getClass().getName() : "<none>");
+        } catch (Throwable t) {
+            // ignore logging errors
+        }
     }
 
     public boolean sendFromTemplate(SendEmailRequest req) {
+        log.debug("[EmailService] sendFromTemplate called. instance dryRun={}", this.dryRun);
         if (req == null || req.getTo() == null || req.getTemplateCode() == null) {
             return false;
         }
@@ -120,6 +127,7 @@ public class EmailService {
 
     // Send an email using raw subject/body (no template lookup)
     public boolean sendRaw(String to, String subject, String body) {
+        log.debug("[EmailService] sendRaw called. instance dryRun={}", this.dryRun);
         if (to == null || (subject == null && body == null)) return false;
         try {
             // If dry-run or mail sender not configured, log and return true

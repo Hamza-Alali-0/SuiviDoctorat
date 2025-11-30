@@ -20,6 +20,11 @@ spring:
           auth: false
           starttls:
             enable: false
+    # Enable JavaMail debug and test-connection during dev to show SMTP conversation in logs
+    test-connection: true
+    properties:
+      mail:
+        debug: true
 
 # If you prefer Mailtrap, comment the MailHog block and use the Mailtrap settings below:
 # spring:

@@ -17,7 +17,7 @@
 .quick-link:hover { color:#4f46e5; }
 :host-context(.dark) .quick-link { color:#9ca3af; }
 :host-context(.dark) .quick-link:hover { color:#a5b4fc; }
-.hero-right { position:relative; background:#f3f4f6; }
+.hero-right { position:relative;  }
 :host-context(.dark) .hero-right { background:#111827; }
 .hero-image { position:absolute; inset:0; background-size:cover; background-position:center; }
 
