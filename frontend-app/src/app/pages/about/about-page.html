@@ -5,105 +5,129 @@
     <public-navbar></public-navbar>
   }
 
-  <!-- Hero Section -->
-  <header class="hero">
-    <div class="hero-bg-gradient"></div>
-    <div class="hero-content">
-      <div class="hero-badge">{{ tx.t('aboutPage.hero.title') }}</div>
-      <h1 class="hero-title">
-        {{ tx.t('aboutPage.hero.subtitle') }}
-      </h1>
-      <p class="hero-subtitle">
-        {{ tx.t('aboutPage.mission.text') }}
-      </p>
-      <div style="display:flex; gap:1rem; justify-content:center;">
-        <a routerLink="/auth" class="btn-primary">
-          {{ tx.t('cta.getStarted') }}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-      </div>
+  <!-- About Hero Section (matching provided design) -->
+  <header class="about-hero">
+    <div class="about-hero-content">
+      <div class="about-hero-badge">ABOUT</div>
+      <h1 class="about-hero-title">The dream team of<br/>digital marketing.</h1>
+      <p class="about-hero-subtitle">We Grow Businesses Online. Period.</p>
     </div>
   </header>
 
-  <!-- Mission Section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-badge">{{ tx.t('aboutPage.mission.title') }}</span>
-      <h2 class="section-title">{{ tx.t('aboutPage.vision.title') }}</h2>
-      <p class="section-subtitle">
-        {{ tx.t('aboutPage.vision.text') }}
-      </p>
-    </div>
-
-    <div class="about-grid">
-      <div class="about-card">
-        <h3>🚀 {{ tx.t('aboutPage.values.innovation') }}</h3>
-        <p>{{ tx.t('about.features.workflow.text') }}</p>
-      </div>
-      <div class="about-card">
-        <h3>🔒 {{ tx.t('about.secure.title') }}</h3>
-        <p>{{ tx.t('about.secure.text') }}</p>
-      </div>
-      <div class="about-card">
-        <h3>🤝 {{ tx.t('aboutPage.values.collaboration') }}</h3>
-        <p>{{ tx.t('about.features.collaboration.text') }}</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="section" style="background:var(--surface-ground, #f8fafc)">
-    <div class="section-header">
-      <span class="section-badge">{{ tx.t('features.header.badge') }}</span>
-      <h2 class="section-title">{{ tx.t('features.header.title') }}</h2>
-    </div>
-    <div class="about-grid">
-      <div class="about-card">
-        <h3>{{ tx.t('features.apps.campaigns.title') }}</h3>
-        <p>{{ tx.t('features.apps.campaigns.text') }}</p>
-      </div>
-      <div class="about-card">
-        <h3>{{ tx.t('features.apps.docs.title') }}</h3>
-        <p>{{ tx.t('features.apps.docs.text') }}</p>
-      </div>
-      <div class="about-card">
-        <h3>{{ tx.t('features.apps.defense.title') }}</h3>
-        <p>{{ tx.t('features.apps.defense.text') }}</p>
-      </div>
-      <div class="about-card">
-        <h3>{{ tx.t('features.apps.collab.title') }}</h3>
-        <p>{{ tx.t('features.apps.collab.text') }}</p>
-      </div>
+  <!-- Services Grid (three cards layout) -->
+  <section class="about-services">
+    <div class="services-grid">
+      <article class="service-card">
+        <div class="service-media">
+          <div class="service-avatar"></div>
+          <div class="service-name">Ahmad Subariq</div>
+        </div>
+        <div class="service-meta"><span class="service-index">01</span></div>
+        <h3 class="service-title">Custom SEO Services</h3>
+        <p class="service-text">Custom, organic SEO services that include technical audits, on-page search engine optimization.</p>
+      </article>
+      <article class="service-card">
+        <div class="service-media">
+          <div class="service-avatar"></div>
+          <div class="service-name">Andrew Silabus</div>
+        </div>
+        <div class="service-meta"><span class="service-index">02</span></div>
+        <h3 class="service-title">SEO Website Design</h3>
+        <p class="service-text">Highly effective PPC and SEO-friendly design to drive qualified traffic and conversions.</p>
+      </article>
+      <article class="service-card">
+        <div class="service-media">
+          <div class="service-avatar"></div>
+          <div class="service-name">Zahra Agustin</div>
+        </div>
+        <div class="service-meta"><span class="service-index">03</span></div>
+        <h3 class="service-title">SEO Consulting</h3>
+        <p class="service-text">B2B SEO consulting that generates valuable inbound leads from other businesses.</p>
+      </article>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer-new">
-    <div class="footer-top">
-      <div class="footer-brand-col">
-        <img src="assets/logo-dark.svg" alt="SuiviDoctorat" class="footer-logo" onerror="this.style.display='none'">
-        <h3 style="margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-0.03em">SuiviDoctorat</h3>
-        <p class="footer-tagline">
-          {{ tx.t('footer.description') }}
+  <!-- How It Started Section -->
+  <section class="how-started">
+    <div class="how-started-content">
+      <div class="how-started-text">
+        <div class="how-started-badge">How It Started</div>
+        <h2 class="how-started-title">Our Dream is Global Doctoral Excellence</h2>
+        <p class="how-started-story">
+          SuiviDoctorat was founded by a team of researchers and educators passionate about transforming the doctoral journey. 
+          United by their belief in the power of technology to streamline research management, they embarked on a mission to create 
+          a digital platform accessible to all doctoral candidates. With relentless dedication, they gathered experts and launched 
+          this innovative system, creating a global community of researchers, all connected by the desire to excel, collaborate, 
+          and advance academic excellence.
         </p>
       </div>
-      
-      <div class="footer-nav-col">
-        <h4>{{ tx.t('footer.col.platform') }}</h4>
-        <a routerLink="/campaigns">{{ tx.t('footer.links.campaigns') }}</a>
-        <a routerLink="/features">{{ tx.t('footer.links.features') }}</a>
-        <a routerLink="/pricing">{{ tx.t('footer.links.pricing') }}</a>
-      </div>
-      
-      <div class="footer-nav-col">
-        <h4>{{ tx.t('footer.col.resources') }}</h4>
-        <a routerLink="/about">{{ tx.t('about.badge') }}</a>
-        <a routerLink="/contact">{{ tx.t('footer.col.contact') }}</a>
+      <div class="how-started-visual">
+        <div class="how-started-image"></div>
       </div>
     </div>
-    
-    <div class="footer-bottom-new">
-      <div>&copy; 2024 SuiviDoctorat. All rights reserved.</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">150+</div>
+        <div class="stat-label">Active Candidates</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Applications Processed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">95%</div>
+        <div class="stat-label">Success Rate</div>
+      </div>
     </div>
-  </footer>
+  </section>
+
+  <!-- Platform Features Section -->
+  <section class="platform-features">
+    <div class="pf-container">
+      <div class="pf-header">
+        <span class="pf-badge">Why Choose Us</span>
+        <h2 class="pf-title">Everything You Need to Succeed</h2>
+        <p class="pf-subtitle">A complete platform built for the modern doctoral journey.</p>
+      </div>
+
+      <div class="pf-row">
+        <div class="pf-image-col">
+          <div class="pf-image" style="background-image:url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80')"></div>
+        </div>
+        <div class="pf-text-col">
+          <span class="pf-num">01</span>
+          <h3>Campaign Management</h3>
+          <p>Create, publish, and manage admission campaigns with complete transparency. Track applications, filter candidates, and make data-driven decisions.</p>
+        </div>
+      </div>
+
+      <div class="pf-row reverse">
+        <div class="pf-image-col">
+          <div class="pf-image" style="background-image:url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80')"></div>
+        </div>
+        <div class="pf-text-col">
+          <span class="pf-num">02</span>
+          <h3>Progress Tracking</h3>
+          <p>Monitor milestones, upload documents, and get real-time feedback from supervisors. Stay on track with automated reminders and status updates.</p>
+        </div>
+      </div>
+
+      <div class="pf-row">
+        <div class="pf-image-col">
+          <div class="pf-image" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80')"></div>
+        </div>
+        <div class="pf-text-col">
+          <span class="pf-num">03</span>
+          <h3>Collaboration Hub</h3>
+          <p>Connect with supervisors, committee members, and fellow researchers. Share documents, schedule meetings, and build your academic network.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <site-footer></site-footer>
 </div>

@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PublicNavbarComponent } from '../../../components/navbar/public-navbar';
 import { CandidatNavbarComponent } from '../../../components/navbar/candidat-navbar';
+import { SiteFooterComponent } from '../../../components/footer/site-footer.component';
 import { AuthService } from '../../../services/auth.service';
 import { CampagnesService } from '../../../services/campagnes.service';
 import { ApplicationsService } from '../../../services/applications.service';
@@ -57,7 +58,7 @@ interface Campagne {
 @Component({
   selector: 'campaigns-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicNavbarComponent, CandidatNavbarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PublicNavbarComponent, CandidatNavbarComponent, SiteFooterComponent],
   templateUrl: './campaigns.html',
   styles: [`
     :host { display:block; background:#f8fafc; color:#0f172a; min-height:100vh; font-family:'Inter', sans-serif; }

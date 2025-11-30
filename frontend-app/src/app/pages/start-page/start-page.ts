@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PublicNavbarComponent } from '../../components/navbar/public-navbar';
 import { UserNavbarComponent } from '../../components/navbar/user-navbar';
+import { SiteFooterComponent } from '../../components/footer/site-footer.component';
 import { AuthService } from '../../services/auth.service';
 import { CampagnesService } from '../../services/campagnes.service';
 
@@ -22,7 +23,7 @@ interface Campaign {
 @Component({
   selector: 'start-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, PublicNavbarComponent, UserNavbarComponent],
+  imports: [CommonModule, RouterLink, PublicNavbarComponent, UserNavbarComponent, SiteFooterComponent],
   templateUrl: './start-page.html',
   styles: [`
     :host { display:block }
@@ -613,14 +614,20 @@ export class StartPage implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loadFeaturedCampaigns();
-    // If user is logged in with role USER, redirect to profile selection
+    
+    // If user is logged in, redirect to appropriate dashboard
     if (this.isLoggedIn) {
-      const role = this.auth.role ? this.auth.role() : null;
-      const roleStr = String(role || '').toLowerCase();
-      
-      // Redirect to profile selection if user has no specific role yet
-      if (roleStr === 'user' || roleStr === 'role_user' || !roleStr || roleStr === 'null') {
-        console.log('[StartPage] User has role USER, redirecting to profile selection');
+      const role = this.auth.role ? String(this.auth.role() || '').toLowerCase() : '';
+      console.log('[StartPage] User is logged in with role:', role);
+
+      if (role.includes('admin')) {
+        this.router.navigate(['/admin']);
+      } else if (role.includes('candidat')) {
+        this.router.navigate(['/candidat/dashboard']);
+      } else if (role.includes('encadrant') || role.includes('prof')) {
+        this.router.navigate(['/encadrant/dashboard']);
+      } else {
+        // Default fallback (e.g. role 'user' or unknown)
         this.router.navigate(['/profile-selection']);
       }
     }

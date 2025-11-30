@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicNavbarComponent } from '../../../components/navbar/public-navbar';
 import { CandidatNavbarComponent } from '../../../components/navbar/candidat-navbar';
+import { SiteFooterComponent } from '../../../components/footer/site-footer.component';
 import { AuthService } from '../../../services/auth.service';
 import { CampagnesService } from '../../../services/campagnes.service';
 import { ApplicationsService } from '../../../services/applications.service';
@@ -52,7 +53,7 @@ interface Campagne {
 @Component({
   selector: 'campaign-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicNavbarComponent, CandidatNavbarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PublicNavbarComponent, CandidatNavbarComponent, SiteFooterComponent],
   templateUrl: './campaign-detail.html',
   styleUrls: ['./campaign-detail.scss']
 })

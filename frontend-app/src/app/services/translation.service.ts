@@ -339,6 +339,51 @@ TRANSLATIONS.ar.campaignDetail = {
   }
 };
 
+// Navbar Translations
+TRANSLATIONS.en.navbar = { 
+  brand: 'Doctoral Portal', 
+  profile: { select: 'Select Profile', logout: 'Logout' },
+  links: { home: 'Home', campaigns: 'Campaigns', about: 'About', contact: 'Contact' },
+  actions: { signin: 'Sign In', signup: 'Sign Up', search: 'Search...' },
+  theme: { light: 'Light', dark: 'Dark', system: 'System' }
+};
+TRANSLATIONS.fr.navbar = { 
+  brand: 'Portail Doctorat', 
+  profile: { select: 'Choisir votre profil', logout: 'Se déconnecter' },
+  links: { home: 'Accueil', campaigns: 'Campagnes', about: 'À propos', contact: 'Contact' },
+  actions: { signin: 'Connexion', signup: 'Inscription', search: 'Rechercher...' },
+  theme: { light: 'Clair', dark: 'Sombre', system: 'Système' }
+};
+TRANSLATIONS.ar.navbar = { 
+  brand: 'بوابة الدكتوراه', 
+  profile: { select: 'اختر الملف الشخصي', logout: 'تسجيل الخروج' },
+  links: { home: 'الرئيسية', campaigns: 'الحملات', about: 'عن المنصة', contact: 'اتصل بنا' },
+  actions: { signin: 'دخول', signup: 'تسجيل', search: 'بحث...' },
+  theme: { light: 'فاتح', dark: 'داكن', system: 'النظام' }
+};
+
+// Fix missing keys in CampaignDetail
+// English
+TRANSLATIONS.en.campaignDetail.timeline.title = 'Timeline';
+TRANSLATIONS.en.campaignDetail.requirements = { title: 'Requirements' };
+TRANSLATIONS.en.campaignDetail.sidebar.closed = 'Closed';
+TRANSLATIONS.en.campaignDetail.sidebar.help = 'Need Help?';
+TRANSLATIONS.en.campaignDetail.noDescription = 'No description available.';
+
+// French
+TRANSLATIONS.fr.campaignDetail.timeline.title = 'Calendrier';
+TRANSLATIONS.fr.campaignDetail.requirements = { title: 'Prérequis' };
+TRANSLATIONS.fr.campaignDetail.sidebar.closed = 'Fermée';
+TRANSLATIONS.fr.campaignDetail.sidebar.help = 'Besoin d\'aide ?';
+TRANSLATIONS.fr.campaignDetail.noDescription = 'Aucune description disponible.';
+
+// Arabic
+TRANSLATIONS.ar.campaignDetail.timeline.title = 'الجدول الزمني';
+TRANSLATIONS.ar.campaignDetail.requirements = { title: 'المتطلبات' };
+TRANSLATIONS.ar.campaignDetail.sidebar.closed = 'مغلقة';
+TRANSLATIONS.ar.campaignDetail.sidebar.help = 'تحتاج مساعدة؟';
+TRANSLATIONS.ar.campaignDetail.noDescription = 'لا يوجد وصف متاح.';
+
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
   current = signal<Lang>((localStorage.getItem('lang') as Lang) || 'en');

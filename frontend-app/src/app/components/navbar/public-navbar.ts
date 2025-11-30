@@ -7,24 +7,26 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 	selector: 'public-navbar',
 	standalone: true,
 	imports: [CommonModule, RouterLink, RouterLinkActive],
-	templateUrl: './public-navbar.html'
+	templateUrl: './public-navbar.html',
+	styleUrls: ['./public-navbar.css']
 })
 export class PublicNavbarComponent implements OnInit {
 	theme = signal<'light'|'dark'|'system'>('light');
-	language = signal('en');
 	langMenuOpen = signal(false);
 	themeMenuOpen = signal(false);
 
-	constructor(private el: ElementRef, private tx: TranslationService) {}
+	constructor(private el: ElementRef, public tx: TranslationService) {}
 
 	ngOnInit() {
 		try {
 			const rawTheme = (localStorage.getItem('theme') as 'light'|'dark'|'system') || 'light';
 			this.theme.set(rawTheme);
 			this.applyTheme(rawTheme);
-			const lang = localStorage.getItem('lang') || 'en';
-			this.language.set(lang);
 		} catch (e) {}
+	}
+
+	get language() {
+		return this.tx.current();
 	}
 
 	applyTheme(mode: 'light'|'dark'|'system') {
@@ -60,7 +62,7 @@ export class PublicNavbarComponent implements OnInit {
 
 	changeLanguage() {
 		// keep backward-compatible toggle (cycles en -> fr -> ar -> en)
-		const current = this.language();
+		const current = this.language;
 		const next = current === 'en' ? 'fr' : current === 'fr' ? 'ar' : 'en';
 		this.setLanguage(next);
 	}
@@ -70,7 +72,6 @@ export class PublicNavbarComponent implements OnInit {
 	}
 
 	setLanguage(lang: string) {
-		this.language.set(lang);
 		// inform translation service so other components update
 		try { this.tx.setLanguage(lang as any); } catch (e) {}
 		this.langMenuOpen.set(false);
