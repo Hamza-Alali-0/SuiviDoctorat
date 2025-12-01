@@ -120,9 +120,12 @@
 
       <!-- Types Multi-select -->
       <div class="control multi">
-        <button class="multi-trigger" (click)="toggleTypes()">
+        <button class="multi-trigger" [class.active]="selectedTypes().length > 0" (click)="toggleTypes()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span>{{ selectedTypes().length ? selectedTypes().length + ' types' : tx.t('campaignsPage.filters.types') }}</span>
+          <span>{{ tx.t('campaignsPage.filters.types') }}</span>
+          @if (selectedTypes().length > 0) {
+            <span class="type-badge">{{ selectedTypes().length }}</span>
+          }
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [class.open]="showTypes()"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="multi-panel" *ngIf="showTypes()" (click)="$event.stopPropagation()">
@@ -133,14 +136,18 @@
             </label>
           </div>
           <div class="multi-actions">
-            <button class="btn-xs" (click)="clearTypes()">{{ tx.t('campaignDetail.wizard.actions.cancel') }}</button>
-            <button class="btn-xs primary" (click)="applyFilters()">{{ tx.t('campaignDetail.wizard.actions.submit') }}</button>
+            <button type="button" class="btn-xs" (click)="clearTypes()">{{ tx.t('campaignDetail.wizard.actions.cancel') }}</button>
+            <button type="button" class="btn-xs primary" (click)="applyTypesAndClose()">{{ tx.t('campaignDetail.wizard.actions.submit') }}</button>
           </div>
         </div>
       </div>
 
       <!-- Status -->
       <div class="control select">
+        <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
         <select [value]="filterStatus()" (change)="filterStatus.set($any($event.target).value); applyFilters()">
           <option value="all">{{ tx.t('campaignsPage.status.all') }}</option>
           <option value="active">{{ tx.t('campaignsPage.status.active') }}</option>
@@ -151,6 +158,9 @@
 
       <!-- Sort -->
       <div class="control select">
+        <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M3 12h12M3 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
         <select [value]="sortKey()" (change)="sortKey.set($any($event.target).value); sortCampaigns()">
           <option value="relevance">{{ tx.t('campaignsPage.sort.relevance') }}</option>
           <option value="deadline">{{ tx.t('campaignsPage.sort.deadline') }}</option>
@@ -185,7 +195,7 @@
       </div>
       <div class="stat-info">
         <div class="stat-val">{{ filteredCampaigns().length }}</div>
-        <div class="stat-label">Visibles</div>
+        <div class="stat-label">{{ tx.t('campaignsPage.stats.visible') }}</div>
       </div>
     </div>
     <div class="stat-card">
@@ -263,9 +273,24 @@
     </article>
   </section>
 
-  <!-- Pagination / Load More -->
-  <div class="load-more" *ngIf="visibleCampaigns().length < filteredCampaigns().length">
-    <button class="btn-load" (click)="loadMore()">Charger plus</button>
+  <!-- Pagination -->
+  <div class="pagination-section" *ngIf="filteredCampaigns().length > 0">
+    <div class="pagination-info">
+      {{ tx.t('campaignsPage.pagination.showing') }} <strong>{{ visibleCampaigns().length }}</strong> {{ tx.t('campaignsPage.pagination.of') }} <strong>{{ filteredCampaigns().length }}</strong> {{ tx.t('campaignsPage.pagination.campaigns') }}
+    </div>
+    <div class="pagination-controls" *ngIf="filteredCampaigns().length > pageSize">
+      <button class="btn-page" [disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        {{ tx.t('campaignsPage.pagination.prev') }}
+      </button>
+      <div class="page-numbers">
+        <button *ngFor="let p of getPageNumbers()" class="page-num" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p }}</button>
+      </div>
+      <button class="btn-page" [disabled]="currentPage() >= getTotalPages()" (click)="goToPage(currentPage() + 1)">
+        {{ tx.t('campaignsPage.pagination.next') }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
   </div>
 
   <ng-template #emptyState>
@@ -366,8 +391,8 @@
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.personal.gender') }}</label>
               <select [(ngModel)]="applicationForm.sexe" name="sexe">
-                <option value="M">Masculin</option>
-                <option value="F">Féminin</option>
+                <option value="M">{{ tx.t('campaignsPage.form.male') }}</option>
+                <option value="F">{{ tx.t('campaignsPage.form.female') }}</option>
               </select>
             </div>
           </div>
@@ -380,19 +405,19 @@
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.academic.degree') }} <span class="required">*</span></label>
               <select [(ngModel)]="applicationForm.highestDegree" name="highestDegree" required>
-                <option value="">Sélectionnez...</option>
-                <option value="Master">Master</option>
-                <option value="Ingénieur">Ingénieur</option>
-                <option value="Autre">Autre</option>
+                <option value="">{{ tx.t('campaignsPage.form.select') }}</option>
+                <option value="Master">{{ tx.t('campaignsPage.form.master') }}</option>
+                <option value="Ingénieur">{{ tx.t('campaignsPage.form.engineer') }}</option>
+                <option value="Autre">{{ tx.t('campaignsPage.form.other') }}</option>
               </select>
             </div>
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.academic.institution') }} <span class="required">*</span></label>
-              <input type="text" [(ngModel)]="applicationForm.etablissementOrigine" name="etablissementOrigine" required placeholder="Université ou École" />
+              <input type="text" [(ngModel)]="applicationForm.etablissementOrigine" name="etablissementOrigine" required [placeholder]="tx.t('campaignsPage.form.institutionPlaceholder')" />
             </div>
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.academic.details') }}</label>
-              <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" placeholder="Listez vos diplômes (Année, Intitulé, Établissement, Mention)"></textarea>
+              <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" [placeholder]="tx.t('campaignsPage.form.diplomasPlaceholder')"></textarea>
             </div>
           </div>
         </div>

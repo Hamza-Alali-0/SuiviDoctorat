@@ -20,4 +20,8 @@ export class ContactPage {
   get isLoggedIn() {
     return this.auth.isLoggedIn();
   }
+
+  t(key: string): string {
+    return this.tx.t(key);
+  }
 }

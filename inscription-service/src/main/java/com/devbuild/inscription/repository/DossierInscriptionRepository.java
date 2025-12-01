@@ -11,4 +11,5 @@ import java.util.List;
 public interface DossierInscriptionRepository extends JpaRepository<DossierInscription, Long> {
     List<DossierInscription> findByDoctorantId(Long doctorantId);
     List<DossierInscription> findByStatut(StatutDossier statut);
+    int countByCampagneId(Long campagneId);
 }

@@ -254,52 +254,153 @@ interface Campaign {
         .feature-card-new.large.purple-bg { min-height:400px }
         .feature-card-new.image-bg { min-height:300px }
     }    
-    /* Testimonials Section */
-    .testimonials { padding:7rem 2rem; background:linear-gradient(180deg, #f9fafb 0%, #ffffff 100%); position:relative }
-    .testimonials::after { content:''; position:absolute; bottom:20%; left:5%; width:400px; height:400px; background:radial-gradient(circle, rgba(139,92,246,0.06), transparent 70%); border-radius:50%; pointer-events:none }
-    :host-context(.dark) .testimonials { background:linear-gradient(180deg, #0a0a0a 0%, #000000 100%) }
-    :host-context(.dark) .testimonials::after { background:radial-gradient(circle, rgba(139,92,246,0.12), transparent 70%) }
-    .testimonials-container { max-width:1200px; margin:0 auto; position:relative; z-index:1 }
-    .testimonials-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:2rem }
-    .testimonial-card { padding:2.5rem; background:rgba(255,255,255,0.8); backdrop-filter:blur(20px); border-radius:24px; border:1px solid rgba(0,0,0,0.06); transition:all 0.4s ease; box-shadow:0 4px 16px rgba(0,0,0,0.04) }
-    .testimonial-card:hover { transform:translateY(-6px); box-shadow:0 12px 32px rgba(0,0,0,0.1); border-color:rgba(59,130,246,0.2) }
-    :host-context(.dark) .testimonial-card { background:rgba(28,28,30,0.8); border-color:rgba(255,255,255,0.08); box-shadow:0 4px 16px rgba(0,0,0,0.3) }
-    :host-context(.dark) .testimonial-card:hover { box-shadow:0 12px 32px rgba(0,0,0,0.5); border-color:rgba(59,130,246,0.3) }
-    .testimonial-stars { color:#fbbf24; font-size:1.25rem; margin-bottom:1.25rem }
-    .testimonial-text { font-size:1.125rem; line-height:1.7; color:#1d1d1f; margin:0 0 2rem; font-style:italic }
-    :host-context(.dark) .testimonial-text { color:#f5f5f7 }
-    .testimonial-author { display:flex; align-items:center; gap:1rem }
-    .author-avatar { width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem }
-    .author-name { font-weight:700; color:#1d1d1f; margin-bottom:2px }
-    :host-context(.dark) .author-name { color:#f5f5f7 }
-    .author-title { font-size:0.875rem; color:#6e6e73 }
-    :host-context(.dark) .author-title { color:#a1a1a6 }
+    /* Testimonials Section - Professional Layout */
+    .testimonials { padding:6rem 2rem; background:#f8fafc }
+    :host-context(.dark) .testimonials { background:#0a0a0a }
+    .testimonials-container { max-width:1200px; margin:0 auto }
     
-    /* FAQ Section */
-    .faq { padding:7rem 2rem; background:#ffffff }
-    :host-context(.dark) .faq { background:#000000 }
-    .faq-container { max-width:1000px; margin:0 auto }
-    .faq-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem }
-    .faq-item { padding:2rem; background:#f9fafb; border-radius:20px; border:1px solid rgba(0,0,0,0.05); transition:all 0.3s ease }
-    .faq-item:hover { background:#ffffff; box-shadow:0 8px 24px rgba(0,0,0,0.06); border-color:rgba(59,130,246,0.15) }
-    :host-context(.dark) .faq-item { background:#1c1c1e; border-color:rgba(255,255,255,0.06) }
-    :host-context(.dark) .faq-item:hover { background:#2a2a2e; box-shadow:0 8px 24px rgba(0,0,0,0.4); border-color:rgba(59,130,246,0.2) }
-    .faq-item h3 { font-size:1.125rem; font-weight:700; margin:0 0 0.75rem; color:#1d1d1f }
-    :host-context(.dark) .faq-item h3 { color:#f5f5f7 }
-    .faq-item p { margin:0; color:#6e6e73; line-height:1.6; font-size:1rem }
-    :host-context(.dark) .faq-item p { color:#a1a1a6 }
+    /* Testimonials 2-Column Layout */
+    .testimonials-layout { display:grid; grid-template-columns:1.2fr 1fr; gap:2rem; margin-bottom:3rem }
     
-    /* CTA Section - Futuristic with Gradient Background */
-    .cta-section { padding:8rem 2rem; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); position:relative; overflow:hidden }
-    .cta-bg-gradient { position:absolute; inset:0; background:radial-gradient(circle at 70% 30%, rgba(236,72,153,0.3), transparent 60%), radial-gradient(circle at 30% 70%, rgba(59,130,246,0.3), transparent 60%); animation:ctaGlow 10s ease infinite }
-    @keyframes ctaGlow { 0%, 100% { opacity:0.5 } 50% { opacity:0.8 } }
-    :host-context(.dark) .cta-section { background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) }
-    .cta-container { max-width:840px; margin:0 auto; text-align:center; position:relative; z-index:1 }
-    .cta-badge { display:inline-block; padding:8px 20px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); border-radius:100px; color:#ffffff; font-size:0.875rem; font-weight:600; letter-spacing:0.5px; margin-bottom:1.5rem; border:1px solid rgba(255,255,255,0.2) }
-    .cta-container h2 { font-size:3.5rem; font-weight:700; margin:0 0 1.5rem; color:#ffffff; letter-spacing:-0.025em; line-height:1.08; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif }
-    .cta-container p { font-size:1.375rem; color:rgba(255,255,255,0.95); margin:0 0 3rem; font-weight:400; line-height:1.5 }
-    .cta-buttons { display:flex; gap:1.25rem; justify-content:center; margin-bottom:2.5rem; flex-wrap:wrap }
-    .cta-trust { display:flex; align-items:center; justify-content:center; gap:0.75rem; color:rgba(255,255,255,0.9); font-size:0.9375rem }
+    /* Featured Testimonial (Left) */
+    .testimonial-featured { background:#fff; border-radius:24px; padding:3rem; position:relative; box-shadow:0 4px 24px rgba(0,0,0,0.06); border:1px solid #e2e8f0 }
+    :host-context(.dark) .testimonial-featured { background:#111; border-color:#1e293b; box-shadow:0 4px 24px rgba(0,0,0,0.3) }
+    .quote-icon { color:#2563eb; opacity:0.15; margin-bottom:1.5rem }
+    :host-context(.dark) .quote-icon { color:#60a5fa; opacity:0.2 }
+    .featured-quote { font-size:1.5rem; line-height:1.6; color:#1e293b; margin:0 0 2.5rem; font-weight:500 }
+    :host-context(.dark) .featured-quote { color:#f1f5f9 }
+    .featured-author { display:flex; align-items:center; gap:1rem }
+    .author-photo { width:64px; height:64px; border-radius:50%; object-fit:cover; border:3px solid #e2e8f0 }
+    :host-context(.dark) .author-photo { border-color:#334155 }
+    .author-details { flex:1 }
+    .author-name { font-weight:700; font-size:1.1rem; color:#1e293b; margin-bottom:2px }
+    :host-context(.dark) .author-name { color:#f1f5f9 }
+    .author-role { font-size:0.9rem; color:#64748b; margin-bottom:0.5rem }
+    :host-context(.dark) .author-role { color:#94a3b8 }
+    .author-rating { display:flex; align-items:center; gap:0.5rem }
+    .author-rating .stars { color:#f59e0b; font-size:0.9rem; letter-spacing:1px }
+    .author-rating .rating-text { font-size:0.85rem; color:#64748b; font-weight:600 }
+    :host-context(.dark) .author-rating .rating-text { color:#94a3b8 }
+    
+    /* Side Testimonials (Right) */
+    .testimonials-side { display:flex; flex-direction:column; gap:1.5rem }
+    .testimonial-card-compact { background:#fff; border-radius:20px; padding:1.75rem; border:1px solid #e2e8f0; transition:all 0.3s ease }
+    .testimonial-card-compact:hover { box-shadow:0 8px 24px rgba(0,0,0,0.08); border-color:#cbd5e1 }
+    :host-context(.dark) .testimonial-card-compact { background:#111; border-color:#1e293b }
+    :host-context(.dark) .testimonial-card-compact:hover { box-shadow:0 8px 24px rgba(0,0,0,0.4); border-color:#334155 }
+    .card-top { display:flex; align-items:center; gap:0.875rem; margin-bottom:1rem }
+    .author-photo-sm { width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0; flex-shrink:0 }
+    :host-context(.dark) .author-photo-sm { border-color:#334155 }
+    .card-info { flex:1 }
+    .card-info .author-name { font-size:0.95rem; margin-bottom:1px }
+    .card-info .author-role { font-size:0.8rem }
+    .quote-icon-sm { color:#2563eb; opacity:0.12 }
+    :host-context(.dark) .quote-icon-sm { color:#60a5fa; opacity:0.2 }
+    .card-quote { font-size:0.95rem; line-height:1.6; color:#475569; margin:0 0 1rem }
+    :host-context(.dark) .card-quote { color:#cbd5e1 }
+    .card-stars { color:#f59e0b; font-size:0.9rem; letter-spacing:1px }
+    
+    /* Trust Row */
+    .trust-row { display:flex; justify-content:center; align-items:center; gap:3rem; padding:2.5rem 0; border-top:1px solid #e2e8f0 }
+    :host-context(.dark) .trust-row { border-color:#1e293b }
+    .trust-item { text-align:center }
+    .trust-number { font-size:2rem; font-weight:800; color:#1e293b; line-height:1 }
+    :host-context(.dark) .trust-number { color:#f1f5f9 }
+    .trust-label { font-size:0.9rem; color:#64748b; margin-top:0.5rem }
+    :host-context(.dark) .trust-label { color:#94a3b8 }
+    .trust-divider { width:1px; height:40px; background:#e2e8f0 }
+    :host-context(.dark) .trust-divider { background:#1e293b }
+    
+    /* Testimonials Responsive */
+    @media (max-width: 900px) {
+      .testimonials-layout { grid-template-columns:1fr }
+      .testimonial-featured { padding:2rem }
+      .featured-quote { font-size:1.25rem }
+    }
+    @media (max-width: 600px) {
+      .testimonials { padding:4rem 1.5rem }
+      .trust-row { flex-wrap:wrap; gap:2rem }
+      .trust-divider { display:none }
+      .trust-item { min-width:100px }
+    }
+    
+    /* FAQ Section - Split Layout with Accordion */
+    .faq { padding:6rem 2rem; background:#ffffff }
+    :host-context(.dark) .faq { background:#0a0a0a }
+    .faq-container { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1.2fr; gap:4rem; align-items:start }
+    
+    /* FAQ Image Column */
+    .faq-image-col { position:sticky; top:6rem }
+    .faq-illustration { width:100%; border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,0.1); object-fit:cover; aspect-ratio:4/5 }
+    :host-context(.dark) .faq-illustration { box-shadow:0 20px 50px rgba(0,0,0,0.4) }
+    
+    /* FAQ Content Column */
+    .faq-content-col { display:flex; flex-direction:column; gap:2rem }
+    .faq-header { margin-bottom:1rem }
+    .faq-header .section-title { font-size:2.5rem; margin-bottom:0.5rem }
+    .faq-header .section-subtitle { font-size:1.1rem }
+    
+    /* FAQ Accordion */
+    .faq-accordion { display:flex; flex-direction:column; gap:0 }
+    .faq-item { border-bottom:1px solid #e5e7eb; overflow:hidden }
+    :host-context(.dark) .faq-item { border-color:#1e293b }
+    .faq-item:first-child { border-top:1px solid #e5e7eb }
+    :host-context(.dark) .faq-item:first-child { border-color:#1e293b }
+    
+    .faq-question { display:flex; justify-content:space-between; align-items:center; padding:1.5rem 0; cursor:pointer; transition:all 0.2s }
+    .faq-question:hover h3 { color:#2563eb }
+    .faq-question h3 { font-size:1.05rem; font-weight:600; margin:0; color:#1d1d1f; transition:color 0.2s }
+    :host-context(.dark) .faq-question h3 { color:#f5f5f7 }
+    :host-context(.dark) .faq-question:hover h3 { color:#60a5fa }
+    
+    .faq-icon { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:#f1f5f9; color:#64748b; transition:all 0.3s; flex-shrink:0 }
+    .faq-item.active .faq-icon { background:#2563eb; color:#fff; transform:rotate(180deg) }
+    :host-context(.dark) .faq-icon { background:#1e293b; color:#94a3b8 }
+    :host-context(.dark) .faq-item.active .faq-icon { background:#2563eb; color:#fff }
+    
+    .faq-answer { max-height:0; overflow:hidden; transition:max-height 0.35s ease, padding 0.35s ease }
+    .faq-item.active .faq-answer { max-height:300px; padding-bottom:1.5rem }
+    .faq-answer p { margin:0; color:#64748b; line-height:1.7; font-size:1rem }
+    :host-context(.dark) .faq-answer p { color:#94a3b8 }
+    
+    /* FAQ Responsive */
+    @media (max-width: 900px) {
+      .faq-container { grid-template-columns:1fr; gap:2.5rem }
+      .faq-image-col { position:relative; top:0; order:1 }
+      .faq-content-col { order:2 }
+      .faq-illustration { aspect-ratio:16/9; max-height:300px }
+    }
+    @media (max-width: 600px) {
+      .faq { padding:4rem 1.5rem }
+      .faq-header .section-title { font-size:2rem }
+      .faq-question h3 { font-size:1rem }
+    }
+    
+    /* CTA Section - Background Image with Dark Overlay */
+    .cta-section { padding:7rem 2rem; position:relative; overflow:hidden }
+    .cta-bg-image { position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1920&q=80') center/cover no-repeat }
+    .cta-overlay { position:absolute; inset:0; background:linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.88) 100%) }
+    :host-context(.dark) .cta-overlay { background:linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(15,23,42,0.92) 100%) }
+    .cta-container { max-width:800px; margin:0 auto; text-align:center; position:relative; z-index:1 }
+    .cta-badge { display:inline-block; padding:8px 20px; background:rgba(255,255,255,0.1); backdrop-filter:blur(8px); border-radius:100px; color:rgba(255,255,255,0.9); font-size:0.85rem; font-weight:600; margin-bottom:1.5rem; border:1px solid rgba(255,255,255,0.15) }
+    .cta-container h2 { font-size:2.75rem; font-weight:700; margin:0 0 1rem; color:#fff; line-height:1.2; letter-spacing:-0.02em }
+    .cta-container p { font-size:1.15rem; color:rgba(255,255,255,0.75); margin:0 auto 2.5rem; line-height:1.6; max-width:600px }
+    .cta-buttons { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-bottom:2.5rem }
+    .btn-cta-primary { display:inline-flex; align-items:center; gap:8px; padding:1rem 2rem; background:#2563eb; color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.2s }
+    .btn-cta-primary:hover { background:#1d4ed8; transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,99,235,0.3) }
+    .btn-cta-outline { padding:1rem 2rem; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.25); border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.2s; backdrop-filter:blur(4px) }
+    .btn-cta-outline:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.4) }
+    .cta-trust-strip { display:flex; justify-content:center; gap:2.5rem; flex-wrap:wrap }
+    .cta-trust-item { display:flex; align-items:center; gap:0.5rem; color:rgba(255,255,255,0.7); font-size:0.9rem }
+    .cta-trust-item svg { color:rgba(255,255,255,0.5) }
+    
+    /* CTA Responsive */
+    @media (max-width: 600px) {
+      .cta-section { padding:5rem 1.5rem }
+      .cta-container h2 { font-size:2rem }
+      .cta-container p { font-size:1rem }
+      .cta-trust-strip { flex-direction:column; gap:1rem; align-items:center }
+    }
     
     /* Campaigns Home Card Layout (aligned with campaigns page design) */
     .campaigns-home { padding:6rem 2rem; background:#ffffff; position:relative }
@@ -590,6 +691,8 @@ export class StartPage implements OnInit, AfterViewInit {
   allCampaigns: Campaign[] = [];
   // campaigns currently shown in the grid after filtering
   filteredCampaigns: Campaign[] = [];
+  // FAQ accordion state
+  expandedFaq: number | null = null;
   // professional, minimal stats model
   stats = [
     { id: 'researchers', value: 15000, suffix: '+', label: 'PhD Students Enrolled', displayValue: '0', accent: 'linear-gradient(90deg,#60a5fa,#7c3aed)', iconHref: '#icon-researchers', iconBgClass: 'bg-ivory' },
@@ -606,6 +709,11 @@ export class StartPage implements OnInit, AfterViewInit {
   // template helper to translate keys
   t(path: string) {
     return this.tx.t(path);
+  }
+
+  // FAQ accordion toggle
+  toggleFaq(index: number) {
+    this.expandedFaq = this.expandedFaq === index ? null : index;
   }
 
   pageDir() {

@@ -420,11 +420,11 @@
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.academic.degree') }} <span class="required">*</span></label>
               <select [(ngModel)]="applicationForm.highestDegree" name="highestDegree" required>
-                <option value="">Sélectionnez...</option>
-                <option value="MASTER">Master</option>
-                <option value="INGENIEUR">Ingénieur d'État</option>
+                <option value="">{{ tx.t('campaignsPage.form.select') }}</option>
+                <option value="MASTER">{{ tx.t('campaignsPage.form.master') }}</option>
+                <option value="INGENIEUR">{{ tx.t('campaignsPage.form.engineer') }}</option>
                 <option value="DESA">DESA</option>
-                <option value="AUTRE">Autre</option>
+                <option value="AUTRE">{{ tx.t('campaignsPage.form.other') }}</option>
               </select>
             </div>
             <div class="form-group">
@@ -433,7 +433,7 @@
             </div>
             <div class="form-group">
               <label>{{ tx.t('campaignDetail.wizard.academic.details') }}</label>
-              <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" placeholder="Listez vos diplômes (Année, Intitulé, Établissement, Mention)"></textarea>
+              <textarea [(ngModel)]="applicationForm.diplomesPrecedents" name="diplomesPrecedents" rows="4" [placeholder]="tx.t('campaignDetail.wizard.academic.detailsPlaceholder')"></textarea>
             </div>
           </div>
         </div>

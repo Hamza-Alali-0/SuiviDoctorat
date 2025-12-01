@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { StartPage } from './pages/start-page/start-page';
 import { AuthPage } from './pages/auth/auth';
 import { DashboardPage, DocumentsPage, AddDocumentPage, ProfilePage, SoutenancesPage, CampaignsPage } from './pages/candidat';
@@ -49,4 +49,9 @@ export const routes: Routes = [
   { path: '**', redirectTo: '' }
 ];
 
-export const APP_ROUTER_PROVIDERS = [provideRouter(routes)];
+export const APP_ROUTER_PROVIDERS = [
+  provideRouter(routes, withInMemoryScrolling({
+    scrollPositionRestoration: 'top',
+    anchorScrolling: 'enabled'
+  }))
+];

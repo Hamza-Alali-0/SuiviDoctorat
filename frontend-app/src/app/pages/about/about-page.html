@@ -5,12 +5,13 @@
     <public-navbar></public-navbar>
   }
 
-  <!-- About Hero Section (matching provided design) -->
-  <header class="about-hero">
+  <!-- About Hero Section -->
+  <header class="about-hero" style="background-image:url('https://images.unsplash.com/photo-1557425955-df376b5903c8?w=1600&q=80')">
+    <div class="about-hero-overlay"></div>
     <div class="about-hero-content">
-      <div class="about-hero-badge">ABOUT</div>
-      <h1 class="about-hero-title">The dream team of<br/>digital marketing.</h1>
-      <p class="about-hero-subtitle">We Grow Businesses Online. Period.</p>
+      <div class="about-hero-badge">{{ t('aboutPage.hero.badge') }}</div>
+      <h1 class="about-hero-title">{{ t('aboutPage.hero.title') }}</h1>
+      <p class="about-hero-subtitle">{{ t('aboutPage.hero.subtitle') }}</p>
     </div>
   </header>
 
@@ -19,30 +20,27 @@
     <div class="services-grid">
       <article class="service-card">
         <div class="service-media">
-          <div class="service-avatar"></div>
-          <div class="service-name">Ahmad Subariq</div>
+          <img class="service-img" src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80" alt="Campaign Management">
         </div>
         <div class="service-meta"><span class="service-index">01</span></div>
-        <h3 class="service-title">Custom SEO Services</h3>
-        <p class="service-text">Custom, organic SEO services that include technical audits, on-page search engine optimization.</p>
+        <h3 class="service-title">{{ t('aboutPage.services.campaigns.title') }}</h3>
+        <p class="service-text">{{ t('aboutPage.services.campaigns.text') }}</p>
       </article>
       <article class="service-card">
         <div class="service-media">
-          <div class="service-avatar"></div>
-          <div class="service-name">Andrew Silabus</div>
+          <img class="service-img" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" alt="Progress Tracking">
         </div>
         <div class="service-meta"><span class="service-index">02</span></div>
-        <h3 class="service-title">SEO Website Design</h3>
-        <p class="service-text">Highly effective PPC and SEO-friendly design to drive qualified traffic and conversions.</p>
+        <h3 class="service-title">{{ t('aboutPage.services.tracking.title') }}</h3>
+        <p class="service-text">{{ t('aboutPage.services.tracking.text') }}</p>
       </article>
       <article class="service-card">
         <div class="service-media">
-          <div class="service-avatar"></div>
-          <div class="service-name">Zahra Agustin</div>
+          <img class="service-img" src="https://images.unsplash.com/photo-1560439514-4e9645039924?w=400&q=80" alt="Defense Preparation">
         </div>
         <div class="service-meta"><span class="service-index">03</span></div>
-        <h3 class="service-title">SEO Consulting</h3>
-        <p class="service-text">B2B SEO consulting that generates valuable inbound leads from other businesses.</p>
+        <h3 class="service-title">{{ t('aboutPage.services.defense.title') }}</h3>
+        <p class="service-text">{{ t('aboutPage.services.defense.text') }}</p>
       </article>
     </div>
   </section>
@@ -51,36 +49,57 @@
   <section class="how-started">
     <div class="how-started-content">
       <div class="how-started-text">
-        <div class="how-started-badge">How It Started</div>
-        <h2 class="how-started-title">Our Dream is Global Doctoral Excellence</h2>
-        <p class="how-started-story">
-          SuiviDoctorat was founded by a team of researchers and educators passionate about transforming the doctoral journey. 
-          United by their belief in the power of technology to streamline research management, they embarked on a mission to create 
-          a digital platform accessible to all doctoral candidates. With relentless dedication, they gathered experts and launched 
-          this innovative system, creating a global community of researchers, all connected by the desire to excel, collaborate, 
-          and advance academic excellence.
-        </p>
+        <div class="how-started-badge">{{ t('aboutPage.story.badge') }}</div>
+        <h2 class="how-started-title">{{ t('aboutPage.story.title') }}</h2>
+        <p class="how-started-story">{{ t('aboutPage.story.text') }}</p>
       </div>
       <div class="how-started-visual">
-        <div class="how-started-image"></div>
+        <div class="how-started-image" style="background-image:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80')"></div>
       </div>
     </div>
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-number">5+</div>
-        <div class="stat-label">Years Experience</div>
+        <div class="stat-label">{{ t('aboutPage.stats.years') }}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">150+</div>
-        <div class="stat-label">Active Candidates</div>
+        <div class="stat-label">{{ t('aboutPage.stats.candidates') }}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">500+</div>
-        <div class="stat-label">Applications Processed</div>
+        <div class="stat-label">{{ t('aboutPage.stats.applications') }}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">95%</div>
-        <div class="stat-label">Success Rate</div>
+        <div class="stat-label">{{ t('aboutPage.stats.success') }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission & Vision Section -->
+  <section class="mission-vision">
+    <div class="mv-container">
+      <div class="mv-card">
+        <div class="mv-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>{{ t('aboutPage.mission.title') }}</h3>
+        <p>{{ t('aboutPage.mission.text') }}</p>
+      </div>
+      <div class="mv-card">
+        <div class="mv-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3>{{ t('aboutPage.vision.title') }}</h3>
+        <p>{{ t('aboutPage.vision.text') }}</p>
+      </div>
+      <div class="mv-card">
+        <div class="mv-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <h3>{{ t('aboutPage.values.title') }}</h3>
+        <p>{{ t('aboutPage.values.text') }}</p>
       </div>
     </div>
   </section>
@@ -89,9 +108,9 @@
   <section class="platform-features">
     <div class="pf-container">
       <div class="pf-header">
-        <span class="pf-badge">Why Choose Us</span>
-        <h2 class="pf-title">Everything You Need to Succeed</h2>
-        <p class="pf-subtitle">A complete platform built for the modern doctoral journey.</p>
+        <span class="pf-badge">{{ t('aboutPage.features.badge') }}</span>
+        <h2 class="pf-title">{{ t('aboutPage.features.title') }}</h2>
+        <p class="pf-subtitle">{{ t('aboutPage.features.subtitle') }}</p>
       </div>
 
       <div class="pf-row">
@@ -100,8 +119,8 @@
         </div>
         <div class="pf-text-col">
           <span class="pf-num">01</span>
-          <h3>Campaign Management</h3>
-          <p>Create, publish, and manage admission campaigns with complete transparency. Track applications, filter candidates, and make data-driven decisions.</p>
+          <h3>{{ t('aboutPage.features.f1.title') }}</h3>
+          <p>{{ t('aboutPage.features.f1.text') }}</p>
         </div>
       </div>
 
@@ -111,8 +130,8 @@
         </div>
         <div class="pf-text-col">
           <span class="pf-num">02</span>
-          <h3>Progress Tracking</h3>
-          <p>Monitor milestones, upload documents, and get real-time feedback from supervisors. Stay on track with automated reminders and status updates.</p>
+          <h3>{{ t('aboutPage.features.f2.title') }}</h3>
+          <p>{{ t('aboutPage.features.f2.text') }}</p>
         </div>
       </div>
 
@@ -122,8 +141,60 @@
         </div>
         <div class="pf-text-col">
           <span class="pf-num">03</span>
-          <h3>Collaboration Hub</h3>
-          <p>Connect with supervisors, committee members, and fellow researchers. Share documents, schedule meetings, and build your academic network.</p>
+          <h3>{{ t('aboutPage.features.f3.title') }}</h3>
+          <p>{{ t('aboutPage.features.f3.text') }}</p>
+        </div>
+      </div>
+
+      <div class="pf-row reverse">
+        <div class="pf-image-col">
+          <div class="pf-image" style="background-image:url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&q=80')"></div>
+        </div>
+        <div class="pf-text-col">
+          <span class="pf-num">04</span>
+          <h3>{{ t('aboutPage.features.f4.title') }}</h3>
+          <p>{{ t('aboutPage.features.f4.text') }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section">
+    <div class="team-container">
+      <div class="team-header">
+        <span class="team-badge">{{ t('aboutPage.team.badge') }}</span>
+        <h2 class="team-title">{{ t('aboutPage.team.title') }}</h2>
+        <p class="team-subtitle">{{ t('aboutPage.team.subtitle') }}</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Team Member">
+          </div>
+          <h4 class="team-name">Dr. Ahmed Benali</h4>
+          <p class="team-role">{{ t('aboutPage.team.roles.founder') }}</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="Team Member">
+          </div>
+          <h4 class="team-name">Dr. Fatima Zahra</h4>
+          <p class="team-role">{{ t('aboutPage.team.roles.research') }}</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" alt="Team Member">
+          </div>
+          <h4 class="team-name">Prof. Karim Idrissi</h4>
+          <p class="team-role">{{ t('aboutPage.team.roles.academic') }}</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" alt="Team Member">
+          </div>
+          <h4 class="team-name">Amina Tazi</h4>
+          <p class="team-role">{{ t('aboutPage.team.roles.tech') }}</p>
         </div>
       </div>
     </div>

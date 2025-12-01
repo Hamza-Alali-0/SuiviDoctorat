@@ -68,29 +68,159 @@ interface Campagne {
 
     /* Controls */
     /* slightly tighter controls bar to reduce visual height */
-    .campaigns-controls { position:sticky; top:0; z-index:30; background:rgba(248,250,252,0.8); backdrop-filter:blur(16px); padding:0.5rem 0; border-bottom:1px solid rgba(226,232,240,0.6); margin-bottom:1rem; }
-    :host-context(.dark) .campaigns-controls { background:rgba(15,23,42,0.8); border-color:rgba(51,65,85,0.6); }
+    .campaigns-controls { position:sticky; top:0; z-index:30; background:rgba(248,250,252,0.95); backdrop-filter:blur(16px); padding:0.75rem 0; border-bottom:1px solid rgba(226,232,240,0.6); margin-bottom:1.5rem; }
+    :host-context(.dark) .campaigns-controls { background:rgba(15,23,42,0.95); border-color:rgba(51,65,85,0.6); }
     .controls-row { display:flex; gap:1rem; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-    .control { display:flex; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:0 1rem; height:48px; font-size:.9rem; transition:.2s; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
-    .control:focus-within { border-color:#2563eb; ring:2px solid rgba(37,99,235,0.1); }
+    .control { display:flex; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:0 1rem; height:48px; font-size:.9rem; transition:all .2s ease; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+    .control:hover { border-color:#cbd5e1; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+    .control:focus-within { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
     :host-context(.dark) .control { background:#1e293b; border-color:#334155; }
+    :host-context(.dark) .control:hover { border-color:#475569; }
+    :host-context(.dark) .control:focus-within { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.2); }
     .control.search { flex:1; min-width:300px; }
     .control.search input { width:100%; border:none; background:transparent; outline:none; margin-left:.75rem; font-size:.95rem; color:#0f172a; }
     :host-context(.dark) .control.search input { color:#f1f5f9; }
-    .control.select select { border:none; background:transparent; outline:none; font-weight:600; color:#334155; cursor:pointer; }
+    
+    /* Styled Select Dropdowns */
+    .control.select { position:relative; min-width:160px; }
+    .control.select select { 
+      width:100%; 
+      border:none; 
+      background:transparent; 
+      outline:none; 
+      font-weight:600; 
+      color:#334155; 
+      cursor:pointer; 
+      font-size:.9rem;
+      padding-right:1.5rem;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      appearance:none;
+    }
+    .control.select::after {
+      content:'';
+      position:absolute;
+      right:1rem;
+      top:50%;
+      transform:translateY(-50%);
+      width:0;
+      height:0;
+      border-left:5px solid transparent;
+      border-right:5px solid transparent;
+      border-top:5px solid #64748b;
+      pointer-events:none;
+      transition:transform .2s ease;
+    }
+    .control.select:hover::after { border-top-color:#2563eb; }
     :host-context(.dark) .control.select select { color:#e2e8f0; }
+    :host-context(.dark) .control.select:hover::after { border-top-color:#60a5fa; }
+    :host-context(.dark) .control.select::after { border-top-color:#94a3b8; }
+    .select-icon {
+      color:#64748b;
+      flex-shrink:0;
+      margin-right:0.5rem;
+    }
+    :host-context(.dark) .select-icon { color:#94a3b8; }
+    .control.select:hover .select-icon { color:#2563eb; }
+    :host-context(.dark) .control.select:hover .select-icon { color:#60a5fa; }
+    .control.select select option { 
+      background:#fff; 
+      color:#334155; 
+      padding:0.75rem 1rem;
+      font-weight:500;
+    }
+    :host-context(.dark) .control.select select option { 
+      background:#1e293b; 
+      color:#e2e8f0; 
+    }
 
     /* Multi select */
     .control.multi { position:relative; cursor:pointer; }
-    .multi-trigger { display:flex; align-items:center; gap:.75rem; background:transparent; border:none; font-weight:600; color:#334155; font-size:.9rem; }
+    .multi-trigger { 
+      display:flex; 
+      align-items:center; 
+      gap:.75rem; 
+      background:transparent; 
+      border:none; 
+      font-weight:600; 
+      color:#334155; 
+      font-size:.9rem;
+      padding:0.5rem 0;
+      cursor:pointer;
+      transition: all .2s ease;
+    }
+    .multi-trigger.active { color:#2563eb; }
+    .multi-trigger svg.open { transform:rotate(180deg); }
     :host-context(.dark) .multi-trigger { color:#e2e8f0; }
-    .multi-panel { position:absolute; top:56px; left:0; width:280px; background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:1rem; box-shadow:0 20px 40px -5px rgba(0,0,0,0.1); z-index:40; }
+    :host-context(.dark) .multi-trigger.active { color:#60a5fa; }
+    .type-badge {
+      background:#2563eb;
+      color:#fff;
+      font-size:0.7rem;
+      font-weight:700;
+      padding:0.15rem 0.45rem;
+      border-radius:10px;
+      min-width:18px;
+      text-align:center;
+    }
+    .multi-panel { 
+      position:absolute; 
+      top:56px; 
+      left:0; 
+      width:280px; 
+      background:#fff; 
+      border:1px solid #e2e8f0; 
+      border-radius:16px; 
+      padding:1.25rem; 
+      box-shadow:0 20px 40px -5px rgba(0,0,0,0.15); 
+      z-index:40;
+    }
     :host-context(.dark) .multi-panel { background:#1e293b; border-color:#334155; }
-    .multi-options { max-height:200px; overflow-y:auto; display:grid; gap:.5rem; margin-bottom:1rem; }
-    .chk { display:flex; align-items:center; gap:.5rem; padding:.25rem; border-radius:6px; cursor:pointer; transition:.1s; }
+    .multi-options { max-height:200px; overflow-y:auto; display:grid; gap:.25rem; margin-bottom:1rem; }
+    
+    /* Custom Checkbox Styling */
+    .chk { 
+      display:flex; 
+      align-items:center; 
+      gap:.75rem; 
+      padding:.65rem .75rem; 
+      border-radius:10px; 
+      cursor:pointer; 
+      transition:all .15s ease;
+      border:1px solid transparent;
+    }
     .chk:hover { background:#f1f5f9; }
     :host-context(.dark) .chk:hover { background:#334155; }
-    .multi-actions { display:flex; justify-content:flex-end; gap:.5rem; }
+    .chk input[type="checkbox"] {
+      width:18px;
+      height:18px;
+      accent-color:#2563eb;
+      cursor:pointer;
+    }
+    .chk span {
+      font-size:0.925rem;
+      font-weight:500;
+      color:#334155;
+    }
+    :host-context(.dark) .chk span { color:#e2e8f0; }
+    .chk:has(input:checked) {
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    :host-context(.dark) .chk:has(input:checked) {
+      background:rgba(37,99,235,0.15);
+      border-color:rgba(37,99,235,0.3);
+    }
+    
+    .multi-actions { display:flex; justify-content:flex-end; gap:.5rem; padding-top:.75rem; border-top:1px solid #e2e8f0; }
+    :host-context(.dark) .multi-actions { border-top-color:#334155; }
+    .btn-xs { padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:600; border:1px solid #e2e8f0; background:#fff; color:#64748b; cursor:pointer; transition:.2s; }
+    .btn-xs:hover { border-color:#cbd5e1; background:#f8fafc; }
+    .btn-xs.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
+    .btn-xs.primary:hover { background:#1d4ed8; }
+    :host-context(.dark) .btn-xs { background:#0f172a; border-color:#334155; color:#94a3b8; }
+    :host-context(.dark) .btn-xs:hover { background:#1e293b; }
+    :host-context(.dark) .btn-xs.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
 
     /* Stats Strip */
     .stats-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; margin-bottom:3rem; }
@@ -122,8 +252,11 @@ interface Campagne {
     .overlay-gradient { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%); opacity:0.6; }
     
     .status-badge { position:absolute; top:12px; right:12px; padding:.35rem .75rem; border-radius:100px; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#fff; backdrop-filter:blur(4px); box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:2; }
+    .st-active { background:rgba(22,163,74,0.9); }
     .st-open { background:rgba(22,163,74,0.9); }
+    .st-upcoming { background:rgba(59,130,246,0.9); }
     .st-closing-soon { background:rgba(234,88,12,0.9); }
+    .st-ended { background:rgba(100,116,139,0.9); }
     .st-closed { background:rgba(100,116,139,0.9); }
 
     .fav-btn { position:absolute; top:12px; left:12px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.9); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s; z-index:2; color:#94a3b8; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
@@ -173,6 +306,27 @@ interface Campagne {
     .load-more { text-align:center; margin-top:3rem; }
     .btn-load { background:#fff; border:1px solid #e2e8f0; padding:1rem 2.5rem; border-radius:12px; font-weight:600; color:#334155; cursor:pointer; transition:.2s; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
     .btn-load:hover { border-color:#cbd5e1; transform:translateY(-1px); box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); }
+
+    /* Pagination */
+    .pagination-section { display:flex; flex-direction:column; align-items:center; gap:1rem; margin-top:2.5rem; padding:1.5rem; background:#fff; border-radius:16px; border:1px solid #e2e8f0; }
+    :host-context(.dark) .pagination-section { background:#1e293b; border-color:#334155; }
+    .pagination-info { font-size:0.9rem; color:#64748b; }
+    :host-context(.dark) .pagination-info { color:#94a3b8; }
+    .pagination-info strong { color:#0f172a; font-weight:700; }
+    :host-context(.dark) .pagination-info strong { color:#f1f5f9; }
+    .pagination-controls { display:flex; align-items:center; gap:0.5rem; }
+    .btn-page { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:#fff; border:1px solid #e2e8f0; border-radius:8px; font-size:0.875rem; font-weight:600; color:#334155; cursor:pointer; transition:.2s; }
+    .btn-page:hover:not(:disabled) { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+    .btn-page:disabled { opacity:0.5; cursor:not-allowed; }
+    :host-context(.dark) .btn-page { background:#0f172a; border-color:#334155; color:#e2e8f0; }
+    :host-context(.dark) .btn-page:hover:not(:disabled) { border-color:#60a5fa; color:#60a5fa; background:rgba(59,130,246,0.1); }
+    .page-numbers { display:flex; gap:0.25rem; }
+    .page-num { min-width:36px; height:36px; display:flex; align-items:center; justify-content:center; border:1px solid #e2e8f0; border-radius:8px; font-size:0.875rem; font-weight:600; color:#64748b; background:#fff; cursor:pointer; transition:.2s; }
+    .page-num:hover { border-color:#2563eb; color:#2563eb; }
+    .page-num.active { background:#2563eb; border-color:#2563eb; color:#fff; }
+    :host-context(.dark) .page-num { background:#0f172a; border-color:#334155; color:#94a3b8; }
+    :host-context(.dark) .page-num:hover { border-color:#60a5fa; color:#60a5fa; }
+    :host-context(.dark) .page-num.active { background:#2563eb; border-color:#2563eb; color:#fff; }
 
     /* About Section */
     .about-section { padding:5rem 2rem; background:#ffffff; position:relative; overflow:hidden }
@@ -368,6 +522,7 @@ export class CampaignsPage implements OnInit {
 
   totalCampaigns = signal(0);
   pageSize = 9;
+  currentPage = signal(1);
   fetchError = signal('');
 
   // Application modal + form state
@@ -513,7 +668,7 @@ export class CampaignsPage implements OnInit {
         const mapped: Campagne[] = (Array.isArray(data) ? data : []).map((c: any) => ({
           id: c.id,
           nom: c.nom,
-          type: (c.type as any) || 'INSCRIPTION',
+          type: (c.type ? (c.type as string).toUpperCase() : 'INSCRIPTION') as 'INSCRIPTION' | 'REINSCRIPTION' | 'SOUTENANCE',
           anneeUniversitaire: c.anneeUniversitaire || '',
           description: c.description || '',
           dateOuverture: c.dateOuverture,
@@ -572,7 +727,10 @@ export class CampaignsPage implements OnInit {
     // Types multi-select
     const types = this.selectedTypes();
     if (types.length) {
-      list = list.filter(c => types.includes(c.type));
+      list = list.filter(c => {
+        const campaignType = (c.type || '').toUpperCase();
+        return types.some(t => t.toUpperCase() === campaignType);
+      });
     }
 
     // Status
@@ -624,8 +782,53 @@ export class CampaignsPage implements OnInit {
   }
 
   resetPagination(): void {
+    this.currentPage.set(1);
+    this.updateVisibleCampaigns();
+  }
+
+  updateVisibleCampaigns(): void {
     const filtered = this.filteredCampaigns();
-    this.visibleCampaigns.set(filtered.slice(0, this.pageSize));
+    const page = this.currentPage();
+    const start = (page - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.visibleCampaigns.set(filtered.slice(start, end));
+  }
+
+  goToPage(page: number): void {
+    const total = this.getTotalPages();
+    if (page < 1) page = 1;
+    if (page > total) page = total;
+    this.currentPage.set(page);
+    this.updateVisibleCampaigns();
+    // Scroll to top of grid
+    try {
+      const grid = document.querySelector('.campaign-grid');
+      if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { /* ignore */ }
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.filteredCampaigns().length / this.pageSize);
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.getTotalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+    
+    // Show max 5 page numbers
+    let start = Math.max(1, current - 2);
+    let end = Math.min(total, start + 4);
+    
+    // Adjust start if we're near the end
+    if (end - start < 4) {
+      start = Math.max(1, end - 4);
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   loadMore(): void {
@@ -650,6 +853,13 @@ export class CampaignsPage implements OnInit {
 
   clearTypes(): void {
     this.selectedTypes.set([]);
+    this.showTypes.set(false);
+    this.applyFilters();
+  }
+
+  applyTypesAndClose(): void {
+    this.showTypes.set(false);
+    this.applyFilters();
   }
 
   toggleFavorite(id: number): void {

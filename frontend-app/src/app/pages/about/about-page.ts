@@ -19,4 +19,8 @@ export class AboutPage {
   get isLoggedIn(): boolean {
     return this.auth.isLoggedIn ? this.auth.isLoggedIn() : false;
   }
+
+  t(key: string): string {
+    return this.tx.t(key);
+  }
 }

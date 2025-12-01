@@ -274,7 +274,13 @@ public class InscriptionService {
      * Get active campaigns for inscription
      */
     public List<CampagneInscription> getActiveCampagnes() {
-        return campagneRepository.findByActiveTrue();
+        List<CampagneInscription> campagnes = campagneRepository.findByActiveTrue();
+        // Populate nombreDossiers for each campaign
+        for (CampagneInscription campagne : campagnes) {
+            int count = dossierRepository.countByCampagneId(campagne.getId());
+            campagne.setNombreDossiers(count);
+        }
+        return campagnes;
     }
     
     /**
