@@ -92,123 +92,78 @@ export class ApplicationsPage implements OnInit {
   fetchApplications(): void {
     console.log('[ApplicationsPage] Starting fetchApplications()');
     this.loading = true;
-    // Try to get an id from profile, otherwise fallback to parsing JWT token
-    this.authService.getProfile().subscribe({
-      next: (user: any) => {
-        console.log('[ApplicationsPage] Received profile data:', user);
-        let userId: number | null = null;
-        if (user && (user.id || user.userId || user.sub)) {
-          userId = Number(user.id || user.userId || user.sub);
-          console.log('[ApplicationsPage] Extracted userId from profile:', userId);
-        }
 
-        if (!userId) {
-          // Try extracting from token
-          try {
-            const token = this.authService.getToken();
-            console.log('[ApplicationsPage] No userId in profile, attempting token parse...');
-            if (token) {
-              const parts = token.split('.');
-              if (parts.length >= 2) {
-                const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-                const candidate = payload.id || payload.sub || payload.userId || payload.name || payload.email;
-                console.log('[ApplicationsPage] Token payload:', { id: payload.id, sub: payload.sub, userId: payload.userId, name: payload.name, email: payload.email });
-                if (candidate && !isNaN(Number(candidate))) userId = Number(candidate);
-                console.log('[ApplicationsPage] Extracted userId from token:', userId);
-              }
-            }
-          } catch (e) { console.error('[ApplicationsPage] Error parsing token:', e); }
-        }
+    // We rely on the 'me' endpoint which uses the token from the interceptor
+    // This avoids complex and fragile token parsing in the component
+    this.applicationsService.getMyApplications().subscribe({
+      next: (data) => {
+        console.log('[ApplicationsPage] ✓ Received raw data from getMyApplications:', data);
+        console.log('[ApplicationsPage] Number of dossiers received:', Array.isArray(data) ? data.length : 0);
+        
+        // Map dossiers to campaign view model
+        this.allCampaigns = (Array.isArray(data) ? data : []).map(d => {
+          const status = (d.statut || d.status || d.applicationStatus || d.state || 'EN_ATTENTE');
+          const created = d.dateCreation || d.dateSoumission || d.createdAt;
+          const camp = d.campagne || {};
+          
+          // Calculate campaign status (active/ended/upcoming)
+          const campStatus = this.getCampagneStatus(camp);
 
-        if (!userId) {
-          console.warn('[ApplicationsPage] No numeric userId; falling back to /doctorant/me/dashboard endpoint (will ignore 401 gracefully)');
-        }
+          console.log('[ApplicationsPage]   Processing dossier:', {
+            dossierId: d.id,
+            campaignId: camp.id,
+            campaignName: camp.nom,
+            status,
+            created,
+            campStatus
+          });
 
-        console.log('[ApplicationsPage] Calling getMyApplications with userId:', userId ?? '(me)');
-        this.applicationsService.getMyApplications(userId || undefined).subscribe({
-          next: (data) => {
-            console.log('[ApplicationsPage] ✓ Received raw data from getMyApplications:', data);
-            console.log('[ApplicationsPage] Number of dossiers received:', Array.isArray(data) ? data.length : 0);
-            
-            // Map dossiers to campaign view model
-            this.allCampaigns = (Array.isArray(data) ? data : []).map(d => {
-              const status = (d.status || d.statut || d.applicationStatus || d.state);
-              const created = d.dateCreation || d.dateSoumission || d.dateSubmission || d.dateSoumettre || d.createdAt;
-              console.log('[ApplicationsPage]   Processing dossier:', {
-                dossierId: d.id,
-                campaignId: d.campagne?.id,
-                campaignName: d.campagne?.nom,
-                status,
-                created
-              });
-              return {
-                ...d.campagne,
-                applicationStatus: status,
-                applicationDate: created,
-                dossierId: d.id
-              };
-            });
-
-            console.log('[ApplicationsPage] ✓ Mapped to allCampaigns, total:', this.allCampaigns.length);
-            console.log('[ApplicationsPage] All campaigns:', this.allCampaigns.map(c => ({ id: c.id, nom: c.nom, status: c.applicationStatus })));
-
-            // Persist applied campaign ids so campaigns page can read them from localStorage
-            try {
-              const ids = this.allCampaigns.map(c => c.id).filter(Boolean) as number[];
-              const key = (this.authService && typeof this.authService.getAppliedKeyForUser === 'function')
-                ? this.authService.getAppliedKeyForUser()
-                : 'campaign_applied';
-              console.log('[ApplicationsPage] Saving applied campaign IDs to localStorage:', { key, ids });
-              if (key) localStorage.setItem(key, JSON.stringify(ids));
-            } catch (e) { console.error('[ApplicationsPage] Error saving to localStorage:', e); }
-
-            this.applyFilters();
-            this.loading = false;
-            console.log('[ApplicationsPage] ✓ fetchApplications() complete. Final campaigns count:', this.campaigns.length);
-          },
-          error: (err) => {
-            if (err && (err.status === 401 || err.status === 403)) {
-              console.warn('[ApplicationsPage] Received unauthorized when fetching applications. Keeping session and showing empty state.');
-              // Do not clear auth or propagate logout; just show empty
-              this.allCampaigns = [];
-              this.campaigns = [];
-              this.loading = false;
-              return;
-            }
-            console.error('[ApplicationsPage] ✗ Failed to fetch applications from backend:', err);
-            this.loading = false;
-            this.allCampaigns = [];
-            this.campaigns = [];
-          }
+          return {
+            ...camp,
+            // Ensure we have fallback for critical fields if they are missing in 'camp'
+            nom: camp.nom || 'Campagne sans nom',
+            description: camp.description || '',
+            status: campStatus, // Campaign status (OPEN/CLOSED)
+            applicationStatus: status, // Application status (SUBMITTED/APPROVED)
+            applicationDate: created,
+            dossierId: d.id
+          };
         });
+
+        console.log('[ApplicationsPage] ✓ Mapped to allCampaigns, total:', this.allCampaigns.length);
+
+        // Persist applied campaign ids so campaigns page can read them from localStorage
+        try {
+          const ids = this.allCampaigns.map(c => c.id).filter(Boolean) as number[];
+          const key = (this.authService && typeof this.authService.getAppliedKeyForUser === 'function')
+            ? this.authService.getAppliedKeyForUser()
+            : 'campaign_applied';
+          console.log('[ApplicationsPage] Saving applied campaign IDs to localStorage:', { key, ids });
+          if (key) localStorage.setItem(key, JSON.stringify(ids));
+        } catch (e) { console.error('[ApplicationsPage] Error saving to localStorage:', e); }
+
+        this.applyFilters();
+        this.loading = false;
       },
       error: (err) => {
-        console.error('[ApplicationsPage] ✗ Failed to fetch profile:', err);
-        // If profile fails with 401, attempt direct fallback to /doctorant/me/dashboard without userId
-        if (err && (err.status === 401 || err.status === 403)) {
-          console.warn('[ApplicationsPage] Profile unauthorized; attempting fallback applications fetch using /me/dashboard');
-          this.applicationsService.getMyApplications(undefined).subscribe({
-            next: (data) => {
-              console.log('[ApplicationsPage] ✓ Fallback received', data?.length || 0, 'dossiers');
-              this.allCampaigns = (Array.isArray(data) ? data : []).map(d => ({
-                ...d.campagne,
-                applicationStatus: (d.status || d.statut),
-                applicationDate: d.dateSoumission || d.dateCreation,
-                dossierId: d.id
-              }));
-              this.applyFilters();
-              this.loading = false;
-            },
-            error: (e2) => {
-              console.error('[ApplicationsPage] Fallback fetch also failed:', e2);
-              this.loading = false;
-            }
-          });
-          return;
-        }
+        console.error('[ApplicationsPage] ✗ Failed to fetch applications from backend:', err);
         this.loading = false;
+        this.allCampaigns = [];
+        this.campaigns = [];
       }
     });
+  }
+
+  getCampagneStatus(c: any): string {
+    if (!c || !c.dateOuverture || !c.dateFermeture) return '';
+    const now = new Date();
+    const ouverture = new Date(c.dateOuverture);
+    const fermeture = new Date(c.dateFermeture);
+
+    if (c.active === false) return 'closed'; // Explicitly inactive
+    if (now < ouverture) return 'upcoming';
+    if (now > fermeture) return 'closed';
+    return 'open';
   }
 
   // Note: key generation delegated to AuthService.getAppliedKeyForUser()
@@ -221,34 +176,38 @@ export class ApplicationsPage implements OnInit {
     if (this.searchQuery && this.searchQuery.trim()){
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c => (c.nom||'').toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q));
-      console.log('[ApplicationsPage] After search filter:', list.length);
     }
     // types
     if (this.selectedTypes.length){ 
       list = list.filter(c => this.selectedTypes.includes(c.type));
-      console.log('[ApplicationsPage] After type filter:', list.length);
     }
     // status
     if (this.filterStatus !== 'all'){
       const now = new Date();
       list = list.filter(c=>{
-        const ouverture = new Date(c.dateOuverture||0);
-        const fermeture = new Date(c.dateFermeture||0);
+        if (!c.dateOuverture || !c.dateFermeture) return true; // Keep if dates are missing
+        const ouverture = new Date(c.dateOuverture);
+        const fermeture = new Date(c.dateFermeture);
         if (this.filterStatus==='active') return c.active && now>=ouverture && now<=fermeture;
         if (this.filterStatus==='upcoming') return now < ouverture;
         if (this.filterStatus==='ended') return now > fermeture;
         return true;
       });
-      console.log('[ApplicationsPage] After status filter:', list.length);
     }
     // sort
     if (this.sortKey === 'deadline') {
-      list.sort((a,b)=> new Date(a.dateFermeture).getTime() - new Date(b.dateFermeture).getTime());
-      console.log('[ApplicationsPage] Sorted by deadline');
+      list.sort((a,b)=> {
+        if (!a.dateFermeture) return 1;
+        if (!b.dateFermeture) return -1;
+        return new Date(a.dateFermeture).getTime() - new Date(b.dateFermeture).getTime();
+      });
     }
     if (this.sortKey === 'recent') {
-      list.sort((a,b)=> new Date(b.dateOuverture).getTime() - new Date(a.dateOuverture).getTime());
-      console.log('[ApplicationsPage] Sorted by recent');
+      list.sort((a,b)=> {
+        if (!a.dateOuverture) return 1;
+        if (!b.dateOuverture) return -1;
+        return new Date(b.dateOuverture).getTime() - new Date(a.dateOuverture).getTime();
+      });
     }
 
     this.campaigns = list;

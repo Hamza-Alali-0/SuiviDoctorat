@@ -61,11 +61,9 @@ export class ApplicationsService {
     console.log('[ApplicationsService] Prepared DTO with campagneId:', dto.campagneId);
 
     // 2. Submit Form Data (JSON)
-    // If a doctorantId is provided, use the doctorant-specific endpoint so the backend
-    // associates the created dossier with the user reliably.
-    const endpoint = dto.doctorantId
-      ? `/inscription-service/api/inscriptions/doctorant/${dto.doctorantId}/soumettre`
-      : this.submitUrl;
+    // Always use the main submission endpoint which handles InscriptionFormDTO
+    // and correctly links to the doctorant if doctorantId is present in the DTO.
+    const endpoint = this.submitUrl;
     console.log('[ApplicationsService] Using endpoint:', endpoint);
 
     const submit$ = this.http.post<any>(endpoint, dto);

@@ -452,54 +452,117 @@ interface Campagne {
     }
 
     /* Modal (application form) */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.45); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1.25rem; }
-    .modal-container { background: #fff; width:100%; max-width:980px; max-height:90vh; overflow:auto; border-radius:12px; box-shadow:0 20px 50px rgba(2,6,23,0.4); border:1px solid rgba(226,232,240,0.6); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:1000; padding:1.5rem; }
+    .modal-container { background: #fff; width:100%; max-width:1100px; height:min(90vh, 900px); display:flex; flex-direction:column; border-radius:16px; box-shadow:0 25px 60px rgba(2,6,23,0.5); border:1px solid rgba(226,232,240,0.6); }
     :host-context(.dark) .modal-container { background:#071127; color:#e6eefb; border-color:rgba(51,65,85,0.6); }
-    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(230,237,247,0.8); }
-    :host-context(.dark) .modal-header { border-bottom-color:rgba(51,65,85,0.6); }
-    .modal-body { padding:16px; }
-    .modal-close { background:transparent; border:1px solid #e6edf7; padding:6px 8px; border-radius:6px; cursor:pointer; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.75rem; border-bottom:1px solid rgba(230,237,247,0.8); flex-shrink:0; background:#f8fafc; border-radius:16px 16px 0 0; }
+    :host-context(.dark) .modal-header { border-bottom-color:rgba(51,65,85,0.6); background:#0f172a; }
+    .modal-header h2 { margin:0; font-size:1.5rem; font-weight:700; color:#0f172a; }
+    :host-context(.dark) .modal-header h2 { color:#f8fafc; }
+    .modal-body { padding:1.75rem; flex:1; overflow-y:auto; }
+    .modal-body::-webkit-scrollbar { width:8px; }
+    .modal-body::-webkit-scrollbar-track { background:#f1f5f9; border-radius:4px; }
+    .modal-body::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
+    .modal-body::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+    :host-context(.dark) .modal-body::-webkit-scrollbar-track { background:#1e293b; }
+    :host-context(.dark) .modal-body::-webkit-scrollbar-thumb { background:#475569; }
+    :host-context(.dark) .modal-body::-webkit-scrollbar-thumb:hover { background:#64748b; }
+    .modal-close { background:transparent; border:1px solid #e6edf7; padding:8px 10px; border-radius:8px; cursor:pointer; transition:.2s; color:#64748b; }
+    .modal-close:hover { background:#f1f5f9; border-color:#cbd5e1; color:#334155; }
+    :host-context(.dark) .modal-close { border-color:#334155; color:#94a3b8; }
+    :host-context(.dark) .modal-close:hover { background:#1e293b; border-color:#475569; color:#e2e8f0; }
     :host-context(.dark) .modal-close { border-color:#334155; }
 
-    .application-form .form-section { margin-bottom:1rem; }
-    .application-form .form-row { display:flex; gap:1rem; flex-wrap:wrap; }
-    .application-form .form-group { flex:1; min-width:180px; display:flex; flex-direction:column; gap:6px; }
+    .application-form .form-section { margin-bottom:1.75rem; background:#f8fafc; padding:1.5rem; border-radius:12px; border:1px solid #e2e8f0; }
+    .application-form .form-section h4 { margin:0 0 1.25rem; font-size:1.125rem; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:0.5rem; }
+    .application-form .form-section h4::before { content:''; width:4px; height:20px; background:#2563eb; border-radius:2px; }
+    :host-context(.dark) .application-form .form-section { background:#1e293b; border-color:#334155; }
+    :host-context(.dark) .application-form .form-section h4 { color:#f8fafc; }
+    .application-form .form-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .application-form .form-group { flex:1; min-width:220px; display:flex; flex-direction:column; gap:0.5rem; }
+    .application-form .form-group label { font-size:0.9rem; font-weight:600; color:#334155; display:flex; align-items:center; gap:0.25rem; }
+    :host-context(.dark) .application-form .form-group label { color:#e2e8f0; }
+    .application-form .form-group .required { color:#dc2626; font-weight:700; }
     .application-form .form-group input,
     .application-form .form-group select,
-    .application-form .form-group textarea { padding:0.5rem; border:1px solid #e2e8f0; border-radius:6px; background:transparent; }
+    .application-form .form-group textarea { padding:0.65rem 0.875rem; border:1px solid #e2e8f0; border-radius:8px; background:#fff; font-size:0.95rem; transition:.2s; }
+    .application-form .form-group input:focus,
+    .application-form .form-group select:focus,
+    .application-form .form-group textarea:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
     :host-context(.dark) .application-form .form-group input,
     :host-context(.dark) .application-form .form-group select,
-    :host-context(.dark) .application-form .form-group textarea { background:transparent; border-color:#334155; color:#e6eefb; }
+    :host-context(.dark) .application-form .form-group textarea { background:#0f172a; border-color:#334155; color:#e6eefb; }
+    :host-context(.dark) .application-form .form-group input:focus,
+    :host-context(.dark) .application-form .form-group select:focus,
+    :host-context(.dark) .application-form .form-group textarea:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,0.1); }
 
-    .form-actions { display:flex; justify-content:flex-end; gap:0.75rem; padding:12px 0; }
-    .btn-cancel { background:transparent; border:1px solid #cbd5e1; padding:.6rem 1rem; border-radius:8px; cursor:pointer; }
-    .btn-submit { background:#2563eb; color:#fff; border:none; padding:.6rem 1rem; border-radius:8px; cursor:pointer; }
+    .form-actions { display:flex; justify-content:flex-end; gap:0.875rem; padding:1.5rem 1.75rem; border-top:1px solid #e2e8f0; background:#f8fafc; border-radius:0 0 16px 16px; flex-shrink:0; position:sticky; bottom:0; }
+    :host-context(.dark) .form-actions { border-top-color:#334155; background:#0f172a; }
+    .btn-cancel { background:#fff; border:1px solid #cbd5e1; padding:0.65rem 1.5rem; border-radius:8px; cursor:pointer; font-weight:600; color:#334155; transition:.2s; }
+    .btn-cancel:hover { background:#f8fafc; border-color:#94a3b8; }
+    :host-context(.dark) .btn-cancel { background:#1e293b; border-color:#475569; color:#e2e8f0; }
+    :host-context(.dark) .btn-cancel:hover { background:#0f172a; border-color:#64748b; }
+    .btn-submit { background:#2563eb; color:#fff; border:none; padding:0.65rem 1.75rem; border-radius:8px; cursor:pointer; font-weight:600; box-shadow:0 4px 6px -1px rgba(37,99,235,0.2); transition:.2s; }
+    .btn-submit:hover:not(:disabled) { background:#1d4ed8; box-shadow:0 6px 8px -1px rgba(37,99,235,0.3); transform:translateY(-1px); }
+    .btn-submit:disabled { opacity:0.6; cursor:not-allowed; }
 
-    .submit-error { margin-top:0.75rem; color:#b91c1c; background:#fee2e2; padding:.6rem; border-radius:6px; }
-    .submit-success { margin-top:0.75rem; color:#065f46; background:#ecfdf5; padding:.6rem; border-radius:6px; }
+    .campaign-info { margin-bottom:1.5rem; padding:1.25rem; background:linear-gradient(135deg, #eff6ff, #f0f9ff); border-radius:12px; border:1px solid #bfdbfe; }
+    :host-context(.dark) .campaign-info { background:linear-gradient(135deg, rgba(37,99,235,0.1), rgba(59,130,246,0.05)); border-color:rgba(59,130,246,0.2); }
+    .campaign-info h3 { margin:0 0 0.5rem; font-size:1.25rem; font-weight:700; color:#1e40af; }
+    :host-context(.dark) .campaign-info h3 { color:#93c5fd; }
+    .campaign-meta { margin:0; font-size:0.9rem; color:#3b82f6; font-weight:500; }
+    :host-context(.dark) .campaign-meta { color:#60a5fa; }
+
+    .submit-error { margin:0 0 1.5rem; color:#b91c1c; background:#fee2e2; padding:0.875rem 1.125rem; border-radius:10px; border:1px solid #fecaca; font-weight:500; display:flex; align-items:start; gap:0.75rem; animation:slideDown 0.3s ease; }
+    .submit-error::before { content:'⚠'; font-size:1.25rem; flex-shrink:0; }
+    .submit-success { margin:0 0 1.5rem; color:#065f46; background:#d1fae5; padding:0.875rem 1.125rem; border-radius:10px; border:1px solid #a7f3d0; font-weight:500; display:flex; align-items:start; gap:0.75rem; animation:slideDown 0.3s ease; }
+    .submit-success::before { content:'✓'; font-size:1.25rem; flex-shrink:0; }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    :host-context(.dark) .submit-error { background:#7f1d1d; border-color:#991b1b; color:#fecaca; }
+    :host-context(.dark) .submit-success { background:#064e3b; border-color:#065f46; color:#a7f3d0; }
 
     /* Wizard Styles */
-    .wizard-progress { display:flex; justify-content:space-between; margin-bottom:2rem; position:relative; }
-    .wizard-progress::before { content:''; position:absolute; top:14px; left:0; right:0; height:2px; background:#e2e8f0; z-index:0; }
+    .wizard-progress { display:flex; justify-content:space-between; margin-bottom:2.5rem; position:relative; padding:0 2rem; }
+    .wizard-progress::before { content:''; position:absolute; top:16px; left:10%; right:10%; height:3px; background:#e2e8f0; z-index:0; }
     :host-context(.dark) .wizard-progress::before { background:#334155; }
-    .step-indicator { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:0.5rem; cursor:pointer; }
-    .step-num { width:30px; height:30px; border-radius:50%; background:#fff; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; color:#64748b; transition:.2s; }
+    .step-indicator { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:0.625rem; cursor:pointer; transition:.2s; }
+    .step-indicator:hover .step-num { transform:scale(1.05); }
+    .step-num { width:34px; height:34px; border-radius:50%; background:#fff; border:3px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; color:#64748b; transition:.3s; }
     :host-context(.dark) .step-num { background:#1e293b; border-color:#334155; color:#94a3b8; }
-    .step-indicator.active .step-num { border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 0 0 4px rgba(37,99,235,0.1); }
-    .step-indicator.completed .step-num { border-color:#2563eb; background:#2563eb; color:#fff; }
-    .step-label { font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; }
+    .step-indicator.active .step-num { border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 0 0 5px rgba(37,99,235,0.15); transform:scale(1.1); }
+    .step-indicator.completed .step-num { border-color:#10b981; background:#10b981; color:#fff; }
+    .step-indicator.completed .step-num::before { content:'✓'; }
+    .step-label { font-size:0.8rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; text-align:center; }
     .step-indicator.active .step-label { color:#2563eb; }
+    .step-indicator.completed .step-label { color:#10b981; }
+    :host-context(.dark) .step-indicator.active .step-label { color:#60a5fa; }
+    :host-context(.dark) .step-indicator.completed .step-label { color:#34d399; }
     
     .wizard-step { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     
-    .file-upload-box { border:2px dashed #cbd5e1; border-radius:8px; padding:1.5rem; text-align:center; transition:.2s; cursor:pointer; position:relative; }
-    .file-upload-box:hover { border-color:#2563eb; background:#f8fafc; }
-    :host-context(.dark) .file-upload-box { border-color:#475569; }
-    :host-context(.dark) .file-upload-box:hover { background:#1e293b; border-color:#60a5fa; }
+    .file-upload-box { border:2px dashed #cbd5e1; border-radius:10px; padding:2rem 1.5rem; text-align:center; transition:.3s; cursor:pointer; position:relative; background:#f8fafc; }
+    .file-upload-box:hover { border-color:#2563eb; background:#eff6ff; transform:translateY(-2px); }
+    .file-upload-box.has-file { border-color:#10b981; background:#ecfdf5; }
+    :host-context(.dark) .file-upload-box { border-color:#475569; background:#1e293b; }
+    :host-context(.dark) .file-upload-box:hover { background:rgba(37,99,235,0.1); border-color:#60a5fa; }
+    :host-context(.dark) .file-upload-box.has-file { border-color:#34d399; background:rgba(16,185,129,0.1); }
     .file-input { position:absolute; inset:0; opacity:0; cursor:pointer; }
-    .file-info { display:flex; flex-direction:column; align-items:center; gap:0.5rem; pointer-events:none; }
-    .file-name { font-size:0.9rem; font-weight:600; color:#2563eb; }
+    .file-info { display:flex; flex-direction:column; align-items:center; gap:0.625rem; pointer-events:none; }
+    .file-info svg { color:#94a3b8; transition:.2s; }
+    .file-upload-box:hover .file-info svg { color:#2563eb; transform:translateY(-3px); }
+    .file-upload-box.has-file .file-info svg { color:#10b981; }
+    .file-name { font-size:0.9rem; font-weight:600; color:#2563eb; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-upload-box.has-file .file-name { color:#059669; }
+    
+    .checkbox-group { margin-top:1rem; }
+    .checkbox-label { display:flex; align-items:start; gap:0.75rem; cursor:pointer; padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; transition:.2s; }
+    .checkbox-label:hover { background:#eff6ff; border-color:#bfdbfe; }
+    .checkbox-label input[type=\"checkbox\"] { width:20px; height:20px; accent-color:#2563eb; cursor:pointer; margin-top:2px; }
+    .checkbox-label span { font-size:0.95rem; line-height:1.5; color:#334155; }
+    :host-context(.dark) .checkbox-label { background:#1e293b; border-color:#334155; }
+    :host-context(.dark) .checkbox-label:hover { background:rgba(37,99,235,0.1); border-color:rgba(37,99,235,0.3); }
+    :host-context(.dark) .checkbox-label span { color:#e2e8f0; }
   `]
 })
 export class CampaignsPage implements OnInit {
@@ -629,7 +692,7 @@ export class CampaignsPage implements OnInit {
             this.applicationForm.email = user.email || this.applicationForm.email;
             
             // Load applied campaigns from backend to ensure accuracy
-            this.loadAppliedFromBackend(this.currentUserId);
+            this.loadAppliedFromBackend();
           } else {
             console.warn('[CampaignsPage] Profile loaded but no ID found:', user);
             this.tryExtractIdFromToken();
@@ -978,6 +1041,10 @@ export class CampaignsPage implements OnInit {
 
     // Open application modal and set selected campaign
     this.selectedCampaign.set(c);
+    
+    // Auto-fill form from user profile
+    this.autoFillFormFromProfile();
+    
     this.showApplicationModal.set(true);
   }
 
@@ -1174,14 +1241,14 @@ export class CampaignsPage implements OnInit {
         this.submitting.set(false);
         this.submitSuccess.set('Votre candidature a été envoyée avec succès. Nous vous enverrons un email de confirmation.');
 
-        // Update local state
+        // Update local state IMMEDIATELY
         const ids = new Set(this.appliedCampaignIds());
         console.log('[CampaignsPage] Before adding campaign ID, appliedCampaignIds:', Array.from(ids));
         ids.add(campaign.id!);
         console.log('[CampaignsPage] After adding campaign ID, appliedCampaignIds:', Array.from(ids));
         this.appliedCampaignIds.set(ids);
 
-        // persist applied ids for the logged in user
+        // Persist applied ids for the logged in user
         try {
           this.saveApplied();
           console.log('[CampaignsPage] ✓ Saved applied IDs to localStorage');
@@ -1194,57 +1261,42 @@ export class CampaignsPage implements OnInit {
           console.log('[CampaignsPage] ✓ Notified ApplicationsService of update');
         } catch (e) { console.error('[CampaignsPage] Failed to notify:', e); }
 
-        // Refresh applied campaign ids from backend (canonical source) so UI reflects DB
-        (async () => {
-          try {
-            let userId: number | null = this.currentUserId || null;
-            if (!userId) {
-              const token = this.auth.getToken ? this.auth.getToken() : null;
-              if (token) {
-                try {
-                  const parts = token.split('.');
-                  if (parts.length >= 2) {
-                    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-                    const cand = payload.id || payload.sub || payload.userId || payload.name || payload.email;
-                    if (cand && !isNaN(Number(cand))) userId = Number(cand);
-                    console.log('[CampaignsPage] Extracted userId from token:', userId);
+        // Refresh applied campaign ids from backend (canonical source) to ensure DB sync
+        // Use a short delay to allow backend transaction to complete
+        setTimeout(() => {
+            console.log('[CampaignsPage] Refreshing applications from backend...');
+            this.applicationsService.getMyApplications().subscribe({
+              next: (data: any[]) => {
+                console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
+                const appliedIds = new Set<number>();
+                
+                // Extract campaign IDs from backend response
+                (Array.isArray(data) ? data : []).forEach(d => {
+                  if (d && d.campagne && d.campagne.id) {
+                    appliedIds.add(d.campagne.id);
+                    console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
                   }
-                } catch (e) { console.error('[CampaignsPage] Failed to parse token:', e); }
+                });
+
+                // Ensure the just-submitted campaign is in the set (should be from backend)
+                if (campaign.id && !appliedIds.has(campaign.id)) {
+                  console.warn('[CampaignsPage] WARNING: Just-submitted campaign', campaign.id, 'not yet in backend response. Adding manually.');
+                  appliedIds.add(campaign.id);
+                }
+
+                console.log('[CampaignsPage] Final appliedIds from backend:', Array.from(appliedIds));
+                this.appliedCampaignIds.set(appliedIds);
+                try { this.saveApplied(); } catch (e) { /* ignore */ }
+                
+                // Refresh the campaigns list to update counts
+                this.loadCampaigns();
+              },
+              error: (err) => {
+                console.error('[CampaignsPage] ✗ Failed to refresh applied ids from backend:', err);
+                // Keep local state as is
               }
-            }
-
-            if (userId) {
-              console.log('[CampaignsPage] Refreshing applications from backend for userId:', userId);
-              this.applicationsService.getMyApplications(userId).subscribe({
-                next: (data: any[]) => {
-                  console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
-                  try {
-                    // Start with the current set of applied IDs (which includes the one we just added)
-                    const appliedIds = new Set<number>(this.appliedCampaignIds());
-
-                    // Add any IDs found in the backend response
-                    (Array.isArray(data) ? data : []).forEach(d => {
-                      if (d && d.campagne && d.campagne.id) {
-                        appliedIds.add(d.campagne.id);
-                        console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
-                      }
-                    });
-
-                    // Ensure the just-submitted campaign is definitely in the set
-                    if (campaign.id) appliedIds.add(campaign.id);
-
-                    console.log('[CampaignsPage] Final merged appliedIds:', Array.from(appliedIds));
-                    this.appliedCampaignIds.set(appliedIds);
-                    try { this.saveApplied(); } catch (e) { /* ignore */ }
-                  } catch (e) { console.error('[CampaignsPage] Error processing applications:', e); }
-                },
-                error: (err) => console.error('[CampaignsPage] ✗ Failed to refresh applied ids from backend:', err)
-              });
-            } else {
-              console.warn('[CampaignsPage] WARNING: Could not determine userId for backend refresh');
-            }
-          } catch (e) { console.error('[CampaignsPage] Error in async refresh:', e); }
-        })();
+            });
+        }, 500); // 500ms delay to allow backend transaction to complete
 
         // keep modal open briefly to show success
         console.log('[CampaignsPage] Closing modal in 2500ms...');
@@ -1292,9 +1344,9 @@ export class CampaignsPage implements OnInit {
   }
 
   // Load applied campaigns from backend on component init
-  private loadAppliedFromBackend(userId: number): void {
-    console.log('[CampaignsPage] Loading applied campaigns from backend for userId:', userId);
-    this.applicationsService.getMyApplications(userId).subscribe({
+  private loadAppliedFromBackend(): void {
+    console.log('[CampaignsPage] Loading applied campaigns from backend (via /me/dashboard)...');
+    this.applicationsService.getMyApplications().subscribe({
       next: (data: any[]) => {
         console.log('[CampaignsPage] ✓ Loaded applications from backend:', data.length, 'applications');
         const appliedIds = new Set<number>();
@@ -1316,5 +1368,82 @@ export class CampaignsPage implements OnInit {
         // Keep localStorage data as fallback
       }
     });
+  }
+
+  /**
+   * Auto-fill form from user profile to speed up the application process
+   * Matches the profile page structure for consistency
+   */
+  private autoFillFormFromProfile(): void {
+    console.log('[CampaignsPage] Auto-filling form from profile...');
+    this.auth.getProfile().subscribe({
+      next: (rawProfile: any) => {
+        console.log('[CampaignsPage] ✓ Profile loaded for auto-fill:', rawProfile);
+        
+        // Normalize profile (handle different backend field names)
+        const profile = this.normalizeProfileData(rawProfile);
+        
+        // Personal info - map from normalized profile
+        if (profile.firstName) this.applicationForm.prenom = profile.firstName;
+        if (profile.lastName) this.applicationForm.nom = profile.lastName;
+        if (profile.email) this.applicationForm.email = profile.email;
+        if (profile.phone) this.applicationForm.telephone = profile.phone;
+        if (profile.dateNaissance) this.applicationForm.dateNaissance = profile.dateNaissance;
+        if (profile.lieuNaissance) this.applicationForm.lieuNaissance = profile.lieuNaissance;
+        if (profile.nationalite) this.applicationForm.nationalite = profile.nationalite;
+        if (profile.cin) this.applicationForm.cin = profile.cin;
+        if (profile.address) this.applicationForm.adresse = profile.address;
+        if (profile.sexe) this.applicationForm.sexe = profile.sexe;
+        
+        // Academic info
+        if (profile.diplomesPrecedents) this.applicationForm.diplomesPrecedents = profile.diplomesPrecedents;
+        if (profile.etablissementOrigine) this.applicationForm.etablissementOrigine = profile.etablissementOrigine;
+        
+        // Research info from thesis data
+        if (profile.thesisTitle) this.applicationForm.sujetThese = profile.thesisTitle;
+        if (profile.thesisDirector) this.applicationForm.directeurThese = profile.thesisDirector;
+        if (profile.laboratory) this.applicationForm.laboratoire = profile.laboratory;
+        
+        console.log('[CampaignsPage] ✓ Form auto-filled from profile. Filled fields:', {
+          personal: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
+          email: profile.email || 'N/A',
+          phone: profile.phone || 'N/A',
+          thesis: profile.thesisTitle || 'N/A'
+        });
+      },
+      error: (err) => {
+        console.error('[CampaignsPage] Failed to load profile for auto-fill:', err);
+        // Continue without auto-fill
+      }
+    });
+  }
+
+  /**
+   * Normalize profile data from various backend field name formats
+   * Mirrors the normalization logic from profile page
+   */
+  private normalizeProfileData(raw: any): any {
+    if (!raw) return {};
+    // Unwrap possible containers
+    if (raw.user) raw = raw.user;
+    if (raw.data) raw = raw.data;
+    
+    return {
+      firstName: raw.firstName || raw.firstname || raw.givenName || raw.given_name || raw.first_name || raw.prenom || '',
+      lastName: raw.lastName || raw.lastname || raw.familyName || raw.family_name || raw.last_name || raw.nom || '',
+      email: raw.email || raw.mail || '',
+      phone: raw.phone || raw.telephone || raw.phoneNumber || raw.phone_number || '',
+      address: raw.address || raw.location || raw.adresse || '',
+      dateNaissance: raw.dateNaissance || raw.date_naissance || raw.birthDate || raw.birth_date || '',
+      lieuNaissance: raw.lieuNaissance || raw.lieu_naissance || raw.birthPlace || raw.birth_place || '',
+      nationalite: raw.nationalite || raw.nationality || '',
+      cin: raw.cin || raw.national_id || raw.id_number || '',
+      sexe: raw.sexe || raw.gender || raw.sex || 'M',
+      thesisTitle: raw.thesisTitle || raw.thesis_title || raw.sujetThese || raw.subject || '',
+      thesisDirector: raw.thesisDirector || raw.director || raw.directeurThese || raw.supervisor || '',
+      laboratory: raw.laboratory || raw.lab || raw.laboratoire || raw.institution || '',
+      diplomesPrecedents: raw.diplomesPrecedents || raw.diplomes_precedents || raw.previous_degrees || '',
+      etablissementOrigine: raw.etablissementOrigine || raw.etablissement_origine || raw.origin_institution || ''
+    };
   }
 }

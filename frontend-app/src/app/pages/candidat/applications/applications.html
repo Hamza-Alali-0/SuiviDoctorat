@@ -31,31 +31,32 @@
     <article *ngFor="let c of campaigns" class="campaign-card">
       <div class="card-header">
         <div class="banner-wrapper">
-          <img class="banner" [src]="c.bannerUrl || c.image || c.banner || c.cover || '/assets/default-banner.jpg'" [alt]="c.nom || c.title || 'Banner'" />
+          <img class="banner" [src]="c.photoCouverture || c.bannerUrl || '/assets/default-banner.jpg'" [alt]="c.nom || 'Campagne'" />
           <div class="overlay-gradient"></div>
           <div class="status-badge" *ngIf="c.status" [ngClass]="'st-' + c.status">{{ c.status }}</div>
           <div class="app-status" *ngIf="c.applicationStatus">
             {{ c.applicationStatus }}
           </div>
         </div>
-        <div class="logo-box" *ngIf="c.universityLogo || c.logo">
-          <img [src]="c.universityLogo || c.logo" [alt]="c.university || 'Logo'" />
+        <div class="logo-box" *ngIf="c.logoEcole || c.universityLogo">
+          <img [src]="c.logoEcole || c.universityLogo" [alt]="c.etablissement || 'Logo'" />
         </div>
       </div>
       <div class="card-body">
-        <div class="uni-name" *ngIf="c.university">{{ c.university }}</div>
+        <div class="uni-name" *ngIf="c.etablissement || c.university">{{ c.etablissement || c.university }}</div>
         <h3 class="card-title">{{ c.nom || c.title }}</h3>
         <p class="card-desc">{{ c.description }}</p>
+        
         <div class="card-meta">
-          <div><strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong></div>
+          <div>
+            <strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong>
+            <div class="dates" *ngIf="c.dateOuverture || c.dateFermeture">{{ formatDateRange(c.dateOuverture, c.dateFermeture) }}</div>
+          </div>
           <div>
             <a [routerLink]="['/campaigns', c.id]" class="btn-ghost">Voir</a>
-            <div class="card-meta">
-              <div>
-                <strong>{{ c.anneeUniversitaire || c.annee || c.year }}</strong>
-                <div class="dates" *ngIf="c.dateOuverture || c.dateFermeture">{{ formatDateRange(c.dateOuverture, c.dateFermeture) }}</div>
-              </div>
-              <div>
-                <a [routerLink]="['/campaigns', c.id]" class="btn-ghost">Voir</a>
-              </div>
-            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>

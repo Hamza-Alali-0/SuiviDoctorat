@@ -313,6 +313,10 @@
     </div>
 
     <div class="modal-body">
+      <!-- Errors and Success Messages - TOP -->
+      <div *ngIf="submitError()" class="submit-error">{{ submitError() }}</div>
+      <div *ngIf="submitSuccess()" class="submit-success">{{ submitSuccess() }}</div>
+
       <div class="campaign-info" *ngIf="selectedCampaign()">
         <h3>{{ selectedCampaign()!.nom }}</h3>
         <p class="campaign-meta">{{ selectedCampaign()!.etablissement }} • {{ getTypeLabel(selectedCampaign()!.type) }}</p>
@@ -448,10 +452,10 @@
             <div class="form-row">
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.cv') }} <span class="required">*</span></label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['cv']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'cv')" accept=".pdf" required />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['cv']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['cv']" class="file-name">{{ getFileName('cv') }}</span>
                   </div>
@@ -459,10 +463,10 @@
               </div>
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.cover') }}</label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['coverLetter']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'coverLetter')" accept=".pdf" />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['coverLetter']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['coverLetter']" class="file-name">{{ getFileName('coverLetter') }}</span>
                   </div>
@@ -472,10 +476,10 @@
             <div class="form-row">
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.diplomas') }} <span class="required">*</span></label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['diplomas']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'diplomas')" accept=".pdf" required />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['diplomas']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['diplomas']" class="file-name">{{ getFileName('diplomas') }}</span>
                   </div>
@@ -483,10 +487,10 @@
               </div>
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.transcripts') }}</label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['transcripts']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'transcripts')" accept=".pdf" />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['transcripts']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['transcripts']" class="file-name">{{ getFileName('transcripts') }}</span>
                   </div>
@@ -496,10 +500,10 @@
             <div class="form-row">
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.photo') }}</label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['photo']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'photo')" accept="image/*" />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['photo']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['photo']" class="file-name">{{ getFileName('photo') }}</span>
                   </div>
@@ -507,10 +511,10 @@
               </div>
               <div class="form-group">
                 <label>{{ tx.t('campaignDetail.wizard.documents.cin') }}</label>
-                <div class="file-upload-box">
+                <div class="file-upload-box" [class.has-file]="uploadedFiles()['cin']">
                   <input type="file" class="file-input" (change)="onFileChange($event, 'cin')" accept=".pdf,image/*" />
                   <div class="file-info">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span *ngIf="!uploadedFiles()['cin']">{{ tx.t('campaignDetail.wizard.documents.upload') }}</span>
                     <span *ngIf="uploadedFiles()['cin']" class="file-name">{{ getFileName('cin') }}</span>
                   </div>
@@ -540,9 +544,6 @@
             {{ submitting() ? tx.t('campaignDetail.wizard.actions.submitting') : tx.t('campaignDetail.wizard.actions.submit') }}
           </button>
         </div>
-
-        <div *ngIf="submitError()" class="submit-error">{{ submitError() }}</div>
-        <div *ngIf="submitSuccess()" class="submit-success">{{ submitSuccess() }}</div>
       </form>
     </div>
   </div>
