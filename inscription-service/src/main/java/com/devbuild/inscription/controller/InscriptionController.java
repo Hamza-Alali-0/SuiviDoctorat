@@ -2,6 +2,7 @@ package com.devbuild.inscription.controller;
 
 import com.devbuild.inscription.dto.DashboardDTO;
 import com.devbuild.inscription.dto.InscriptionFormDTO;
+import com.devbuild.inscription.dto.DossierSubmissionDTO;
 import com.devbuild.inscription.model.CampagneInscription;
 import com.devbuild.inscription.model.DossierInscription;
 import com.devbuild.inscription.model.PieceJointe;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inscriptions")
@@ -38,27 +40,48 @@ public class InscriptionController {
      * Submit a complete inscription form
      */
     @PostMapping("/soumettre")
-    public ResponseEntity<DossierInscription> submitInscription(@RequestBody InscriptionFormDTO formDTO) {
+    public ResponseEntity<DossierSubmissionDTO> submitInscription(@RequestBody InscriptionFormDTO formDTO) {
         DossierInscription saved = service.submitInscriptionForm(formDTO);
-        return ResponseEntity.ok(saved);
+        DossierSubmissionDTO dto = new DossierSubmissionDTO(
+            saved.getId(),
+            saved.getStatut(),
+            saved.getCampagne() != null ? saved.getCampagne().getId() : null,
+            saved.getCampagne() != null ? saved.getCampagne().getNom() : null,
+            saved.getPieces() != null ? saved.getPieces().size() : 0
+        );
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/doctorant/{id}/soumettre")
-    public ResponseEntity<?> soumettre(@PathVariable("id") Long doctorantId, @RequestBody DossierInscription payload) {
+    public ResponseEntity<DossierSubmissionDTO> soumettre(@PathVariable("id") Long doctorantId, @RequestBody DossierInscription payload) {
         DossierInscription saved = service.soumettreDossier(doctorantId, payload);
-        return ResponseEntity.ok(saved);
+        DossierSubmissionDTO dto = new DossierSubmissionDTO(
+            saved.getId(),
+            saved.getStatut(),
+            saved.getCampagne() != null ? saved.getCampagne().getId() : null,
+            saved.getCampagne() != null ? saved.getCampagne().getNom() : null,
+            saved.getPieces() != null ? saved.getPieces().size() : 0
+        );
+        return ResponseEntity.ok(dto);
     }
 
     /**
      * Submit dossier for the authenticated doctorant (uses authentication principal)
      */
     @PostMapping("/doctorant/me/soumettre")
-    public ResponseEntity<?> soumettrePourAuthentifie(Principal principal, @RequestBody DossierInscription payload) {
+    public ResponseEntity<DossierSubmissionDTO> soumettrePourAuthentifie(Principal principal, @RequestBody DossierInscription payload) {
         if (principal == null || principal.getName() == null) {
             return ResponseEntity.status(401).build();
         }
         DossierInscription saved = service.soumettreDossierPourEmail(principal.getName(), payload);
-        return ResponseEntity.ok(saved);
+        DossierSubmissionDTO dto = new DossierSubmissionDTO(
+            saved.getId(),
+            saved.getStatut(),
+            saved.getCampagne() != null ? saved.getCampagne().getId() : null,
+            saved.getCampagne() != null ? saved.getCampagne().getNom() : null,
+            saved.getPieces() != null ? saved.getPieces().size() : 0
+        );
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/doctorant/{id}/reinscription")
@@ -103,9 +126,38 @@ public class InscriptionController {
 
     @GetMapping("/doctorant/{id}/dashboard")
     public ResponseEntity<?> dashboard(@PathVariable("id") Long doctorantId) {
+        System.out.println("[InscriptionController] dashboard() called for doctorantId: " + doctorantId);
         // For simplicity return list of dossiers (could be a DTO with status and latest updates)
         List<DossierInscription> dossiers = service.getDossiersForDoctorant(doctorantId);
+        System.out.println("[InscriptionController] Found " + dossiers.size() + " dossiers for doctorant " + doctorantId);
+        for (DossierInscription d : dossiers) {
+            System.out.println("  - Dossier ID: " + d.getId() + ", Campagne: " + 
+                (d.getCampagne() != null ? d.getCampagne().getNom() + " (ID: " + d.getCampagne().getId() + ")" : "NULL") +
+                ", Statut: " + d.getStatut());
+        }
         return ResponseEntity.ok(dossiers);
+    }
+
+    /**
+     * Dashboard for authenticated doctorant without needing numeric id in frontend.
+     */
+    @GetMapping("/doctorant/me/dashboard")
+    public ResponseEntity<?> dashboardMe(Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            System.out.println("[InscriptionController] dashboardMe() - no principal, returning 401");
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+        String identity = principal.getName();
+        System.out.println("[InscriptionController] dashboardMe() principal=" + identity);
+        try {
+            List<DossierInscription> dossiers = service.getDossiersForDoctorantEmail(identity);
+            System.out.println("[InscriptionController] dashboardMe() returning " + dossiers.size() + " dossiers");
+            return ResponseEntity.ok(dossiers);
+        } catch (Exception e) {
+            System.err.println("[InscriptionController] dashboardMe() error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("message", "Internal error", "error", e.getMessage()));
+        }
     }
     
     /**

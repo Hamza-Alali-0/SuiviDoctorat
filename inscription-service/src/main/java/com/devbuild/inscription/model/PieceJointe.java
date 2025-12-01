@@ -2,6 +2,7 @@ package com.devbuild.inscription.model;
 
 import com.devbuild.inscription.model.enums.TypePieceJointe;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class PieceJointe {
     
     private String description; // Optional description of the document
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dossier_id")
     private DossierInscription dossier;

@@ -34,7 +34,7 @@ public class DossierInscription {
 	@Enumerated(EnumType.STRING)
 	private StatutDossier statut = StatutDossier.EN_ATTENTE;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "campagne_id")
 	private CampagneInscription campagne;
 

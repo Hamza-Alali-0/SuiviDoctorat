@@ -28,15 +28,25 @@ export class AuthInterceptor implements HttpInterceptor {
         try {
           const router = this.injector.get(Router);
           const auth = this.injector.get(AuthService);
-          // if token expired or unauthorized, clear auth and redirect to login
-          // BUT: don't logout if the 401 is from a login/signup attempt (invalid credentials)
-          if (err && (err.status === 401 || err.status === 403) && !isAuthEndpoint){
-            console.warn('[AuthInterceptor] response status', err.status, '— logging out');
-            try { console.warn('[AuthInterceptor] response body:', err?.error); } catch(e){}
-            auth.setAuth(null, null);
-            try{ router.navigate(['/auth'], { queryParams: { sessionExpired: '1' } }); } catch(e){}
-            // Swallow the error so it doesn't bubble as an uncaught observable error
-            return EMPTY;
+          // Only force logout on 401/403 when token truly missing or expired, not just any protected fetch.
+          const tokenPresent = !!localStorage.getItem('auth_token');
+          const isProfileEndpoint = url.includes('/api/auth/me');
+          const isDashboardMe = url.includes('/doctorant/me/dashboard');
+          const unauthorized = err && (err.status === 401 || err.status === 403);
+          if (unauthorized && !isAuthEndpoint) {
+            // Check if token is expired via AuthService before logging out
+            const expired = auth.isTokenExpired();
+            if (expired || !tokenPresent) {
+              console.warn('[AuthInterceptor] Unauthorized and token expired/missing → logging out');
+              try { console.warn('[AuthInterceptor] response body:', err?.error); } catch(e){}
+              auth.setAuth(null, null);
+              try { router.navigate(['/auth'], { queryParams: { sessionExpired: '1' } }); } catch(e){}
+              return EMPTY;
+            } else {
+              // Non-expired token: treat as recoverable (maybe user not a doctorant yet). Skip forced logout.
+              console.warn('[AuthInterceptor] Unauthorized but token valid; ignoring logout for endpoint:', req.url);
+              return throwError(() => err);
+            }
           }
         } catch(e){}
         return throwError(() => err);

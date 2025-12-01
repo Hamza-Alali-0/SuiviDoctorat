@@ -121,30 +121,30 @@ export class ApplicationsPage implements OnInit {
         }
 
         if (!userId) {
-          console.error('[ApplicationsPage] ✗ No numeric user id available from profile or token');
-          this.loading = false;
-          return;
+          console.warn('[ApplicationsPage] No numeric userId; falling back to /doctorant/me/dashboard endpoint (will ignore 401 gracefully)');
         }
 
-        console.log('[ApplicationsPage] Calling getMyApplications with userId:', userId);
-        this.applicationsService.getMyApplications(userId).subscribe({
+        console.log('[ApplicationsPage] Calling getMyApplications with userId:', userId ?? '(me)');
+        this.applicationsService.getMyApplications(userId || undefined).subscribe({
           next: (data) => {
             console.log('[ApplicationsPage] ✓ Received raw data from getMyApplications:', data);
             console.log('[ApplicationsPage] Number of dossiers received:', Array.isArray(data) ? data.length : 0);
             
             // Map dossiers to campaign view model
             this.allCampaigns = (Array.isArray(data) ? data : []).map(d => {
+              const status = (d.status || d.statut || d.applicationStatus || d.state);
+              const created = d.dateCreation || d.dateSoumission || d.dateSubmission || d.dateSoumettre || d.createdAt;
               console.log('[ApplicationsPage]   Processing dossier:', {
                 dossierId: d.id,
                 campaignId: d.campagne?.id,
                 campaignName: d.campagne?.nom,
-                status: d.status,
-                dateCreation: d.dateCreation
+                status,
+                created
               });
               return {
                 ...d.campagne,
-                applicationStatus: d.status,
-                applicationDate: d.dateCreation,
+                applicationStatus: status,
+                applicationDate: created,
                 dossierId: d.id
               };
             });
@@ -167,6 +167,14 @@ export class ApplicationsPage implements OnInit {
             console.log('[ApplicationsPage] ✓ fetchApplications() complete. Final campaigns count:', this.campaigns.length);
           },
           error: (err) => {
+            if (err && (err.status === 401 || err.status === 403)) {
+              console.warn('[ApplicationsPage] Received unauthorized when fetching applications. Keeping session and showing empty state.');
+              // Do not clear auth or propagate logout; just show empty
+              this.allCampaigns = [];
+              this.campaigns = [];
+              this.loading = false;
+              return;
+            }
             console.error('[ApplicationsPage] ✗ Failed to fetch applications from backend:', err);
             this.loading = false;
             this.allCampaigns = [];
@@ -176,6 +184,28 @@ export class ApplicationsPage implements OnInit {
       },
       error: (err) => {
         console.error('[ApplicationsPage] ✗ Failed to fetch profile:', err);
+        // If profile fails with 401, attempt direct fallback to /doctorant/me/dashboard without userId
+        if (err && (err.status === 401 || err.status === 403)) {
+          console.warn('[ApplicationsPage] Profile unauthorized; attempting fallback applications fetch using /me/dashboard');
+          this.applicationsService.getMyApplications(undefined).subscribe({
+            next: (data) => {
+              console.log('[ApplicationsPage] ✓ Fallback received', data?.length || 0, 'dossiers');
+              this.allCampaigns = (Array.isArray(data) ? data : []).map(d => ({
+                ...d.campagne,
+                applicationStatus: (d.status || d.statut),
+                applicationDate: d.dateSoumission || d.dateCreation,
+                dossierId: d.id
+              }));
+              this.applyFilters();
+              this.loading = false;
+            },
+            error: (e2) => {
+              console.error('[ApplicationsPage] Fallback fetch also failed:', e2);
+              this.loading = false;
+            }
+          });
+          return;
+        }
         this.loading = false;
       }
     });

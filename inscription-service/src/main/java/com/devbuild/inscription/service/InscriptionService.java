@@ -74,6 +74,9 @@ public class InscriptionService {
         }
 
         DossierInscription saved = dossierRepository.save(payload);
+        System.out.println("[InscriptionService] ✓ Dossier saved in soumettreDossier() with ID: " + saved.getId() + 
+                           ", Campagne: " + (saved.getCampagne() != null ? saved.getCampagne().getNom() + " (ID: " + saved.getCampagne().getId() + ")" : "NULL") +
+                           ", Statut: " + saved.getStatut());
 
         // notifications
         notificationService.notifyDirecteur(saved);
@@ -91,8 +94,8 @@ public class InscriptionService {
 
     @Transactional
     public DossierInscription soumettreDossierPourEmail(String emailOrUsername, DossierInscription payload) {
-        // Try to find doctorant by email first
-        Optional<Doctorant> dOpt = doctorantRepository.findByEmail(emailOrUsername);
+        // Try to find doctorant by email first (use findFirst to handle duplicates)
+        Optional<Doctorant> dOpt = doctorantRepository.findFirstByEmail(emailOrUsername);
         if (!dOpt.isPresent()) {
             // No doctorant found by email - try to interpret the username as id
             try {
@@ -128,6 +131,9 @@ public class InscriptionService {
         }
 
         DossierInscription saved = dossierRepository.save(payload);
+        System.out.println("[InscriptionService] ✓ Dossier saved in soumettreDossierPourEmail() with ID: " + saved.getId() + 
+                           ", Campagne: " + (saved.getCampagne() != null ? saved.getCampagne().getNom() + " (ID: " + saved.getCampagne().getId() + ")" : "NULL") +
+                           ", Statut: " + saved.getStatut());
 
         // notifications
         notificationService.notifyDirecteur(saved);
@@ -163,7 +169,51 @@ public class InscriptionService {
     }
 
     public List<DossierInscription> getDossiersForDoctorant(Long doctorantId) {
-        return dossierRepository.findByDoctorantId(doctorantId);
+        System.out.println("[InscriptionService] getDossiersForDoctorant() called for doctorantId: " + doctorantId);
+        List<DossierInscription> dossiers = dossierRepository.findByDoctorantId(doctorantId);
+        System.out.println("[InscriptionService] Query returned " + dossiers.size() + " dossiers");
+        for (DossierInscription d : dossiers) {
+            // Force campagne to load if lazy
+            CampagneInscription c = d.getCampagne();
+            System.out.println("  - Dossier " + d.getId() + ": campagne=" + (c != null ? c.getNom() : "null") + 
+                               ", statut=" + d.getStatut() + ", dateSubmission=" + d.getDateSoumission());
+        }
+        return dossiers;
+    }
+
+    /**
+     * Resolve doctorant by email (principal name) or numeric id (if name is numeric) and return dossiers.
+     */
+    public List<DossierInscription> getDossiersForDoctorantEmail(String emailOrUsername) {
+        System.out.println("[InscriptionService] getDossiersForDoctorantEmail() called for principal: " + emailOrUsername);
+        if (emailOrUsername == null || emailOrUsername.isBlank()) {
+            System.out.println("[InscriptionService] Principal is null/blank; returning empty list");
+            return List.of();
+        }
+        
+        Long id = null;
+        // Try find by email (use findFirst to handle duplicates gracefully)
+        try {
+            Optional<Doctorant> byEmail = doctorantRepository.findFirstByEmail(emailOrUsername);
+            if (byEmail.isPresent()) {
+                id = byEmail.get().getId();
+                System.out.println("[InscriptionService] Resolved doctorant via email. id=" + id);
+            } else {
+                // Attempt parse as numeric id
+                try {
+                    id = Long.parseLong(emailOrUsername);
+                    System.out.println("[InscriptionService] Interpreted principal as numeric id=" + id);
+                } catch (NumberFormatException nfe) {
+                    System.out.println("[InscriptionService] Principal '" + emailOrUsername + "' not found as doctorant email and not numeric; returning empty list (user may not have doctorant record yet)");
+                    return List.of();
+                }
+            }
+            return getDossiersForDoctorant(id);
+        } catch (Exception e) {
+            System.err.println("[InscriptionService] Error resolving doctorant: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
     @Transactional

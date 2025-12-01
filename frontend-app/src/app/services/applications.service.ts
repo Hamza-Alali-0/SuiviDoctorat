@@ -72,9 +72,12 @@ export class ApplicationsService {
 
     return submit$.pipe(
       switchMap(dossier => {
-        console.log('[ApplicationsService] ✓ Form submission successful, dossier created:', { id: dossier?.id, status: dossier?.status });
-        if (!dossier || !dossier.id) {
-          console.error('[ApplicationsService] ✗ Invalid dossier response:', dossier);
+        // The backend now returns a minimal DTO: { id, statut, campagneId, campagneNom, piecesCount }
+        console.log('[ApplicationsService] ✓ Form submission successful, dossier DTO:', dossier);
+        const dossierId = dossier?.id;
+        const dossierStatus = dossier?.status || dossier?.statut; // fallback for legacy field name
+        if (!dossierId) {
+          console.error('[ApplicationsService] ✗ Invalid dossier DTO response:', dossier);
           return throwError(() => new Error('Failed to create dossier'));
         }
 
@@ -95,7 +98,7 @@ export class ApplicationsService {
             });
           } else {
             console.log('[ApplicationsService] Uploading file:', key, (val as File).name);
-            uploads.push(this.uploadFile(dossier.id, val as File, typePiece));
+            uploads.push(this.uploadFile(dossierId, val as File, typePiece));
           }
         }
 
