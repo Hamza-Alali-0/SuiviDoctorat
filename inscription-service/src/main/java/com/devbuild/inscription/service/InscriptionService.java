@@ -601,4 +601,54 @@ public class InscriptionService {
         doctorant.setEtablissementOrigine(dto.getEtablissementOrigine());
     }
 
+    @Transactional
+    public void addFavorite(String emailOrUsername, Long campagneId) {
+        Doctorant doctorant = resolveDoctorant(emailOrUsername);
+        if (doctorant == null) {
+            throw new IllegalArgumentException("Doctorant introuvable");
+        }
+
+        CampagneInscription campagne = campagneRepository.findById(campagneId)
+                .orElseThrow(() -> new IllegalArgumentException("Campagne introuvable"));
+
+        doctorant.addFavorite(campagne);
+        doctorantRepository.save(doctorant);
+    }
+
+    @Transactional
+    public void removeFavorite(String emailOrUsername, Long campagneId) {
+        Doctorant doctorant = resolveDoctorant(emailOrUsername);
+        if (doctorant == null) {
+            throw new IllegalArgumentException("Doctorant introuvable");
+        }
+
+        CampagneInscription campagne = campagneRepository.findById(campagneId)
+                .orElseThrow(() -> new IllegalArgumentException("Campagne introuvable"));
+
+        doctorant.removeFavorite(campagne);
+        doctorantRepository.save(doctorant);
+    }
+
+    public List<CampagneInscription> getFavorites(String emailOrUsername) {
+        Doctorant doctorant = resolveDoctorant(emailOrUsername);
+        if (doctorant == null) {
+            return List.of();
+        }
+        return doctorant.getFavorites();
+    }
+
+    private Doctorant resolveDoctorant(String emailOrUsername) {
+        if (emailOrUsername == null || emailOrUsername.isBlank()) return null;
+        
+        Optional<Doctorant> dOpt = doctorantRepository.findFirstByEmail(emailOrUsername);
+        if (dOpt.isPresent()) return dOpt.get();
+        
+        try {
+            Long id = Long.parseLong(emailOrUsername);
+            return doctorantRepository.findById(id).orElse(null);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
 }

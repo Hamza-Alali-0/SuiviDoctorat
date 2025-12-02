@@ -31,6 +31,14 @@ public class Doctorant {
 	@OneToMany(mappedBy = "doctorant", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DossierInscription> dossiers = new ArrayList<>();
 
+	@ManyToMany
+	@JoinTable(
+		name = "doctorant_favorites",
+		joinColumns = @JoinColumn(name = "doctorant_id"),
+		inverseJoinColumns = @JoinColumn(name = "campagne_id")
+	)
+	private List<CampagneInscription> favorites = new ArrayList<>();
+
 	public Doctorant() {
 	}
 
@@ -160,6 +168,24 @@ public class Doctorant {
 	public void removeDossier(DossierInscription dossier) {
 		dossiers.remove(dossier);
 		dossier.setDoctorant(null);
+	}
+
+	public List<CampagneInscription> getFavorites() {
+		return favorites;
+	}
+
+	public void setFavorites(List<CampagneInscription> favorites) {
+		this.favorites = favorites;
+	}
+
+	public void addFavorite(CampagneInscription campagne) {
+		if (!favorites.contains(campagne)) {
+			favorites.add(campagne);
+		}
+	}
+
+	public void removeFavorite(CampagneInscription campagne) {
+		favorites.remove(campagne);
 	}
 
 	@Override

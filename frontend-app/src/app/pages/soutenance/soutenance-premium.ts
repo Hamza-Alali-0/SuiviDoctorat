@@ -455,6 +455,10 @@ export class SoutenancePremiumPage implements OnInit {
     return Math.round((completed / documents.length) * 100);
   }
 
+  getAvisCount(): number {
+    return this.juryMembers().filter(m => m.avisRendu === true).length;
+  }
+
   formatDate(dateStr: string): string {
     if (!dateStr) return 'Non définie';
     const date = new Date(dateStr);

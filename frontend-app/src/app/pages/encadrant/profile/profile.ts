@@ -701,7 +701,7 @@ export class EncadrantProfileComponent implements OnInit {
     cancelText: 'Annuler'
   };
 
-  private apiUrl = 'http://localhost:8080/api/encadrant';
+  private apiUrl = 'http://localhost:8080/auth/encadrant';
 
   constructor(
     private http: HttpClient,
@@ -813,16 +813,41 @@ export class EncadrantProfileComponent implements OnInit {
   }
 
   saveProfile() {
-    this.http.put(`${this.apiUrl}/profile`, this.editData).subscribe({
+    // Only send fields that can be updated (exclude id, role, cvUrl, avatarUrl)
+    const dataToSend = {
+      firstName: this.editData.firstName,
+      lastName: this.editData.lastName,
+      email: this.editData.email,
+      bio: this.editData.bio,
+      phone: this.editData.phone,
+      etablissement: this.editData.etablissement,
+      laboratoire: this.editData.laboratoire,
+      specialite: this.editData.specialite,
+      grade: this.editData.grade,
+      domainesRecherche: this.editData.domainesRecherche,
+      nombrePublications: this.editData.nombrePublications,
+      hIndex: this.editData.hIndex,
+      orcidId: this.editData.orcidId,
+      linkedinUrl: this.editData.linkedinUrl,
+      portfolioUrl: this.editData.portfolioUrl,
+      researchGateUrl: this.editData.researchGateUrl,
+      googleScholarUrl: this.editData.googleScholarUrl
+    };
+
+    console.log('Saving profile with data:', dataToSend);
+
+    this.http.put(`${this.apiUrl}/profile`, dataToSend).subscribe({
       next: (res: any) => {
+        console.log('Profile saved successfully:', res);
         this.profile = res;
         this.editData = { ...res };
         this.editMode = false;
-        this.showModal('success', 'Succès', 'Profil mis à jour');
+        this.showModal('success', 'Succès', 'Profil mis à jour avec succès');
       },
       error: (err) => {
         console.error('Error saving profile:', err);
-        this.showModal('error', 'Erreur', 'Échec de la sauvegarde du profil');
+        const errorMsg = err?.error?.message || 'Échec de la sauvegarde du profil';
+        this.showModal('error', 'Erreur', errorMsg);
       }
     });
   }

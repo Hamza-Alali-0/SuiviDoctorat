@@ -690,9 +690,10 @@ export class CampaignsPage implements OnInit {
             this.applicationForm.prenom = user.prenom || this.applicationForm.prenom;
             this.applicationForm.nom = user.nom || this.applicationForm.nom;
             this.applicationForm.email = user.email || this.applicationForm.email;
-            
-            // Load applied campaigns from backend to ensure accuracy
+
+            // Load applied campaigns and favorites from backend
             this.loadAppliedFromBackend();
+            this.loadFavoritesFromBackend();
           } else {
             console.warn('[CampaignsPage] Profile loaded but no ID found:', user);
             this.tryExtractIdFromToken();
@@ -705,6 +706,8 @@ export class CampaignsPage implements OnInit {
       });
     } else {
       console.log('[CampaignsPage] User is not logged in');
+      this.loadFavorites(); // Load from local storage for anonymous
+      this.loadApplied();   // Load from local storage for anonymous
     }
 
     try {
@@ -878,16 +881,16 @@ export class CampaignsPage implements OnInit {
     const total = this.getTotalPages();
     const current = this.currentPage();
     const pages: number[] = [];
-    
+
     // Show max 5 page numbers
     let start = Math.max(1, current - 2);
     let end = Math.min(total, start + 4);
-    
+
     // Adjust start if we're near the end
     if (end - start < 4) {
       start = Math.max(1, end - 4);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
@@ -927,10 +930,29 @@ export class CampaignsPage implements OnInit {
 
   toggleFavorite(id: number): void {
     const favs = new Set(this.favorites());
-    if (favs.has(id)) favs.delete(id);
-    else favs.add(id);
+    const isAdding = !favs.has(id);
+
+    if (isAdding) favs.add(id);
+    else favs.delete(id);
+
     this.favorites.set(favs);
-    this.saveFavorites();
+
+    if (this.isLoggedIn) {
+      // Persist to backend
+      if (isAdding) {
+        this.campagnesService.addFavorite(id).subscribe({
+          error: e => console.error('Failed to add favorite', e)
+        });
+      } else {
+        this.campagnesService.removeFavorite(id).subscribe({
+          error: e => console.error('Failed to remove favorite', e)
+        });
+      }
+    } else {
+      // Persist to local storage
+      this.saveFavorites();
+    }
+
     if (this.showFavorites()) this.applyFilters();
   }
 
@@ -959,6 +981,22 @@ export class CampaignsPage implements OnInit {
         if (old) this.favorites.set(new Set(JSON.parse(old)));
       }
     } catch { }
+  }
+
+  loadFavoritesFromBackend(): void {
+    console.log('[CampaignsPage] Loading favorites from backend...');
+    this.campagnesService.getMyFavorites().subscribe({
+      next: (data: any[]) => {
+        console.log('[CampaignsPage] ✓ Loaded favorites from backend:', data.length);
+        const ids = data.map(c => c.id).filter(Boolean) as number[];
+        this.favorites.set(new Set(ids));
+      },
+      error: (err) => {
+        console.error('[CampaignsPage] ✗ Failed to load favorites from backend:', err);
+        // Fallback to local storage
+        this.loadFavorites();
+      }
+    });
   }
 
   saveApplied(): void {
@@ -1041,10 +1079,10 @@ export class CampaignsPage implements OnInit {
 
     // Open application modal and set selected campaign
     this.selectedCampaign.set(c);
-    
+
     // Auto-fill form from user profile
     this.autoFillFormFromProfile();
-    
+
     this.showApplicationModal.set(true);
   }
 
@@ -1264,38 +1302,38 @@ export class CampaignsPage implements OnInit {
         // Refresh applied campaign ids from backend (canonical source) to ensure DB sync
         // Use a short delay to allow backend transaction to complete
         setTimeout(() => {
-            console.log('[CampaignsPage] Refreshing applications from backend...');
-            this.applicationsService.getMyApplications().subscribe({
-              next: (data: any[]) => {
-                console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
-                const appliedIds = new Set<number>();
-                
-                // Extract campaign IDs from backend response
-                (Array.isArray(data) ? data : []).forEach(d => {
-                  if (d && d.campagne && d.campagne.id) {
-                    appliedIds.add(d.campagne.id);
-                    console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
-                  }
-                });
+          console.log('[CampaignsPage] Refreshing applications from backend...');
+          this.applicationsService.getMyApplications().subscribe({
+            next: (data: any[]) => {
+              console.log('[CampaignsPage] ✓ Received applications from backend:', data.length, 'applications');
+              const appliedIds = new Set<number>();
 
-                // Ensure the just-submitted campaign is in the set (should be from backend)
-                if (campaign.id && !appliedIds.has(campaign.id)) {
-                  console.warn('[CampaignsPage] WARNING: Just-submitted campaign', campaign.id, 'not yet in backend response. Adding manually.');
-                  appliedIds.add(campaign.id);
+              // Extract campaign IDs from backend response
+              (Array.isArray(data) ? data : []).forEach(d => {
+                if (d && d.campagne && d.campagne.id) {
+                  appliedIds.add(d.campagne.id);
+                  console.log('[CampaignsPage]   - Application found for campaign:', d.campagne.id, d.campagne.nom);
                 }
+              });
 
-                console.log('[CampaignsPage] Final appliedIds from backend:', Array.from(appliedIds));
-                this.appliedCampaignIds.set(appliedIds);
-                try { this.saveApplied(); } catch (e) { /* ignore */ }
-                
-                // Refresh the campaigns list to update counts
-                this.loadCampaigns();
-              },
-              error: (err) => {
-                console.error('[CampaignsPage] ✗ Failed to refresh applied ids from backend:', err);
-                // Keep local state as is
+              // Ensure the just-submitted campaign is in the set (should be from backend)
+              if (campaign.id && !appliedIds.has(campaign.id)) {
+                console.warn('[CampaignsPage] WARNING: Just-submitted campaign', campaign.id, 'not yet in backend response. Adding manually.');
+                appliedIds.add(campaign.id);
               }
-            });
+
+              console.log('[CampaignsPage] Final appliedIds from backend:', Array.from(appliedIds));
+              this.appliedCampaignIds.set(appliedIds);
+              try { this.saveApplied(); } catch (e) { /* ignore */ }
+
+              // Refresh the campaigns list to update counts
+              this.loadCampaigns();
+            },
+            error: (err) => {
+              console.error('[CampaignsPage] ✗ Failed to refresh applied ids from backend:', err);
+              // Keep local state as is
+            }
+          });
         }, 500); // 500ms delay to allow backend transaction to complete
 
         // keep modal open briefly to show success
@@ -1313,10 +1351,10 @@ export class CampaignsPage implements OnInit {
         console.error('[CampaignsPage] Error body:', err.error);
         console.error('[CampaignsPage] Error message:', err.message);
         this.submitting.set(false);
-        
+
         // Extract meaningful error message
         let errorMsg = 'Une erreur est survenue lors de l\'envoi.';
-        
+
         // Special case: 200 OK but JSON parse error
         if (err.status === 200 && err.message && err.message.includes('JSON')) {
           errorMsg = 'Le serveur a retourné une réponse invalide. Vérifiez les logs du backend (inscription-service).';
@@ -1332,12 +1370,12 @@ export class CampaignsPage implements OnInit {
         } else if (err.message) {
           errorMsg = err.message;
         }
-        
+
         // Add status code if available
         if (err.status) {
           errorMsg += ` (Code: ${err.status})`;
         }
-        
+
         this.submitError.set(errorMsg);
       }
     });
@@ -1356,10 +1394,10 @@ export class CampaignsPage implements OnInit {
             console.log('[CampaignsPage]   - Found application for campaign:', d.campagne.id, d.campagne.nom);
           }
         });
-        
+
         console.log('[CampaignsPage] Setting appliedCampaignIds:', Array.from(appliedIds));
         this.appliedCampaignIds.set(appliedIds);
-        
+
         // Save to localStorage for offline viewing
         try { this.saveApplied(); } catch (e) { console.error('[CampaignsPage] Failed to save:', e); }
       },
@@ -1379,10 +1417,10 @@ export class CampaignsPage implements OnInit {
     this.auth.getProfile().subscribe({
       next: (rawProfile: any) => {
         console.log('[CampaignsPage] ✓ Profile loaded for auto-fill:', rawProfile);
-        
+
         // Normalize profile (handle different backend field names)
         const profile = this.normalizeProfileData(rawProfile);
-        
+
         // Personal info - map from normalized profile
         if (profile.firstName) this.applicationForm.prenom = profile.firstName;
         if (profile.lastName) this.applicationForm.nom = profile.lastName;
@@ -1394,16 +1432,16 @@ export class CampaignsPage implements OnInit {
         if (profile.cin) this.applicationForm.cin = profile.cin;
         if (profile.address) this.applicationForm.adresse = profile.address;
         if (profile.sexe) this.applicationForm.sexe = profile.sexe;
-        
+
         // Academic info
         if (profile.diplomesPrecedents) this.applicationForm.diplomesPrecedents = profile.diplomesPrecedents;
         if (profile.etablissementOrigine) this.applicationForm.etablissementOrigine = profile.etablissementOrigine;
-        
+
         // Research info from thesis data
         if (profile.thesisTitle) this.applicationForm.sujetThese = profile.thesisTitle;
         if (profile.thesisDirector) this.applicationForm.directeurThese = profile.thesisDirector;
         if (profile.laboratory) this.applicationForm.laboratoire = profile.laboratory;
-        
+
         console.log('[CampaignsPage] ✓ Form auto-filled from profile. Filled fields:', {
           personal: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
           email: profile.email || 'N/A',
@@ -1427,7 +1465,7 @@ export class CampaignsPage implements OnInit {
     // Unwrap possible containers
     if (raw.user) raw = raw.user;
     if (raw.data) raw = raw.data;
-    
+
     return {
       firstName: raw.firstName || raw.firstname || raw.givenName || raw.given_name || raw.first_name || raw.prenom || '',
       lastName: raw.lastName || raw.lastname || raw.familyName || raw.family_name || raw.last_name || raw.nom || '',

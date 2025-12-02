@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/encadrant")
+@RequestMapping("/encadrant")
 public class EncadrantRestController {
 
     private final UserService userService;

@@ -181,4 +181,31 @@ public class InscriptionController {
         return ResponseEntity.ok(updated);
     }
 
+    @PostMapping("/doctorant/me/favorites/{campagneId}")
+    public ResponseEntity<?> addFavorite(Principal principal, @PathVariable Long campagneId) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        service.addFavorite(principal.getName(), campagneId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/doctorant/me/favorites/{campagneId}")
+    public ResponseEntity<?> removeFavorite(Principal principal, @PathVariable Long campagneId) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        service.removeFavorite(principal.getName(), campagneId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/doctorant/me/favorites")
+    public ResponseEntity<List<CampagneInscription>> getFavorites(Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<CampagneInscription> favorites = service.getFavorites(principal.getName());
+        return ResponseEntity.ok(favorites);
+    }
+
 }

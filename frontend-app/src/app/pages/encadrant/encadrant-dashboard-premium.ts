@@ -49,7 +49,10 @@ export class EncadrantDashboardPremiumPage implements OnInit {
       next: (user: any) => {
         if (user) {
           this.userEmail.set(user.email || '');
-          this.userName.set(`${user.prenom} ${user.nom}`);
+          const prenom = user.prenom || '';
+          const nom = user.nom || '';
+          const fullName = `${prenom} ${nom}`.trim();
+          this.userName.set(fullName || 'Professeur');
         }
         this.loadDashboardData();
       },
@@ -102,12 +105,17 @@ export class EncadrantDashboardPremiumPage implements OnInit {
       .sort((a, b) => new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime())
       .slice(0, 8);
     
-    this.recentActivity.set(sorted.map(d => ({
-      doctorant: `${d.doctorantPrenom} ${d.doctorantNom}`,
-      action: this.getActionText(d.statut),
-      date: d.dateCreation,
-      status: d.statut
-    })));
+    this.recentActivity.set(sorted.map(d => {
+      const prenom = d.doctorantPrenom || '';
+      const nom = d.doctorantNom || '';
+      const fullName = `${prenom} ${nom}`.trim() || 'Doctorant';
+      return {
+        doctorant: fullName,
+        action: this.getActionText(d.statut),
+        date: d.dateCreation,
+        status: d.statut
+      };
+    }));
   }
 
   getActionText(statut: string): string {
@@ -167,5 +175,11 @@ export class EncadrantDashboardPremiumPage implements OnInit {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  getDoctorantName(demande: DemandeSoutenance): string {
+    const prenom = demande.doctorantPrenom || '';
+    const nom = demande.doctorantNom || '';
+    return `${prenom} ${nom}`.trim() || 'Doctorant';
   }
 }

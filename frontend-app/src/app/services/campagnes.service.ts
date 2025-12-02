@@ -21,7 +21,7 @@ export class CampagnesService {
   private base = '/inscription-service/api/admin/campagnes';
   private publicBase = '/inscription-service/api/inscriptions';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Admin endpoints (require authentication)
   getAll(): Observable<any[]> {
@@ -52,5 +52,18 @@ export class CampagnesService {
 
   delete(id: number): Observable<any> {
     return this.http.delete<any>(`${this.base}/${id}`);
+  }
+
+  // Favorites (User specific)
+  addFavorite(id: number): Observable<any> {
+    return this.http.post(`${this.publicBase}/doctorant/me/favorites/${id}`, {});
+  }
+
+  removeFavorite(id: number): Observable<any> {
+    return this.http.delete(`${this.publicBase}/doctorant/me/favorites/${id}`);
+  }
+
+  getMyFavorites(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.publicBase}/doctorant/me/favorites`);
   }
 }

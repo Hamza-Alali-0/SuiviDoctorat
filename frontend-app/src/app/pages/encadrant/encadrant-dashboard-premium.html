@@ -1,193 +1,310 @@
 <encadrant-navbar></encadrant-navbar>
 
-<!-- Premium Encadrant Dashboard - Luxury Blue Design -->
-<div class="dashboard-premium">
+<!-- Professional Encadrant Dashboard -->
+<div class="dashboard-container">
   
-  <!-- Hero Header with Blue Gradient -->
-  <div class="hero-header-premium">
-    <div class="hero-background"></div>
-    <div class="hero-content-premium">
-      <div class="hero-text">
-        <div class="hero-label">ESPACE ENCADRANT DOCTORAL</div>
-        <h1 class="hero-title">Tableau de Bord</h1>
-        <p class="hero-welcome">Bienvenue, {{ userName() || 'Professeur' }}</p>
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="breadcrumb">
+          <span class="breadcrumb-item">Encadrant</span>
+          <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+          <span class="breadcrumb-current">Tableau de Bord</span>
+        </div>
+        <h1 class="page-title">Bonjour, {{ userName() }}</h1>
+        <p class="page-subtitle">Voici un aperçu de votre activité doctorale</p>
       </div>
-      <div class="hero-date-card">
-        <div class="date-number">{{ getCurrentDate() }}</div>
-        <div class="date-info">
-          <div class="date-month">{{ getCurrentMonth() }}</div>
-          <div class="date-year">{{ getCurrentYear() }}</div>
+      <div class="header-right">
+        <div class="date-display">
+          <span class="date-day">{{ getCurrentDate() }}</span>
+          <div class="date-details">
+            <span class="date-month">{{ getCurrentMonth() }}</span>
+            <span class="date-year">{{ getCurrentYear() }}</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Main Container -->
-  <div class="dashboard-content-premium">
+  <!-- Main Content -->
+  <main class="dashboard-main">
 
-    <!-- Statistics Cards - Premium Design -->
-    <div class="stats-grid-premium">
-      
-      <div class="stat-card-premium blue-card">
-        <div class="stat-gradient-bar"></div>
-        <div class="stat-content">
-          <div class="stat-header-row">
-            <span class="stat-label">Doctorants Actifs</span>
-            <span class="stat-badge">En cours</span>
-          </div>
-          <div class="stat-number">{{ totalDoctorants() }}</div>
-          <div class="stat-footer">Encadrements en cours</div>
+    <!-- Stats Row -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalDoctorants() }}</span>
+          <span class="stat-label">Doctorants Actifs</span>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-text">Encadrements en cours</span>
         </div>
       </div>
 
-      <div class="stat-card-premium purple-card">
-        <div class="stat-gradient-bar"></div>
-        <div class="stat-content">
-          <div class="stat-header-row">
-            <span class="stat-label">Actions Requises</span>
-            <span class="stat-badge urgent">Urgent</span>
+      <div class="stat-card highlight">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ pendingActions() }}</span>
+          <span class="stat-label">Actions Requises</span>
+        </div>
+        @if (pendingActions() > 0) {
+          <div class="stat-trend urgent">
+            <span class="trend-dot"></span>
+            <span class="trend-text">Demandes en attente</span>
           </div>
-          <div class="stat-number">{{ pendingActions() }}</div>
-          <div class="stat-footer">Demandes en attente</div>
+        } @else {
+          <div class="stat-trend">
+            <span class="trend-text">Aucune action requise</span>
+          </div>
+        }
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ upcomingSoutenances() }}</span>
+          <span class="stat-label">Soutenances Prévues</span>
+        </div>
+        <div class="stat-trend">
+          <span class="trend-text">À venir prochainement</span>
         </div>
       </div>
 
-      <div class="stat-card-premium teal-card">
-        <div class="stat-gradient-bar"></div>
-        <div class="stat-content">
-          <div class="stat-header-row">
-            <span class="stat-label">Soutenances à Venir</span>
-            <span class="stat-badge upcoming">Planifié</span>
-          </div>
-          <div class="stat-number">{{ upcomingSoutenances() }}</div>
-          <div class="stat-footer">Événements programmés</div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ completedDefenses() }}</span>
+          <span class="stat-label">Complétées</span>
+        </div>
+        <div class="stat-trend success">
+          <span class="trend-text">Soutenances réussies</span>
         </div>
       </div>
+    </section>
 
-      <div class="stat-card-premium green-card">
-        <div class="stat-gradient-bar"></div>
-        <div class="stat-content">
-          <div class="stat-header-row">
-            <span class="stat-label">Soutenances Complétées</span>
-            <span class="stat-badge success">Succès</span>
+    <!-- Main Grid -->
+    <div class="content-grid">
+
+      <!-- Left Column -->
+      <div class="left-column">
+        
+        <!-- Activity Section -->
+        <section class="card activity-section">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">Activité Récente</h2>
+              <span class="card-badge">{{ recentActivity().length }}</span>
+            </div>
           </div>
-          <div class="stat-number">{{ completedDefenses() }}</div>
-          <div class="stat-footer">Total réalisé</div>
-        </div>
+
+          <div class="activity-list" *ngIf="!loading() && recentActivity().length > 0">
+            <div class="activity-item" *ngFor="let activity of recentActivity()">
+              <div class="activity-avatar">
+                {{ activity.doctorant.charAt(0) }}
+              </div>
+              <div class="activity-content">
+                <div class="activity-main">
+                  <span class="activity-name">{{ activity.doctorant }}</span>
+                  <span class="activity-badge" [class]="'badge-' + activity.status.toLowerCase()">
+                    {{ getStatusLabel(activity.status) }}
+                  </span>
+                </div>
+                <p class="activity-description">{{ activity.action }}</p>
+                <span class="activity-time">{{ formatDate(activity.date) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-state small" *ngIf="!loading() && recentActivity().length === 0">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="empty-text">Aucune activité récente</p>
+          </div>
+
+          <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <span>Chargement...</span>
+          </div>
+        </section>
+
+        <!-- Quick Stats Summary -->
+        <section class="card summary-card">
+          <div class="card-header">
+            <h2 class="card-title">Résumé</h2>
+          </div>
+          <div class="summary-content">
+            <div class="summary-item">
+              <div class="summary-label">Total des demandes</div>
+              <div class="summary-value">{{ demandes().length }}</div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <div class="summary-label">Taux de complétion</div>
+              <div class="summary-value">
+                {{ demandes().length > 0 ? ((completedDefenses() / demandes().length) * 100).toFixed(0) : 0 }}%
+              </div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <div class="summary-label">En attente d'action</div>
+              <div class="summary-value">{{ pendingActions() }}</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-column">
+
+        <!-- Demandes Section -->
+        <section class="card demandes-section">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">Demandes de Soutenance</h2>
+            </div>
+            <button class="btn-text" (click)="goToSoutenance()">
+              Voir tout
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="demandes-list" *ngIf="!loading() && demandes().length > 0">
+            <div class="demande-item" 
+                 *ngFor="let demande of demandes().slice(0, 4)"
+                 (click)="viewDemande(demande.id)">
+              
+              <div class="demande-indicator" [class]="'indicator-' + demande.statut.toLowerCase()"></div>
+              
+              <div class="demande-content">
+                <div class="demande-top">
+                  <span class="demande-id">#{{ demande.id }}</span>
+                  <span class="demande-badge" [class]="'badge-' + demande.statut.toLowerCase()">
+                    {{ getStatusLabel(demande.statut) }}
+                  </span>
+                </div>
+                <h3 class="demande-title">{{ demande.titre || 'Demande de soutenance' }}</h3>
+                <div class="demande-info">
+                  <span class="info-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    {{ getDoctorantName(demande) }}
+                  </span>
+                  <span class="info-item" *ngIf="demande.specialite">
+                    {{ demande.specialite }}
+                  </span>
+                </div>
+                <span class="demande-date">{{ formatDate(demande.dateCreation) }}</span>
+              </div>
+
+              <div class="demande-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="!loading() && demandes().length === 0">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p class="empty-text">Aucune demande en cours</p>
+            <button class="btn-primary" (click)="goToSoutenance()">
+              Accéder aux Soutenances
+            </button>
+          </div>
+
+          <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <span>Chargement...</span>
+          </div>
+        </section>
+
       </div>
 
     </div>
 
-    <!-- Main Grid Layout -->
-    <div class="main-grid-premium">
-
-      <!-- Activity Timeline Section -->
-      <div class="section-card-premium">
-        <div class="section-header-premium">
-          <h2 class="section-title-premium">Activité Récente</h2>
-          <span class="section-count">{{ recentActivity().length }} entrées</span>
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <button class="action-card primary" (click)="goToSoutenance()">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
         </div>
-
-        <div class="activity-timeline" *ngIf="!loading() && recentActivity().length > 0">
-          <div class="activity-item-premium" *ngFor="let activity of recentActivity()">
-            <div class="activity-indicator" [class]="'status-' + activity.status.toLowerCase()"></div>
-            <div class="activity-details">
-              <div class="activity-doctorant">{{ activity.doctorant }}</div>
-              <div class="activity-action">{{ activity.action }}</div>
-              <div class="activity-timestamp">{{ formatDate(activity.date) }}</div>
-            </div>
-            <div class="activity-status-pill" [class]="'pill-' + activity.status.toLowerCase()">
-              {{ getStatusLabel(activity.status) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="empty-activity" *ngIf="!loading() && recentActivity().length === 0">
-          <p class="empty-message">Aucune activité récente</p>
-        </div>
-
-        <div class="loading-activity" *ngIf="loading()">
-          <div class="loading-spinner"></div>
-          <p class="loading-message">Chargement en cours...</p>
-        </div>
-      </div>
-
-      <!-- Demandes Section -->
-      <div class="section-card-premium">
-        <div class="section-header-premium">
-          <h2 class="section-title-premium">Mes Demandes de Soutenance</h2>
-          <button class="btn-view-all-premium" (click)="goToSoutenance()">
-            Voir toutes les demandes →
-          </button>
-        </div>
-
-        <div class="demandes-grid-premium" *ngIf="!loading() && demandes().length > 0">
-          <div class="demande-card-premium" 
-               *ngFor="let demande of demandes().slice(0, 6)"
-               (click)="viewDemande(demande.id)">
-            
-            <div class="demande-gradient-line" [class]="'line-' + demande.statut.toLowerCase()"></div>
-            
-            <div class="demande-header-premium">
-              <span class="demande-number">Demande N° {{ demande.id }}</span>
-              <span class="demande-status-badge" [class]="'badge-' + demande.statut.toLowerCase()">
-                {{ getStatusLabel(demande.statut) }}
-              </span>
-            </div>
-
-            <div class="demande-body-premium">
-              <h3 class="demande-title-premium">{{ demande.titre }}</h3>
-              <div class="demande-info-row">
-                <span class="info-label">Doctorant:</span>
-                <span class="info-value">{{ demande.doctorantPrenom }} {{ demande.doctorantNom }}</span>
-              </div>
-              <div class="demande-info-row" *ngIf="demande.specialite">
-                <span class="info-label">Spécialité:</span>
-                <span class="info-value">{{ demande.specialite }}</span>
-              </div>
-              <div class="demande-info-row">
-                <span class="info-label">Créée le:</span>
-                <span class="info-value">{{ formatDate(demande.dateCreation) }}</span>
-              </div>
-            </div>
-
-            <div class="demande-footer-premium">
-              <span class="view-link">Consulter les détails →</span>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="empty-demandes" *ngIf="!loading() && demandes().length === 0">
-          <p class="empty-message">Aucune demande disponible</p>
-          <button class="btn-primary-premium" (click)="goToSoutenance()">
-            Nouvelle Demande
-          </button>
-        </div>
-
-        <div class="loading-demandes" *ngIf="loading()">
-          <div class="loading-spinner"></div>
-          <p class="loading-message">Chargement des demandes...</p>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Quick Actions Panel -->
-    <div class="quick-actions-premium">
-      <h3 class="actions-title">Actions Rapides</h3>
-      <div class="actions-buttons">
-        <button class="action-btn-premium primary" (click)="goToSoutenance()">
+        <div class="action-text">
           <span class="action-title">Gérer les Soutenances</span>
-          <span class="action-subtitle">Consulter et valider les demandes</span>
-        </button>
-        <button class="action-btn-premium secondary">
+          <span class="action-description">Consulter et valider les demandes</span>
+        </div>
+        <svg class="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+
+      <button class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <div class="action-text">
           <span class="action-title">Rapports & Analyses</span>
-          <span class="action-subtitle">Statistiques détaillées</span>
-        </button>
-      </div>
-    </div>
+          <span class="action-description">Statistiques détaillées</span>
+        </div>
+        <svg class="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
 
-  </div>
+      <button class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="action-text">
+          <span class="action-title">Calendrier</span>
+          <span class="action-description">Planifier les soutenances</span>
+        </div>
+        <svg class="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </section>
 
+  </main>
 </div>

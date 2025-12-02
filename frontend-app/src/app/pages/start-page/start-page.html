@@ -237,8 +237,8 @@
             </div>
           </div>
           <div class="card-footer">
-              <button class="btn-details" [routerLink]="['/campaigns']">{{ t('campaigns.details') }}</button>
-              <button class="btn-apply" (click)="goToAuth('signin')">{{ t('campaigns.apply') }}</button>
+              <button class="btn-details" (click)="viewCampaignDetails(c.id)">{{ t('campaigns.details') }}</button>
+              <button class="btn-apply" (click)="applyToCampaign(c.id)">{{ t('campaigns.apply') }}</button>
           </div>
         </article>
       </div>

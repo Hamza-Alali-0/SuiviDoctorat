@@ -99,44 +99,74 @@
       } @else {
         <div class="demandes-grid">
           @for (demande of getFilteredDemandes(); track demande.id) {
-            <div class="demande-card" (click)="viewDetail(demande)">
-              <div class="card-header">
-                <div class="card-title">
-                  <h3>{{ demande.titreThese }}</h3>
-                  <span class="status-pill" [class]="'status-' + demande.statut">
-                    {{ getStatusLabel(demande.statut) }}
-                  </span>
+            <article class="demande-card" (click)="viewDetail(demande)">
+              <!-- Card Header -->
+              <div class="card-header-section">
+                <div class="card-header-left">
+                  <span class="card-number">#{{ demande.id }}</span>
+                  <span class="card-separator">·</span>
+                  <span class="card-date-text">{{ formatDate(demande.dateCreation) }}</span>
+                </div>
+                <div class="status-badge-modern" [class]="'badge-' + demande.statut">
+                  {{ getStatusLabel(demande.statut) }}
                 </div>
               </div>
-              
-              <div class="card-body">
-                <div class="info-row">
-                  <span class="label">Doctorant</span>
-                  <span class="value">{{ demande.doctorantEmail }}</span>
-                </div>
-                
-                <div class="info-row">
-                  <span class="label">Directeur</span>
-                  <span class="value">{{ demande.directeurEmail }}</span>
-                </div>
-                
-                <div class="info-row">
-                  <span class="label">Date de création</span>
-                  <span class="value">{{ formatDate(demande.dateCreation) }}</span>
-                </div>
 
-                @if (demande.dateSoutenance) {
-                  <div class="info-row">
-                    <span class="label">Date de soutenance</span>
-                    <span class="value">{{ formatDate(demande.dateSoutenance) }}</span>
-                  </div>
+              <!-- Card Body -->
+              <div class="card-body-section">
+                <h3 class="card-title-modern">{{ demande.titreThese }}</h3>
+                @if (demande.resume) {
+                  <p class="card-description">{{ demande.resume.length > 100 ? demande.resume.substring(0, 100) + '...' : demande.resume }}</p>
                 }
               </div>
-              
-              <div class="card-footer">
-                <span class="view-details">Voir les détails →</span>
+
+              <!-- People Section -->
+              <div class="card-people-section">
+                <div class="person-row">
+                  <div class="person-avatar doctorant">
+                    {{ demande.doctorantEmail.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="person-details">
+                    <span class="person-label">Doctorant</span>
+                    <span class="person-value">{{ demande.doctorantEmail }}</span>
+                  </div>
+                </div>
+                <div class="person-row">
+                  <div class="person-avatar directeur">
+                    {{ demande.directeurEmail.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="person-details">
+                    <span class="person-label">Directeur</span>
+                    <span class="person-value">{{ demande.directeurEmail }}</span>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <!-- Card Footer -->
+              <div class="card-footer-section">
+                <div class="footer-left">
+                  @if (demande.dateSoutenance) {
+                    <div class="date-badge scheduled">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      <span>{{ formatDate(demande.dateSoutenance) }}</span>
+                    </div>
+                  } @else {
+                    <span class="no-date">Non planifiée</span>
+                  }
+                </div>
+                <button class="details-link">
+                  <span>Voir détails</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+            </article>
           }
         </div>
       }
@@ -269,303 +299,398 @@
   <!-- Detail View -->
   @if (currentView() === 'detail' && selectedDemande()) {
     <div class="detail-view">
-      <!-- Banner -->
-      <div class="detail-banner">
-        <img src="assets/soutenance/banner (1).png" alt="Banner" class="banner-image" />
-        <div class="banner-overlay">
-          <h2>{{ selectedDemande()!.titreThese }}</h2>
-            <div class="banner-meta">
-              <span class="status-pill large" [class]="'status-' + selectedDemande()!.statut">
-                {{ getStatusLabel(selectedDemande()!.statut) }}
-              </span>
+      <!-- Hero Header Section -->
+      <div class="detail-hero">
+        <div class="hero-background">
+          <div class="hero-pattern"></div>
+          <div class="hero-gradient"></div>
+        </div>
+        
+        <div class="hero-content">
+          <div class="hero-breadcrumb">
+            <button class="breadcrumb-back" (click)="currentView.set('list'); loadDemandes()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              Retour aux demandes
+            </button>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-id">Demande #{{ selectedDemande()!.id }}</span>
+          </div>
+          
+          <div class="hero-main">
+            <div class="hero-info">
+              <div class="hero-status-line">
+                <span class="status-indicator" [class]="'indicator-' + selectedDemande()!.statut"></span>
+                <span class="status-text">{{ getStatusLabel(selectedDemande()!.statut) }}</span>
+              </div>
+              <h1 class="hero-title">{{ selectedDemande()!.titreThese }}</h1>
+              <div class="hero-meta">
+                <div class="meta-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span>{{ selectedDemande()!.doctorantEmail }}</span>
+                </div>
+                <div class="meta-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span>Créée le {{ formatDate(selectedDemande()!.dateCreation) }}</span>
+                </div>
+                @if (selectedDemande()!.dateSoutenance) {
+                  <div class="meta-item highlight">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span>Soutenance: {{ formatDate(selectedDemande()!.dateSoutenance || '') }}</span>
+                  </div>
+                }
+              </div>
             </div>
+            
+            <div class="hero-actions">
+              <button class="action-btn secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Télécharger
+              </button>
+              <button class="action-btn secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="18" cy="5" r="3"/>
+                  <circle cx="6" cy="12" r="3"/>
+                  <circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                Partager
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="detail-content">
-        <!-- Actions Encadrant -->
-        @if (userRole() === 'encadrant') {
-          <div class="detail-section action-section">
-            <h3>Gestion de la demande</h3>
-            <div class="action-grid">
-              <div class="action-group">
-                <label for="status-select">Changer le statut</label>
-                <select 
-                  id="status-select" 
-                  class="form-input status-select"
-                  [(ngModel)]="newStatus"
-                  (change)="onStatusChange()"
-                >
-                  <option value="">-- Sélectionner un statut --</option>
-                  <option value="BROUILLON">Brouillon</option>
-                  <option value="SOUMISE">Soumise</option>
-                  <option value="EN_VERIFICATION">En Vérification</option>
-                  <option value="PREREQUIS_VALIDES">Prérequis Validés</option>
-                  <option value="EN_ATTENTE_JURY">En Attente Jury</option>
-                  <option value="JURY_PROPOSE">Jury Proposé</option>
-                  <option value="AUTORISEE">Autorisée</option>
-                  <option value="PLANIFIEE">Planifiée</option>
-                  <option value="TERMINEE">Terminée</option>
-                  <option value="REJETEE">Rejetée</option>
-                </select>
+      <div class="detail-layout">
+        <!-- Left Column - Main Content -->
+        <div class="detail-main">
+          <!-- Actions Encadrant - Compact Management Panel -->
+          @if (userRole() === 'encadrant') {
+            <div class="management-card">
+              <div class="management-header">
+                <div class="management-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  <span>Gestion de la demande</span>
+                </div>
+                <span class="status-chip compact" [class]="'chip-' + selectedDemande()!.statut">
+                  {{ getStatusLabel(selectedDemande()!.statut) }}
+                </span>
               </div>
               
-              @if (showStatusComment()) {
-                <div class="action-group">
-                  <label for="status-comment">Commentaire (optionnel)</label>
-                  <textarea 
-                    id="status-comment" 
-                    class="form-input"
-                    [(ngModel)]="statusComment"
-                    rows="3"
-                    placeholder="Ajoutez un commentaire sur ce changement de statut..."
-                  ></textarea>
+              <div class="management-body">
+                <div class="status-change-row">
+                  <div class="select-wrapper compact">
+                    <select 
+                      class="modern-select"
+                      [(ngModel)]="newStatus"
+                      (change)="onStatusChange()"
+                    >
+                      <option value="">Changer le statut...</option>
+                      <option value="BROUILLON">Brouillon</option>
+                      <option value="SOUMISE">Soumise</option>
+                      <option value="EN_VERIFICATION">En Vérification</option>
+                      <option value="PREREQUIS_VALIDES">Prérequis Validés</option>
+                      <option value="EN_ATTENTE_JURY">En Attente Jury</option>
+                      <option value="JURY_PROPOSE">Jury Proposé</option>
+                      <option value="AUTORISEE">Autorisée</option>
+                      <option value="PLANIFIEE">Planifiée</option>
+                      <option value="TERMINEE">Terminée</option>
+                      <option value="REJETEE">Rejetée</option>
+                    </select>
+                    <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                  
+                  <div class="quick-btns">
+                    <button class="icon-btn" title="Envoyer un rappel">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                      </svg>
+                    </button>
+                    <button class="icon-btn" title="Historique">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 
-                <div class="action-buttons">
-                  <button class="btn-primary" (click)="updateDemandeStatus()">
-                    Confirmer le changement
-                  </button>
-                  <button class="btn-secondary" (click)="cancelStatusChange()">
-                    Annuler
-                  </button>
+                @if (showStatusComment()) {
+                  <div class="status-comment-inline">
+                    <textarea 
+                      class="comment-input"
+                      [(ngModel)]="statusComment"
+                      rows="2"
+                      placeholder="Commentaire (optionnel)..."
+                    ></textarea>
+                    <div class="comment-btns">
+                      <button class="btn-text" (click)="cancelStatusChange()">Annuler</button>
+                      <button class="btn-confirm-sm" (click)="updateDemandeStatus()">Confirmer</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          
+          <!-- Thesis Information -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Informations de la thèse
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <div class="info-block">
+                  <span class="info-label">Directeur de thèse</span>
+                  <div class="info-value with-avatar">
+                    <div class="mini-avatar director">
+                      {{ selectedDemande()!.directeurEmail.charAt(0).toUpperCase() }}
+                    </div>
+                    <span>{{ selectedDemande()!.directeurEmail }}</span>
+                  </div>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Date de soutenance</span>
+                  <span class="info-value">
+                    @if (selectedDemande()!.dateSoutenance) {
+                      {{ formatDate(selectedDemande()!.dateSoutenance || '') }}
+                    } @else {
+                      <span class="not-set">Non planifiée</span>
+                    }
+                  </span>
+                </div>
+              </div>
+              
+              <div class="resume-section">
+                <span class="info-label">Résumé de la thèse</span>
+                <p class="resume-text">{{ selectedDemande()!.resume }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prerequisites Section -->
+          <div class="content-card">
+            <div class="card-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Prérequis de soutenance
+              </h3>
+              <div class="progress-badge">
+                <span class="progress-value">{{ getPrerequisProgress() }}%</span>
+                <div class="progress-ring">
+                  <svg viewBox="0 0 36 36">
+                    <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="ring-fill" [style.stroke-dasharray]="getPrerequisProgress() + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              @if (!prerequis()) {
+                <div class="empty-state-inline">
+                  <p>Aucun prérequis enregistré pour cette demande</p>
+                </div>
+              } @else {
+                <div class="prerequis-grid">
+                  <div class="prereq-item" [class.done]="prerequis()!.publicationsValides">
+                    <div class="prereq-check">
+                      @if (prerequis()!.publicationsValides) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Publications scientifiques</span>
+                      <span class="prereq-detail">{{ prerequis()!.nombrePublications }}/{{ prerequis()!.nombrePublicationsRequises }} requises</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.creditsValides">
+                    <div class="prereq-check">
+                      @if (prerequis()!.creditsValides) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Crédits de formation</span>
+                      <span class="prereq-detail">{{ prerequis()!.creditsFormation }}/{{ prerequis()!.creditsFormationRequis }} crédits</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.demandeManuscrite">
+                    <div class="prereq-check">
+                      @if (prerequis()!.demandeManuscrite) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Demande manuscrite</span>
+                      <span class="prereq-detail">Document requis</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.rapportThese">
+                    <div class="prereq-check">
+                      @if (prerequis()!.rapportThese) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Rapport de thèse</span>
+                      <span class="prereq-detail">Manuscrit complet</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.rapportAntiPlagiat">
+                    <div class="prereq-check">
+                      @if (prerequis()!.rapportAntiPlagiat) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Rapport anti-plagiat</span>
+                      <span class="prereq-detail">Certificat authenticité</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.attestationsFormation">
+                    <div class="prereq-check">
+                      @if (prerequis()!.attestationsFormation) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Attestations formation</span>
+                      <span class="prereq-detail">Preuves formations</span>
+                    </div>
+                  </div>
+                  
+                  <div class="prereq-item" [class.done]="prerequis()!.autorisationSoutenance">
+                    <div class="prereq-check">
+                      @if (prerequis()!.autorisationSoutenance) {
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      }
+                    </div>
+                    <div class="prereq-info">
+                      <span class="prereq-name">Autorisation soutenance</span>
+                      <span class="prereq-detail">Accord directeur</span>
+                    </div>
+                  </div>
                 </div>
               }
             </div>
           </div>
-        }
-        
-        <!-- Main Info -->
-        <div class="detail-section info-section">
-          <h3>Informations générales</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Doctorant</span>
-              <span class="value">{{ selectedDemande()!.doctorantEmail }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Directeur</span>
-              <span class="value">{{ selectedDemande()!.directeurEmail }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Date de création</span>
-              <span class="value">{{ formatDate(selectedDemande()!.dateCreation) }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">Date de soutenance</span>
-              <span class="value">{{ formatDate(selectedDemande()!.dateSoutenance || '') }}</span>
-            </div>
-          </div>
-
-          <div class="resume-block">
-            <h4>Résumé de la thèse</h4>
-            <p>{{ selectedDemande()!.resume }}</p>
-          </div>
         </div>
 
-        <!-- Prerequisites -->
-        <div class="detail-section prerequis-section">
-          <div class="section-header">
-            <h3>Prérequis de soutenance</h3>
-            <div class="progress-indicator">
-              <span class="progress-text">{{ getPrerequisProgress() }}% complété</span>
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="getPrerequisProgress()"></div>
+        <!-- Right Column - Jury -->
+        <div class="detail-sidebar">
+          <!-- Jury Composition -->
+          <div class="jury-panel">
+            <div class="jury-panel-header">
+              <div class="jury-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Composition du Jury</span>
               </div>
+              @if (userRole() === 'encadrant') {
+                <button class="add-member-btn" (click)="showJuryForm.set(!showJuryForm())">
+                  @if (showJuryForm()) {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  }
+                </button>
+              }
             </div>
-          </div>
 
-          @if (!prerequis()) {
-            <div class="empty-message">
-              <p>Aucun prérequis enregistré</p>
-            </div>
-          } @else {
-            <div class="prerequis-list">
-              <!-- Publications -->
-              <div class="prerequis-card" [class.validated]="prerequis()!.publicationsValides">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.publicationsValides"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Publications scientifiques</h4>
-                  <p>{{ prerequis()!.nombrePublications }} / {{ prerequis()!.nombrePublicationsRequises }} publications requises</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.publicationsValides) {
-                    <span class="status-badge validated">Validé</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <!-- Credits Formation -->
-              <div class="prerequis-card" [class.validated]="prerequis()!.creditsValides">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.creditsValides"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Crédits de formation</h4>
-                  <p>{{ prerequis()!.creditsFormation }} / {{ prerequis()!.creditsFormationRequis }} crédits obtenus</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.creditsValides) {
-                    <span class="status-badge validated">Validé</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <!-- Documents -->
-              <div class="prerequis-card" [class.validated]="prerequis()!.demandeManuscrite">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.demandeManuscrite"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Demande manuscrite</h4>
-                  <p>Document requis pour la soutenance</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.demandeManuscrite) {
-                    <span class="status-badge validated">Fourni</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <div class="prerequis-card" [class.validated]="prerequis()!.rapportThese">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.rapportThese"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Rapport de thèse</h4>
-                  <p>Manuscrit complet de la thèse</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.rapportThese) {
-                    <span class="status-badge validated">Fourni</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <div class="prerequis-card" [class.validated]="prerequis()!.rapportAntiPlagiat">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.rapportAntiPlagiat"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Rapport anti-plagiat</h4>
-                  <p>Certificat d'authenticité du travail</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.rapportAntiPlagiat) {
-                    <span class="status-badge validated">Fourni</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <div class="prerequis-card" [class.validated]="prerequis()!.attestationsFormation">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.attestationsFormation"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Attestations de formation</h4>
-                  <p>Preuves des formations suivies</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.attestationsFormation) {
-                    <span class="status-badge validated">Fourni</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-
-              <div class="prerequis-card" [class.validated]="prerequis()!.autorisationSoutenance">
-                <div class="prerequis-indicator">
-                  <div class="indicator-dot" [class.active]="prerequis()!.autorisationSoutenance"></div>
-                </div>
-                <div class="prerequis-content">
-                  <h4>Autorisation de soutenance</h4>
-                  <p>Accord du directeur de thèse</p>
-                </div>
-                <div class="prerequis-status">
-                  @if (prerequis()!.autorisationSoutenance) {
-                    <span class="status-badge validated">Fourni</span>
-                  } @else {
-                    <span class="status-badge pending">En attente</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Jury Composition -->
-        <div class="detail-section jury-section">
-          <div class="section-header">
-            <h3>Composition du jury</h3>
-            @if (userRole() === 'encadrant') {
-              <button class="btn-primary" (click)="showJuryForm.set(!showJuryForm())">
-                {{ showJuryForm() ? 'Annuler' : 'Ajouter un membre' }}
-              </button>
-            }
-          </div>
-
-          @if (showJuryForm() && userRole() === 'encadrant') {
-            <form class="jury-form premium-form" (ngSubmit)="addJuryMember()">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="nom">Nom</label>
+            @if (showJuryForm() && userRole() === 'encadrant') {
+              <form class="jury-form-compact" (ngSubmit)="addJuryMember()">
+                <div class="form-grid">
                   <input 
                     type="text" 
-                    id="nom" 
-                    class="form-input"
+                    class="form-field"
+                    [(ngModel)]="newMember.prenom"
+                    name="prenom"
+                    placeholder="Prénom"
+                    required
+                  />
+                  <input 
+                    type="text" 
+                    class="form-field"
                     [(ngModel)]="newMember.nom"
                     name="nom"
                     placeholder="Nom"
                     required
                   />
                 </div>
-
-                <div class="form-group">
-                  <label for="prenom">Prénom</label>
-                  <input 
-                    type="text" 
-                    id="prenom" 
-                    class="form-input"
-                    [(ngModel)]="newMember.prenom"
-                    name="prenom"
-                    placeholder="Prénom"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    class="form-input"
-                    [(ngModel)]="newMember.email"
-                    name="email"
-                    placeholder="email@universite.fr"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="role">Rôle</label>
+                <input 
+                  type="email" 
+                  class="form-field"
+                  [(ngModel)]="newMember.email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                />
+                <div class="form-grid">
                   <select 
-                    id="role" 
-                    class="form-input"
+                    class="form-field"
                     [(ngModel)]="newMember.role"
                     name="role"
                     required
@@ -574,108 +699,129 @@
                     <option value="RAPPORTEUR">Rapporteur</option>
                     <option value="EXAMINATEUR">Examinateur</option>
                   </select>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="grade">Grade</label>
                   <input 
                     type="text" 
-                    id="grade" 
-                    class="form-input"
+                    class="form-field"
                     [(ngModel)]="newMember.grade"
                     name="grade"
-                    placeholder="Ex: Professeur"
+                    placeholder="Grade"
                   />
                 </div>
-
-                <div class="form-group">
-                  <label for="etablissement">Établissement</label>
-                  <input 
-                    type="text" 
-                    id="etablissement" 
-                    class="form-input"
-                    [(ngModel)]="newMember.etablissement"
-                    name="etablissement"
-                    placeholder="Nom de l'établissement"
-                  />
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
+                <input 
+                  type="text" 
+                  class="form-field"
+                  [(ngModel)]="newMember.etablissement"
+                  name="etablissement"
+                  placeholder="Établissement"
+                />
+                <button type="submit" class="submit-member-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                  </svg>
                   Ajouter au jury
                 </button>
-              </div>
-            </form>
-          }
+              </form>
+            }
 
-          @if (juryMembers().length === 0) {
-            <div class="empty-message">
-              @if (userRole() === 'encadrant') {
-                <p>Aucun membre du jury ajouté</p>
-              } @else {
-                <p>Aucun membre du jury affecté pour le moment</p>
-              }
-            </div>
-          } @else {
-            <div class="jury-grid">
-              @for (member of juryMembers(); track member.id) {
-                <div class="jury-card">
-                  <div class="jury-header">
-                    <div class="jury-avatar">
-                      {{ member.prenom.charAt(0) }}{{ member.nom.charAt(0) }}
-                    </div>
-                    <div class="jury-info">
-                      <h4>{{ member.prenom }} {{ member.nom }}</h4>
-                      <p class="jury-role">{{ member.role }}</p>
-                    </div>
+            <div class="jury-members-list">
+              @if (juryMembers().length === 0) {
+                <div class="jury-empty">
+                  <div class="empty-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
                   </div>
-                  
-                  <div class="jury-details">
-                    @if (member.grade) {
-                      <div class="detail-item">
-                        <span class="label">Grade</span>
-                        <span class="value">{{ member.grade }}</span>
-                      </div>
-                    }
-                    @if (member.etablissement) {
-                      <div class="detail-item">
-                        <span class="label">Établissement</span>
-                        <span class="value">{{ member.etablissement }}</span>
-                      </div>
-                    }
-                    <div class="detail-item">
-                      <span class="label">Email</span>
-                      <span class="value">{{ member.email }}</span>
-                    </div>
-                  </div>
-
-                  @if (member.avisRendu !== undefined) {
-                    <div class="jury-avis">
-                      @if (member.avisRendu) {
-                        <span class="avis-badge" [class.favorable]="member.avisFavorable">
-                          {{ member.avisFavorable ? 'Avis favorable' : 'Avis défavorable' }}
-                        </span>
-                      } @else {
-                        <span class="avis-badge pending">Avis en attente</span>
-                      }
-                    </div>
+                  <p>Aucun membre du jury</p>
+                  @if (userRole() === 'encadrant') {
+                    <span class="empty-hint">Cliquez sur + pour ajouter</span>
                   }
                 </div>
+              } @else {
+                @for (member of juryMembers(); track member.id; let i = $index) {
+                  <div class="jury-member-card" [class.first]="i === 0">
+                    <div class="member-avatar" [class]="'role-' + member.role.toLowerCase()">
+                      {{ member.prenom.charAt(0) }}{{ member.nom.charAt(0) }}
+                    </div>
+                    <div class="member-info">
+                      <div class="member-name">{{ member.prenom }} {{ member.nom }}</div>
+                      <div class="member-role-badge" [class]="'badge-' + member.role.toLowerCase()">
+                        {{ member.role }}
+                      </div>
+                      @if (member.grade || member.etablissement) {
+                        <div class="member-details">
+                          @if (member.grade) {
+                            <span>{{ member.grade }}</span>
+                          }
+                          @if (member.grade && member.etablissement) {
+                            <span class="separator">•</span>
+                          }
+                          @if (member.etablissement) {
+                            <span>{{ member.etablissement }}</span>
+                          }
+                        </div>
+                      }
+                      <div class="member-email">{{ member.email }}</div>
+                    </div>
+                    @if (member.avisRendu !== undefined) {
+                      <div class="member-status">
+                        @if (member.avisRendu) {
+                          <span class="avis-dot" [class.favorable]="member.avisFavorable"></span>
+                        } @else {
+                          <span class="avis-dot pending"></span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               }
             </div>
-          }
-        </div>
 
-        <!-- Assets -->
-        <div class="detail-section assets-section-detail">
-          <h3>Ressources</h3>
-          <div class="assets-grid">
-            <img src="assets/soutenance/Active Researchers.png" alt="Chercheurs actifs" />
-            <img src="assets/soutenance/Transform Your Doctoral Journey.png" alt="Parcours doctoral" />
-            <img src="assets/soutenance/our Platform (1).png" alt="Notre plateforme" />
+            <!-- Jury Stats -->
+            @if (juryMembers().length > 0) {
+              <div class="jury-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ juryMembers().length }}</span>
+                  <span class="stat-label">Membres</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ getAvisCount() }}</span>
+                  <span class="stat-label">Avis rendus</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Quick Info Card -->
+          <div class="quick-info-card">
+            <div class="quick-info-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span>Informations</span>
+            </div>
+            <div class="quick-info-body">
+              <div class="info-line">
+                <span class="info-key">ID Demande</span>
+                <span class="info-val">#{{ selectedDemande()!.id }}</span>
+              </div>
+              <div class="info-line">
+                <span class="info-key">Doctorant</span>
+                <span class="info-val">{{ selectedDemande()!.doctorantEmail.split('@')[0] }}</span>
+              </div>
+              <div class="info-line">
+                <span class="info-key">Dernière mise à jour</span>
+                <span class="info-val">{{ formatDate(selectedDemande()!.dateCreation) }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
