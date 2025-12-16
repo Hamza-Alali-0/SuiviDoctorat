@@ -43,7 +43,7 @@ public class UserService {
         try {
             String req = saved.getRequestedProfile();
             if (notificationUrl != null && !notificationUrl.isBlank() && req != null) {
-                java.util.Map<String, String> payload = new java.util.HashMap<>();
+                java.util.Map<String, Object> payload = new java.util.HashMap<>();
                 payload.put("type", "profile_request");
                 payload.put("email", saved.getEmail());
                 payload.put("requestedProfile", req);
@@ -107,7 +107,7 @@ public class UserService {
         try {
             String req = saved.getRequestedProfile();
             if (notificationUrl != null && !notificationUrl.isBlank() && req != null) {
-                java.util.Map<String, String> payload = new java.util.HashMap<>();
+                java.util.Map<String, Object> payload = new java.util.HashMap<>();
                 payload.put("type", "profile_request");
                 payload.put("email", saved.getEmail());
                 payload.put("requestedProfile", req);
