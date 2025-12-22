@@ -1,0 +1,197 @@
+<admin-navbar></admin-navbar>
+
+<div class="wrap">
+  <!-- Sidebar Filters -->
+  <div class="sidebar">
+    <div class="filter-card">
+      <div class="filter-title">Filtres</div>
+      
+      @if (view() === 'users') {
+        <div class="filter-group">
+          <div class="filter-label">Rôle</div>
+          <div class="filter-option" [class.active]="selectedRole() === 'all'" (click)="selectedRole.set('all')">
+            <input type="radio" [checked]="selectedRole() === 'all'" readonly>
+            <span>Tous les rôles</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedRole() === 'ADMIN'" (click)="selectedRole.set('ADMIN')">
+            <input type="radio" [checked]="selectedRole() === 'ADMIN'" readonly>
+            <span>Administrateurs</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedRole() === 'ENCADRANT'" (click)="selectedRole.set('ENCADRANT')">
+            <input type="radio" [checked]="selectedRole() === 'ENCADRANT'" readonly>
+            <span>Encadrants</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedRole() === 'DOCTORANT'" (click)="selectedRole.set('DOCTORANT')">
+            <input type="radio" [checked]="selectedRole() === 'DOCTORANT'" readonly>
+            <span>Doctorants</span>
+          </div>
+        </div>
+      } @else {
+        <div class="filter-group">
+          <div class="filter-label">Statut</div>
+          <div class="filter-option" [class.active]="selectedStatus() === 'all'" (click)="selectedStatus.set('all')">
+            <input type="radio" [checked]="selectedStatus() === 'all'" readonly>
+            <span>Tous les statuts</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedStatus() === 'PENDING'" (click)="selectedStatus.set('PENDING')">
+            <input type="radio" [checked]="selectedStatus() === 'PENDING'" readonly>
+            <span>En attente</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedStatus() === 'APPROVED'" (click)="selectedStatus.set('APPROVED')">
+            <input type="radio" [checked]="selectedStatus() === 'APPROVED'" readonly>
+            <span>Approuvés</span>
+          </div>
+          <div class="filter-option" [class.active]="selectedStatus() === 'REJECTED'" (click)="selectedStatus.set('REJECTED')">
+            <input type="radio" [checked]="selectedStatus() === 'REJECTED'" readonly>
+            <span>Rejetés</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Gestion des Utilisateurs</h1>
+        <p class="page-subtitle">Gérez les comptes, rôles et permissions</p>
+      </div>
+      <button class="action-btn primary" (click)="loadData()">
+        Rafraîchir
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="view() === 'users'" (click)="view.set('users')">
+        Utilisateurs Actifs
+        <span class="tab-badge">{{ users().length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="view() === 'requests'" (click)="view.set('requests')">
+        Demandes de Rôle
+        <span class="tab-badge">{{ requests().length }}</span>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher par nom, email..." 
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      >
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <p>Chargement des données...</p>
+      </div>
+    } @else {
+      
+      <!-- Users View -->
+      @if (view() === 'users') {
+        @if (filteredUsers.length === 0) {
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <p>Aucun utilisateur trouvé</p>
+          </div>
+        } @else {
+          <div class="users-grid">
+            @for (user of filteredUsers; track user.id) {
+              <div class="user-card">
+                <div class="user-header">
+                  <div class="user-avatar">
+                    {{ getInitials(user.firstName, user.lastName) }}
+                  </div>
+                  <div class="user-info">
+                    <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                  </div>
+                </div>
+                
+                <div class="user-meta">
+                  <span class="role-badge" [class]="'role-' + user.role.toLowerCase()">
+                    {{ user.role }}
+                  </span>
+                  <span class="role-badge" style="background:#f4f4f5; color:#71717a">
+                    {{ user.status }}
+                  </span>
+                </div>
+
+                <div class="user-actions">
+                  <button class="action-btn">Détails</button>
+                  <button class="action-btn">Modifier</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Requests View -->
+      @if (view() === 'requests') {
+        @if (filteredRequests.length === 0) {
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Aucune demande en attente</p>
+          </div>
+        } @else {
+          <div class="requests-list">
+            @for (req of filteredRequests; track req.id) {
+              <div class="req-card">
+                <div class="req-avatar">
+                  {{ getInitials(req.firstName, req.lastName) }}
+                </div>
+                <div class="req-content">
+                  <div class="req-header">
+                    <div>
+                      <div class="req-name">{{ req.firstName }} {{ req.lastName }}</div>
+                      <div class="req-email">{{ req.email }}</div>
+                    </div>
+                    <div class="req-date">{{ req.createdAt }}</div>
+                  </div>
+
+                  <div class="req-details">
+                    <div class="req-label">Rôle demandé</div>
+                    <div class="req-value">{{ req.requestedRole }}</div>
+                  </div>
+
+                  @if (req.status === 'PENDING') {
+                    <div class="req-actions">
+                      <button class="btn-approve" (click)="approveRequest(req.id)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Approuver
+                      </button>
+                      <button class="btn-reject" (click)="rejectRequest(req.id)">
+                        Rejeter
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="role-badge" [class]="'role-' + (req.status === 'APPROVED' ? 'encadrant' : 'candidat')">
+                      {{ req.status === 'APPROVED' ? 'APPROUVÉ' : 'REJETÉ' }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+    }
+  </div>
+</div>

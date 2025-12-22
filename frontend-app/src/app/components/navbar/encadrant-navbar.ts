@@ -306,7 +306,10 @@ import { AuthService } from '../../services/auth.service';
     /* Focus styles for keyboard navigation */
     .menu-btn:focus-visible,
     .icon-button:focus-visible,
-    .profile-button:focus-visible {
+    .profile-button:focus-visible,
+    .sidebar-settings-btn:focus-visible,
+    .sidebar-close:focus-visible,
+    .logout-btn:focus-visible {
       outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
@@ -505,6 +508,67 @@ import { AuthService } from '../../services/auth.service';
     .sidebar-user-info {
       flex: 1;
       min-width: 0;
+    }
+
+    .sidebar-settings-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--color-text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .sidebar-settings-btn:hover {
+      background: var(--color-bg);
+      color: var(--color-primary);
+    }
+
+    .sidebar-settings-btn:active {
+      transform: scale(0.95);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .logout-btn:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #dc2626;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.98);
+    }
+
+    .logout-btn svg {
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+
+    .logout-btn:hover svg {
+      transform: translateX(2px);
     }
 
     .sidebar-user-email {
