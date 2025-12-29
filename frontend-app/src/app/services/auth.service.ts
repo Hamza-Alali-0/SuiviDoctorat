@@ -118,6 +118,16 @@ export class AuthService {
     return this.http.post('/gestion-auth-service/api/auth/password-reset/request', { email });
   }
 
+  // Validate password reset token without consuming it
+  validatePasswordResetToken(token: string): Observable<any> {
+    return this.http.get('/gestion-auth-service/api/auth/password-reset/validate', { params: { token } });
+  }
+
+  // Validate password reset code without consuming it
+  validatePasswordResetCode(email: string, code: string): Observable<any> {
+    return this.http.get('/gestion-auth-service/api/auth/password-reset/validate-code', { params: { email, code } });
+  }
+
   // Confirm password reset: consume token and set new password
   confirmPasswordReset(token: string, password: string, confirmPassword: string): Observable<any> {
     return this.http.post('/gestion-auth-service/api/auth/password-reset/confirm', { token, password, confirmPassword });

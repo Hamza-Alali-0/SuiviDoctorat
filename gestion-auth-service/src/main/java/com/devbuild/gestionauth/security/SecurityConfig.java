@@ -49,7 +49,8 @@ public class SecurityConfig {
                 auth.requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login",
                     "/api/auth/send-verification-code", "/api/auth/verify-code",
                     "/api/auth/password-reset/request", "/api/auth/password-reset/confirm").permitAll();
-                auth.requestMatchers(HttpMethod.GET, "/api/auth/confirm").permitAll();
+                auth.requestMatchers(HttpMethod.GET, "/api/auth/confirm", 
+                    "/api/auth/password-reset/validate", "/api/auth/password-reset/validate-code").permitAll();
                 auth.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll();
             
                 auth.requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico").permitAll();

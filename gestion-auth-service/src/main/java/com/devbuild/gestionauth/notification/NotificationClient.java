@@ -16,8 +16,13 @@ public class NotificationClient {
     private String internalSecret;
 
     public NotificationClient(@Value("${app.notification.url:http://localhost:8094}") String notificationUrl) {
+        // Normalize configured URL to avoid duplicate "/api/notifications" segments
+        String base = notificationUrl != null ? notificationUrl.trim() : "";
+        // collapse repeated '/api/notifications' occurrences and strip trailing slashes
+        base = base.replaceAll("(/api/notifications)+", "/api/notifications");
+        base = base.replaceAll("/+$", "");
         this.webClient = WebClient.builder()
-                .baseUrl(notificationUrl)
+                .baseUrl(base)
                 .build();
     }
 
@@ -25,8 +30,10 @@ public class NotificationClient {
      * Send an email request to the notification service
      */
     public Mono<String> sendEmailRequest(Map<String, Object> payload) {
+        // Use the template-aware `/email` endpoint so payloads containing
+        // `templateCode` and `variables` are handled by the notification service.
         return webClient.post()
-                .uri("/api/notifications/email/raw")
+                .uri("/email")
                 .header("Content-Type", "application/json")
                 .header("X-INTERNAL-AUTH", internalSecret != null ? internalSecret : "")
                 .bodyValue(payload)
@@ -44,7 +51,7 @@ public class NotificationClient {
      */
     public Mono<String> sendProfileRequest(Map<String, Object> payload) {
         return webClient.post()
-                .uri("/api/notifications/profile-request")
+                .uri("/profile-request")
                 .header("Content-Type", "application/json")
                 .header("X-INTERNAL-AUTH", internalSecret != null ? internalSecret : "")
                 .bodyValue(payload)

@@ -225,6 +225,47 @@ public class UserService {
     }
 
     /**
+     * Validates a password reset token without consuming it.
+     * Returns true if the token is valid and not expired.
+     */
+    public boolean validatePasswordResetToken(String token) {
+        if (token == null) return false;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) { sb.append(String.format("%02x", b)); }
+            String hash = sb.toString();
+
+            var uOpt = userRepository.findByPasswordResetTokenHash(hash);
+            if (uOpt.isEmpty()) return false;
+            User u = uOpt.get();
+            java.time.LocalDateTime now = java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).toLocalDateTime();
+            if (u.getPasswordResetExpiry() == null || u.getPasswordResetExpiry().isBefore(now)) return false;
+            
+            return true;
+        } catch (Exception ex) {
+            try { System.err.println("[UserService] validatePasswordResetToken error: " + ex.getMessage()); } catch (Throwable t) {}
+            return false;
+        }
+    }
+
+    /**
+     * Validates a password reset code without consuming it.
+     * Returns true if the code is valid and not expired.
+     */
+    public boolean validatePasswordResetCode(String email, String code) {
+        if (email == null || code == null) return false;
+        var uOpt = userRepository.findByEmail(email);
+        if (uOpt.isEmpty()) return false;
+        User u = uOpt.get();
+        if (u.getVerificationCode() == null || !u.getVerificationCode().equals(code)) return false;
+        java.time.LocalDateTime now = java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).toLocalDateTime();
+        if (u.getVerificationExpiry() == null || u.getVerificationExpiry().isBefore(now)) return false;
+        return true;
+    }
+
+    /**
      * Consomme le token et met à jour le mot de passe si valide.
      */
     public boolean resetPassword(String token, String newRawPassword) {

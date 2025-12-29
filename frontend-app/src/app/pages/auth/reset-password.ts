@@ -13,8 +13,10 @@ import { TranslationService } from '../../services/translation.service';
     <div class="reset-page">
       <div class="reset-container">
         <h2>{{ tx.translations().reset.title }}</h2>
-        <p *ngIf="token">{{ tx.translations().reset.descToken }}</p>
-        <p *ngIf="!token">{{ tx.translations().reset.descNoToken }}</p>
+        
+        <div *ngIf="validatingToken()" class="alert alert-info">Validating...</div>
+        <div *ngIf="!validatingToken() && tokenValid() && !error()" class="alert alert-success">{{ success() }}</div>
+        <div *ngIf="!validatingToken() && error()" class="alert alert-error">{{ error() }}</div>
 
         <div class="form-group" *ngIf="!token">
           <label for="email">{{ tx.translations().reset.email }}</label>
@@ -23,7 +25,7 @@ import { TranslationService } from '../../services/translation.service';
 
         <div class="form-group">
           <label for="token">{{ tx.translations().reset.token }}</label>
-          <input id="token" type="text" [value]="token" (input)="token = $any($event.target).value" />
+          <input id="token" type="text" [value]="token" (input)="token = $any($event.target).value" [disabled]="token" />
         </div>
 
         <div class="form-group" *ngIf="!token">
@@ -41,12 +43,9 @@ import { TranslationService } from '../../services/translation.service';
           <input id="confirm" type="password" [value]="confirm" (input)="confirm = $any($event.target).value" />
         </div>
 
-        <div *ngIf="error()" class="alert alert-error">{{ error() }}</div>
-        <div *ngIf="success()" class="alert alert-success">{{ success() }}</div>
-
         <div style="display:flex; gap:1rem; margin-top:2rem;">
           <button class="btn-secondary" (click)="cancel()">{{ tx.translations().reset.cancel }}</button>
-          <button class="btn-primary" (click)="submit()">{{ tx.translations().reset.submit }}</button>
+          <button class="btn-primary" (click)="submit()" [disabled]="submitting() || validatingToken()">{{ submitting() ? 'Processing...' : tx.translations().reset.submit }}</button>
         </div>
       </div>
     </div>
@@ -171,6 +170,9 @@ import { TranslationService } from '../../services/translation.service';
     }
     .alert-error { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
     .alert-success { background: #f0fdf4; color: #059669; border: 1px solid #dcfce7; }
+    .alert-info { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; }
+    input:disabled { background: var(--color-bg-secondary); cursor: not-allowed; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
   `]
 })
 export class ResetPasswordPage {
@@ -183,11 +185,58 @@ export class ResetPasswordPage {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   submitting = signal<boolean>(false);
+  validatingToken = signal<boolean>(false);
+  tokenValid = signal<boolean>(false);
 
   constructor(private route: ActivatedRoute, private router: Router, private auth: AuthService, protected tx: TranslationService) {
     this.route.queryParams.subscribe(q => {
-      if (q['token']) this.token = q['token'];
+      if (q['token']) {
+        this.token = q['token'];
+        this.validateToken(q['token']);
+      }
       if (q['email']) this.email = q['email'];
+      if (q['code'] && q['email']) {
+        this.code = q['code'];
+        this.validateCode(q['email'], q['code']);
+      }
+    });
+  }
+
+  validateToken(token: string) {
+    this.validatingToken.set(true);
+    this.error.set(null);
+    this.success.set(null);
+    
+    this.auth.validatePasswordResetToken(token).subscribe({
+      next: (res: any) => {
+        this.tokenValid.set(true);
+        this.success.set('Token verified. Enter your new password below.');
+        this.validatingToken.set(false);
+      },
+      error: (err: any) => {
+        this.tokenValid.set(false);
+        this.error.set(err?.error?.message || 'Invalid or expired token');
+        this.validatingToken.set(false);
+      }
+    });
+  }
+
+  validateCode(email: string, code: string) {
+    this.validatingToken.set(true);
+    this.error.set(null);
+    this.success.set(null);
+    
+    this.auth.validatePasswordResetCode(email, code).subscribe({
+      next: (res: any) => {
+        this.tokenValid.set(true);
+        this.success.set('Code verified. Enter your new password below.');
+        this.validatingToken.set(false);
+      },
+      error: (err: any) => {
+        this.tokenValid.set(false);
+        this.error.set(err?.error?.message || 'Invalid or expired code');
+        this.validatingToken.set(false);
+      }
     });
   }
 

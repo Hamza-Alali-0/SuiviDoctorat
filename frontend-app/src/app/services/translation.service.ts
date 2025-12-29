@@ -134,9 +134,17 @@ TRANSLATIONS.en.contact = {
 TRANSLATIONS.en.reset = {
   title: 'Reset Password',
   descToken: 'Token detected. Set your new password.',
+  descNoToken: 'Enter your reset code or token.',
   descCode: 'Enter email and code, or paste token.',
-  email: 'Email', token: 'Token', code: 'Code (6 digits)', newPass: 'New Password', confirm: 'Confirm Password',
-  btn: 'Validate', cancel: 'Cancel'
+  email: 'Email', token: 'Token', code: 'Code (6 digits)', password: 'New Password', confirm: 'Confirm Password',
+  submit: 'Reset Password', cancel: 'Cancel',
+  errors: {
+    passRequired: 'Password and confirmation are required',
+    passMismatch: 'Passwords do not match',
+    tokenRequired: 'Token or email+code required',
+    success: 'Password reset successful! Redirecting...',
+    failed: 'Failed to reset password'
+  }
 };
 
 // About, Campaigns, CampaignDetail (English)

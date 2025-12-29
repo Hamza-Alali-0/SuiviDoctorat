@@ -154,6 +154,31 @@ public class AuthApiController {
         }
     }
 
+    @GetMapping("/password-reset/validate")
+    public ResponseEntity<?> validatePasswordResetToken(@RequestParam(value = "token", required = false) String token) {
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "token required", "valid", false));
+        }
+        boolean valid = userService.validatePasswordResetToken(token);
+        if (valid) {
+            return ResponseEntity.ok(Map.of("message", "Token detected. Set your new password.", "valid", true));
+        }
+        return ResponseEntity.status(400).body(Map.of("message", "Invalid or expired token", "valid", false));
+    }
+
+    @GetMapping("/password-reset/validate-code")
+    public ResponseEntity<?> validatePasswordResetCode(@RequestParam(value = "email", required = false) String email,
+                                                         @RequestParam(value = "code", required = false) String code) {
+        if (email == null || email.isBlank() || code == null || code.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "email and code required", "valid", false));
+        }
+        boolean valid = userService.validatePasswordResetCode(email, code);
+        if (valid) {
+            return ResponseEntity.ok(Map.of("message", "Code is valid. Set your new password.", "valid", true));
+        }
+        return ResponseEntity.status(400).body(Map.of("message", "Invalid or expired code", "valid", false));
+    }
+
     @PostMapping("/password-reset/confirm")
     public ResponseEntity<?> confirmPasswordReset(@RequestBody Map<String, String> body) {
         String token = body.get("token");
