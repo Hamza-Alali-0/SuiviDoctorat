@@ -12,4 +12,7 @@ public interface DossierInscriptionRepository extends JpaRepository<DossierInscr
     List<DossierInscription> findByDoctorantId(Long doctorantId);
     List<DossierInscription> findByStatut(StatutDossier statut);
     int countByCampagneId(Long campagneId);
+    
+    // Check if user has applied to a specific campaign
+    boolean existsByDoctorantIdAndCampagneId(Long doctorantId, Long campagneId);
 }

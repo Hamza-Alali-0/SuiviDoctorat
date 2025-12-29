@@ -1383,26 +1383,18 @@ export class CampaignsPage implements OnInit {
 
   // Load applied campaigns from backend on component init
   private loadAppliedFromBackend(): void {
-    console.log('[CampaignsPage] Loading applied campaigns from backend (via /me/dashboard)...');
-    this.applicationsService.getMyApplications().subscribe({
-      next: (data: any[]) => {
-        console.log('[CampaignsPage] ✓ Loaded applications from backend:', data.length, 'applications');
-        const appliedIds = new Set<number>();
-        (Array.isArray(data) ? data : []).forEach(d => {
-          if (d && d.campagne && d.campagne.id) {
-            appliedIds.add(d.campagne.id);
-            console.log('[CampaignsPage]   - Found application for campaign:', d.campagne.id, d.campagne.nom);
-          }
-        });
-
-        console.log('[CampaignsPage] Setting appliedCampaignIds:', Array.from(appliedIds));
-        this.appliedCampaignIds.set(appliedIds);
+    console.log('[CampaignsPage] Loading applied campaigns from backend...');
+    this.applicationsService.getAppliedCampaignIds().subscribe({
+      next: (appliedIds: number[]) => {
+        console.log('[CampaignsPage] ✓ Loaded applied campaign IDs from backend:', appliedIds);
+        const appliedSet = new Set<number>(appliedIds);
+        this.appliedCampaignIds.set(appliedSet);
 
         // Save to localStorage for offline viewing
         try { this.saveApplied(); } catch (e) { console.error('[CampaignsPage] Failed to save:', e); }
       },
       error: (err) => {
-        console.error('[CampaignsPage] ✗ Failed to load applications from backend:', err);
+        console.error('[CampaignsPage] ✗ Failed to load applied campaigns from backend:', err);
         // Keep localStorage data as fallback
       }
     });

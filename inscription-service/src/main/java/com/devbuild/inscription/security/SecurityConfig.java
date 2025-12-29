@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/inscriptions/doctorant/*/reinscription").hasRole("DOCTORANT")
                 .requestMatchers("/api/inscriptions/doctorant/*/dashboard").hasAnyRole("DOCTORANT","CANDIDAT")
                 .requestMatchers("/api/inscriptions/doctorant/me/dashboard").hasAnyRole("DOCTORANT","CANDIDAT")
+                .requestMatchers("/api/inscriptions/doctorant/me/applied-campaigns").hasAnyRole("DOCTORANT","CANDIDAT")
                 .requestMatchers("/api/inscriptions/dossier/*/upload").hasAnyRole("DOCTORANT","CANDIDAT")
                 .requestMatchers("/api/inscriptions/dossier/*/directeur/avis").hasRole("DIRECTEUR")
                 .requestMatchers("/api/inscriptions/dossier/*/admin/valider").hasRole("ADMIN")

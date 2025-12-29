@@ -479,6 +479,30 @@ public class InscriptionService {
     }
 
     /**
+     * Get list of campaign IDs that the doctorant has applied to
+     */
+    public List<Long> getAppliedCampaignIds(Long doctorantId) {
+        List<DossierInscription> dossiers = dossierRepository.findByDoctorantId(doctorantId);
+        return dossiers.stream()
+                .map(d -> d.getCampagne() != null ? d.getCampagne().getId() : null)
+                .filter(id -> id != null)
+                .distinct()
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Get list of campaign IDs that the doctorant (by email) has applied to
+     */
+    public List<Long> getAppliedCampaignIdsByEmail(String email) {
+        List<DossierInscription> dossiers = getDossiersForDoctorantEmail(email);
+        return dossiers.stream()
+                .map(d -> d.getCampagne() != null ? d.getCampagne().getId() : null)
+                .filter(id -> id != null)
+                .distinct()
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
      * Get dashboard data for a doctorant
      */
     public List<DashboardDTO> getDashboardForDoctorant(Long doctorantId) {

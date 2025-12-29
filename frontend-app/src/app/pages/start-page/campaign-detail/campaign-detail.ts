@@ -129,6 +129,11 @@ export class CampaignDetailComponent implements OnInit {
       this.loadCampaign(+id);
       this.loadFavoriteStatus(+id);
       this.loadApplicationStatus(+id);
+      
+      // If logged in, sync with backend
+      if (this.isLoggedIn) {
+        this.syncApplicationStatusFromBackend(+id);
+      }
     } else {
       this.error.set('ID de campagne invalide');
       this.loading.set(false);
@@ -156,6 +161,26 @@ export class CampaignDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  syncApplicationStatusFromBackend(campaignId: number): void {
+    this.applicationsService.getAppliedCampaignIds().subscribe({
+      next: (appliedIds) => {
+        const hasApplied = appliedIds.includes(campaignId);
+        this.hasApplied.set(hasApplied);
+        
+        // Sync to localStorage
+        try {
+          const key = this.getAppliedKey();
+          localStorage.setItem(key, JSON.stringify(appliedIds));
+        } catch (e) {
+          console.error('[CampaignDetail] Failed to sync applied campaigns to localStorage:', e);
+        }
+      },
+      error: (err) => {
+        console.error('[CampaignDetail] Failed to sync application status from backend:', err);
+      }
+    });
   }
 
   tryExtractIdFromToken(): void {

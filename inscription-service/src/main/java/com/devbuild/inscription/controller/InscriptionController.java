@@ -208,4 +208,16 @@ public class InscriptionController {
         return ResponseEntity.ok(favorites);
     }
 
+    /**
+     * Get list of campaign IDs the authenticated user has applied to
+     */
+    @GetMapping("/doctorant/me/applied-campaigns")
+    public ResponseEntity<List<Long>> getAppliedCampaigns(Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        List<Long> appliedCampaignIds = service.getAppliedCampaignIdsByEmail(principal.getName());
+        return ResponseEntity.ok(appliedCampaignIds);
+    }
+
 }

@@ -43,6 +43,22 @@ export class ApplicationsService {
     );
   }
 
+  /**
+   * Get list of campaign IDs the authenticated user has applied to
+   */
+  getAppliedCampaignIds(): Observable<number[]> {
+    return this.http.get<number[]>('/inscription-service/api/inscriptions/doctorant/me/applied-campaigns').pipe(
+      map(ids => {
+        console.log('[ApplicationsService] ✓ getAppliedCampaignIds returned:', ids?.length || 0, 'campaigns');
+        return ids || [];
+      }),
+      catchError(err => {
+        console.error('[ApplicationsService] ✗ getAppliedCampaignIds failed:', err);
+        return of([]);
+      })
+    );
+  }
+
   // form: InscriptionFormDTO-like object, files: map of key -> File | File[]
   submitApplication(campaignId: number, form: any, files: Record<string, File | File[]>): Observable<any> {
     console.log('[ApplicationsService] submitApplication called for campaignId:', campaignId);
