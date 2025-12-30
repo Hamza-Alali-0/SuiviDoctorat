@@ -18,8 +18,11 @@ import { AuthService } from '../../services/auth.service';
         
         <div class="brand">
           <div class="brand-icon">
-            <img src="assets/logo_white.png" alt="SuiviDoctorat logo (light)" class="brand-logo brand-logo--light" />
-            <img src="assets/logo.png" alt="SuiviDoctorat logo (dark)" class="brand-logo brand-logo--dark" />
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M16 3L3 9v8c0 7.732 5.076 13 13 13s13-5.268 13-13V9L16 3z" fill="currentColor" opacity="0.15"/>
+              <path d="M16 3L3 9v8c0 7.732 5.076 13 13 13s13-5.268 13-13V9L16 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 11v7m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </div>
           <span class="brand-text">Admin Dashboard</span>
         </div>
@@ -91,8 +94,11 @@ import { AuthService } from '../../services/auth.service';
         <div class="sidebar-header">
           <div class="sidebar-brand">
             <div class="sidebar-brand-icon">
-              <img src="assets/logo_white.png" alt="SuiviDoctorat logo (light)" class="brand-logo brand-logo--light" />
-              <img src="assets/logo.png" alt="SuiviDoctorat logo (dark)" class="brand-logo brand-logo--dark" />
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 3L3 9v8c0 7.732 5.076 13 13 13s13-5.268 13-13V9L16 3z" fill="currentColor" opacity="0.15"/>
+                <path d="M16 3L3 9v8c0 7.732 5.076 13 13 13s13-5.268 13-13V9L16 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 11v7m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
             </div>
             <span class="sidebar-brand-text">Admin Panel</span>
           </div>
@@ -159,12 +165,7 @@ import { AuthService } from '../../services/auth.service';
     .menu-btn:hover{ background:var(--color-hover) }
     .menu-btn:active{ background:var(--color-active) }
     .brand{ display:flex; align-items:center; gap:0.625rem; user-select:none }
-    .brand-icon{ display:flex; align-items:center; justify-content:center; width:36px; height:36px; color:var(--color-primary) }
-    .brand-logo{ display:block; width:67px; height:67px; object-fit:contain }
-    .brand-logo--light{ display:block }
-    .brand-logo--dark{ display:none }
-    :host-context(.dark) .brand-logo--light{ display:none }
-    :host-context(.dark) .brand-logo--dark{ display:block }
+    .brand-icon{ display:flex; align-items:center; justify-content:center; width:32px; height:32px; color:var(--color-primary) }
     .brand-text{ font-size:1.125rem; font-weight:600; color:var(--color-text); letter-spacing:-0.01em }
     .nav-center{ flex:1; display:flex; justify-content:center; max-width:600px; margin:0 auto }
     .search-container{ position:relative; width:100%; max-width:500px; display:flex; align-items:center; gap:0.75rem; padding:0 1rem; background:var(--color-hover); border:1px solid var(--color-border); border-radius:24px; transition:all 0.2s }
@@ -179,7 +180,7 @@ import { AuthService } from '../../services/auth.service';
     .profile-button{ display:flex; align-items:center; justify-content:center; width:36px; height:36px; padding:0; border:2px solid var(--color-border); background:var(--color-hover); border-radius:50%; cursor:pointer; overflow:hidden; transition:all 0.2s }
     .profile-button:hover{ border-color:var(--color-primary); transform:scale(1.05) }
     .profile-image{ width:100%; height:100%; object-fit:cover; display:block }
-    .profile-initials{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:0.875rem; font-weight:600; color:#fff; background:#0f172a; user-select:none }
+    .profile-initials{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:0.875rem; font-weight:600; color:#fff; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); user-select:none }
     .profile-dropdown{ position:fixed; top:0; left:0; right:0; bottom:0; z-index:100 }
     .dropdown-overlay{ position:absolute; top:0; left:0; right:0; bottom:0; background:transparent }
     .dropdown-content{ position:absolute; top:70px; right:1.5rem; width:220px; background:var(--color-bg); border:1px solid var(--color-border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.15); overflow:hidden; animation:dropdown-appear 0.2s ease }
@@ -213,7 +214,7 @@ import { AuthService } from '../../services/auth.service';
     .sidebar-user{ display:flex; align-items:center; gap:0.75rem; padding:0.75rem; background:var(--color-hover); border-radius:8px; position:relative }
     .sidebar-avatar{ width:40px; height:40px; border-radius:50%; overflow:hidden; flex-shrink:0; border:2px solid var(--color-border) }
     .sidebar-avatar img{ width:100%; height:100%; object-fit:cover; display:block }
-    .sidebar-avatar-initials{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:0.875rem; font-weight:600; color:#fff; background:#0f172a }
+    .sidebar-avatar-initials{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:0.875rem; font-weight:600; color:#fff; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%) }
     .sidebar-user-info{ flex:1; min-width:0 }
     .sidebar-user-email{ font-size:0.875rem; font-weight:500; color:var(--color-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
     .sidebar-settings-btn{ display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; border:none; background:transparent; color:var(--color-text-secondary); border-radius:6px; cursor:pointer; transition:var(--transition); flex-shrink:0 }

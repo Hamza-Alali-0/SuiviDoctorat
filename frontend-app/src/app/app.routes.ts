@@ -5,7 +5,6 @@ import { AuthPage } from './pages/auth/auth';
 import { DashboardPage, DocumentsPage, AddDocumentPage, ProfilePage, SoutenancesPage, CampaignsPage } from './pages/candidat';
 import { AdminDashboard } from './pages/admin/admin-dashboard';
 import { AdminCampagnesComponent } from './pages/admin/admin-campagnes/admin-campagnes';
-import { AdminUsersComponent } from './pages/admin/admin-users/admin-users';
 import { ProfileSelectionPage } from './pages/profile-selection/profile-selection';
 import { SoutenancePremiumPage } from './pages/soutenance/soutenance-premium';
 import { EncadrantDashboardPremiumPage } from './pages/encadrant/encadrant-dashboard-premium';
@@ -18,7 +17,6 @@ export const routes: Routes = [
   { path: 'profile-selection', component: ProfileSelectionPage },
   { path: 'admin', component: AdminDashboard },
   { path: 'admin/campagnes', component: AdminCampagnesComponent },
-  { path: 'admin/users', component: AdminUsersComponent },
   { path: 'soutenance', component: SoutenancePremiumPage },
   // Public campaigns listing (accessible without authentication)
   { path: 'campaigns', loadComponent: () => import('./pages/start-page/campaigns/campaigns').then(m => m.CampaignsPage) },

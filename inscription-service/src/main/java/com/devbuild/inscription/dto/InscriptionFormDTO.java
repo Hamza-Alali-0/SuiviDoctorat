@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class InscriptionFormDTO {
 
     // Doctorant personal information
-    private Long doctorantId; // null for new inscription, set for reinscription
+    private Long doctorantId;
     private String prenom;
     private String nom;
     private String email;

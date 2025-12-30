@@ -9,8 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Serve uploads directory
-        // "file:uploads/" assumes the uploads folder is in the working directory of the application
+
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/");
     }
