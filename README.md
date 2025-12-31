@@ -36,7 +36,7 @@
 
 ## About The Project
 
-<a href="https://github.com/Hamza-Alali-0/BudgetPlanner">
+<a href="https://github.com/Hamza-Alali-0/SuiviDoctorat">
     <img src="screens/home1.png" alt="Home Page" width="600">
 </a>
 
