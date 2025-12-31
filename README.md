@@ -103,7 +103,7 @@ These services communicate over HTTP, register with Eureka for discovery, and fe
 
 Here are some screenshots of the project:
 
-| Dashboard                   |  Management screen        | Signup screen      |
+| How it works                |  Creators                 | Signup screen      |
 | --------------------------- | ------------------------- | ----------------------- |
 | ![dashboard][dashboard-img] | ![students][students-img] | ![defense][defense-img] |
 
