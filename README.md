@@ -36,6 +36,10 @@
 
 ## About The Project
 
+<a href="https://github.com/Hamza-Alali-0/BudgetPlanner">
+    <img src="screens/home1.png" alt="Home Page" width="600">
+</a>
+
 Suivi Doctorat is a distributed PhD management platform built as a set of Spring Boot microservices and an Angular frontend. The system includes services for discovery, API gateway routing, authentication, student registration, defense scheduling, and notifications. It supports:
 
 - **Student Registration**: Manage doctoral student enrollment and academic information.
@@ -99,13 +103,13 @@ These services communicate over HTTP, register with Eureka for discovery, and fe
 
 Here are some screenshots of the project:
 
-| Dashboard                   | Student Management        | Defense Scheduling      |
+| Dashboard                   |  Management screen        | Signup screen      |
 | --------------------------- | ------------------------- | ----------------------- |
 | ![dashboard][dashboard-img] | ![students][students-img] | ![defense][defense-img] |
 
-[dashboard-img]: screens/Admin/admin_dashboard.png
-[students-img]: screens/user/home/home2.png
-[defense-img]: screens/user/RESERVATION2.png
+[dashboard-img]: screens/HOME2.png
+[students-img]: screens/CREATORS.png
+[defense-img]: screens/SIGNUP.png
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -166,8 +170,15 @@ Adjust configuration in `config-repo/*.yml` files for database URLs, ports, and 
 
 ## Contact
 
-Project Author - Contact information
+Hamza Alali - [hamza.alali.dev@gmail.com](mailto:hamza.alali.dev@gmail.com)
 
-Project Link: Update with your repository URL
+Connect with me:
+
+- <a href="https://dev.to/@hamzaalali0" target="_blank"><img src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=dev.to&logoColor=white" alt="Dev.to"></a>
+- <a href="https://www.linkedin.com/in/hamza--alali" target="_blank"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+- <a href="https://github.com/hamza-alali-0" target="_blank"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+- <a href="https://www.instagram.com/alalihamza.0/" target="_blank"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram"></a>
+
+Project Link: [https://github.com/Hamza-Alali-0/SuiviDoctorat.git](https://github.com/Hamza-Alali-0/SuiviDoctorat.git)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
