@@ -3,9 +3,9 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h3 align="center">Reservation Hotel</h3>
+  <h3 align="center">Suivi Doctorat</h3>
   <p align="center">
-    A microservices-based hotel reservation system for searching hotels, booking rooms, and managing reservations.
+    A microservices-based PhD tracking and management system for doctoral student registration, defense scheduling, and administrative oversight.
   </p>
 </div>
 
@@ -35,32 +35,30 @@
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
-<a href="https://github.com/Hamza-Alali-0/BudgetPlanner">
-    <img src="screens/user/home/home.png" alt="Home Page" width="600">
-</a>
 
-Reservation Hotel is a distributed hotel reservation platform built as a set of Spring Boot microservices and a Vite/React frontend. The system includes services for discovery, API gateway routing, authentication, hotel data, and reservations. It supports:
+Suivi Doctorat is a distributed PhD management platform built as a set of Spring Boot microservices and an Angular frontend. The system includes services for discovery, API gateway routing, authentication, student registration, defense scheduling, and notifications. It supports:
 
-- **Search & Discovery**: Browse and filter hotels by location, rating, and availability.
-- **Hotel Details**: View hotel information, images, amenities, and room types.
-- **Bookings**: Reserve rooms with date ranges and receive reservation confirmations.
-- **User Accounts**: Sign up, sign in, and manage user reservations (via `auth-service`).
-- **Admin Features**: Admin dashboard to manage hotels and reservations.
-- **Microservices**: Designed to run as modular services (see `api-gateway`, `auth-service`, `eureka-server`, `hotel-service`, `reservation-service`, `frontend`).
+- **Student Registration**: Manage doctoral student enrollment and academic information.
+- **Defense Management**: Schedule and track PhD defense sessions (soutenances).
+- **Authentication & Authorization**: Secure user management with role-based access control.
+- **Notifications**: Automated email/SMS notifications for important events and deadlines.
+- **Centralized Configuration**: Dynamic configuration management across all services.
+- **Admin Features**: Administrative dashboard for managing students, defenses, and system oversight.
+- **Microservices Architecture**: Designed to run as modular services (see `config-server`, `eureka-server`, `gateway`, `gestion-auth-service`, `inscription-service`, `soutenance-service`, `notification-service`, `frontend-app`).
 
 ### Built With
 
 This project is built with the following technologies:
 
-* [![Java][Java.com]][Java-url]
-* [![Spring Boot][SpringBoot.com]][SpringBoot-url]
-* [![Spring Cloud][SpringCloud.com]][SpringCloud-url]
-* [![Maven][Maven.com]][Maven-url]
-* [![Vite][Vite.com]][Vite-url]
-* [![React][React.com]][React-url]
-* [![MySQL][MySQL.com]][MySQL-url]
+- [![Java][Java.com]][Java-url]
+- [![Spring Boot][SpringBoot.com]][SpringBoot-url]
+- [![Spring Cloud][SpringCloud.com]][SpringCloud-url]
+- [![Maven][Maven.com]][Maven-url]
+- [![Angular][Angular.com]][Angular-url]
+- [![MySQL][MySQL.com]][MySQL-url]
 
 <!-- Reference-style links for images -->
+
 [Java.com]: https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white
 [Java-url]: https://www.java.com/
 [SpringBoot.com]: https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=spring&logoColor=white
@@ -69,10 +67,8 @@ This project is built with the following technologies:
 [SpringCloud-url]: https://spring.io/projects/spring-cloud
 [Maven.com]: https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white
 [Maven-url]: https://maven.apache.org/
-[Vite.com]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
-[Vite-url]: https://vitejs.dev/
-[React.com]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black
-[React-url]: https://reactjs.org/
+[Angular.com]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
+[Angular-url]: https://angular.io/
 [MySQL.com]: https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white
 [MySQL-url]: https://www.mysql.com/
 
@@ -84,14 +80,16 @@ This project is built with the following technologies:
 
 The repo is organized into multiple services (each with its own `pom.xml`):
 
-- `eureka-server` — service discovery
-- `api-gateway` — routing and edge concerns
-- `auth-service` — user authentication and authorization
-- `hotel-service` — hotel data and search
-- `reservation-service` — booking and reservation handling
-- `frontend` — Vite + React single-page application
+- `config-server` — centralized configuration management for all microservices
+- `eureka-server` — service discovery and registration
+- `gateway` — API gateway for routing and edge concerns
+- `gestion-auth-service` — user authentication and authorization with role management
+- `inscription-service` — doctoral student registration and profile management
+- `soutenance-service` — PhD defense scheduling, jury management, and tracking
+- `notification-service` — automated notifications (email/SMS) for events and deadlines
+- `frontend-app` — Angular single-page application
 
-These services communicate over HTTP and register with Eureka for discovery.
+These services communicate over HTTP, register with Eureka for discovery, and fetch their configuration from the config-server at startup.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -101,13 +99,14 @@ These services communicate over HTTP and register with Eureka for discovery.
 
 Here are some screenshots of the project:
 
-| Home/Search         | Hotel Detail          | Reservation/Checkout |
-| ------------------- | --------------------- | -------------------- |
-| ![hotel][hotel-img] | ![hotel2][hotel2-img] | ![hotel3][hotel3-img]  |
+| Dashboard                   | Student Management        | Defense Scheduling      |
+| --------------------------- | ------------------------- | ----------------------- |
+| ![dashboard][dashboard-img] | ![students][students-img] | ![defense][defense-img] |
 
-[hotel-img]: screens/Admin/admin_dashboard.png
-[hotel2-img]: screens/user/home/home2.png
-[hotel3-img]: screens/user/RESERVATION2.png
+[dashboard-img]: screens/Admin/admin_dashboard.png
+[students-img]: screens/user/home/home2.png
+[defense-img]: screens/user/RESERVATION2.png
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
@@ -128,41 +127,47 @@ To run the project locally, follow these steps for a minimal development setup.
 1. Clone the repository
 
 ```sh
-git clone [<repo-url-or-local-path>](https://github.com/Hamza-Alali-0/HotelReservation.git)
+git clone <repo-url>
 ```
 
-2. Configure MySQL and import initial SQL files found in each service (for example `auth-service/init-users.sql` and `hotel-service/data.sql`).
+2. Configure MySQL databases for each service and import initial SQL files if provided (check `inscription-service/db/migration_module2.sql`).
 
-3. Build and run backend services (from repo root):
+3. Update configuration files in `config-repo/` directory:
+
+   - `application.yml` - common configuration
+   - `gateway.yml` - gateway routing rules
+   - `gestion-auth-service.yml` - authentication service config
+   - `inscription-service.yml` - registration service config
+   - `soutenance-service.yml` - defense service config
+   - `notification-service.yml` - notification service config
+
+4. Build and run backend services in order (from repo root):
 
 ```sh
-mvn -T 1C clean install
-mvn -pl eureka-server,auth-service,hotel-service,reservation-service,api-gateway spring-boot:run
+mvn clean install
+# Start in this order:
+mvn -pl config-server spring-boot:run
+mvn -pl eureka-server spring-boot:run
+mvn -pl gateway spring-boot:run
+mvn -pl gestion-auth-service,inscription-service,soutenance-service,notification-service spring-boot:run
 ```
 
-4. Run the frontend (open a separate terminal):
+5. Run the Angular frontend (open a separate terminal):
 
 ```sh
-cd frontend
+cd frontend-app
 npm install
-npm run dev
+npm start
 ```
 
-Adjust configuration in each service's `application.yml` under `src/main/resources` for database URLs and ports if needed.
+Adjust configuration in `config-repo/*.yml` files for database URLs, ports, and service endpoints as needed.
 
 <a id="contact"></a>
 
 ## Contact
 
-Hamza Alali - [hamza.alali.dev@gmail.com](mailto:hamza.alali.dev@gmail.com)
+Project Author - Contact information
 
-Connect with me:
-
-- <a href="https://dev.to/@hamzaalali0" target="_blank"><img src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=dev.to&logoColor=white" alt="Dev.to"></a>
-- <a href="https://www.linkedin.com/in/hamza--alali" target="_blank"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-- <a href="https://github.com/hamza-alali-0" target="_blank"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
-- <a href="https://www.instagram.com/alalihamza.0/" target="_blank"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram"></a>
-
-Project Link: [https://github.com/Hamza-Alali-0/HotelReservation.git](https://github.com/Hamza-Alali-0/HotelReservation.git)
+Project Link: Update with your repository URL
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
